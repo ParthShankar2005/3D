@@ -792,12 +792,68 @@
           glassCard.classList.add('visible');
           instruction.style.opacity = '0';
           scanReticle.style.opacity = '0';
+          
+          const portalNode = document.querySelector('#portal-group');
+          if (portalNode) {
+            portalNode.setAttribute('visible', 'true');
+            
+            // Animate Ashoka Chakra coming from behind the card (scale and position slide)
+            const chakra = document.querySelector('#ashoka-chakra-mesh');
+            if (chakra) {
+              chakra.setAttribute('animation', {
+                property: 'scale',
+                from: '0 0 0',
+                to: '0.45 0.45 0.45',
+                dur: 1500,
+                easing: 'easeOutElastic'
+              });
+              chakra.setAttribute('animation__pos', {
+                property: 'position',
+                from: '0 0 -0.5',
+                to: '0 0 0.02',
+                dur: 1500,
+                easing: 'easeOutQuad'
+              });
+            }
+            
+            // Animate luxury gemstone scaling up with a slight delay
+            const gems = document.querySelector('#luxury-gemstone');
+            if (gems) {
+              gems.setAttribute('animation', {
+                property: 'scale',
+                from: '0 0 0',
+                to: '0.8 0.8 0.8',
+                dur: 1500,
+                delay: 200,
+                easing: 'easeOutElastic'
+              });
+            }
+          }
         });
         
         targetEl.addEventListener("targetLost", () => {
           glassCard.classList.remove('visible');
           instruction.style.opacity = '1';
           scanReticle.style.opacity = '1';
+          
+          const portalNode = document.querySelector('#portal-group');
+          if (portalNode) {
+            portalNode.setAttribute('visible', 'false');
+            
+            // Reset animations and properties so they re-trigger next time
+            const chakra = document.querySelector('#ashoka-chakra-mesh');
+            if (chakra) {
+              chakra.removeAttribute('animation');
+              chakra.removeAttribute('animation__pos');
+              chakra.setAttribute('scale', '0 0 0');
+              chakra.setAttribute('position', '0 0 -0.5');
+            }
+            const gems = document.querySelector('#luxury-gemstone');
+            if (gems) {
+              gems.removeAttribute('animation');
+              gems.setAttribute('scale', '0 0 0');
+            }
+          }
         });
       }
     });
@@ -811,6 +867,8 @@
       const simBtn = document.querySelector('.sim-btn');
       const portalNode = document.querySelector('#portal-group');
       const simBg = document.querySelector('#simulator-bg');
+      const chakra = document.querySelector('#ashoka-chakra-mesh');
+      const gems = document.querySelector('#luxury-gemstone');
       
       if (onboarding) {
         onboarding.classList.add('fade-out');
@@ -823,6 +881,18 @@
         portalNode.setAttribute('visible', 'false');
         simBg.style.display = "none";
         simBtn.innerText = "Simulate Scan (On)";
+        
+        // Reset scale & position in simulation
+        if (chakra) {
+          chakra.removeAttribute('animation');
+          chakra.removeAttribute('animation__pos');
+          chakra.setAttribute('scale', '0 0 0');
+          chakra.setAttribute('position', '0 0 -0.5');
+        }
+        if (gems) {
+          gems.removeAttribute('animation');
+          gems.setAttribute('scale', '0 0 0');
+        }
       } else {
         glassCard.classList.add('visible');
         instruction.style.opacity = '0';
@@ -830,6 +900,15 @@
         portalNode.setAttribute('visible', 'true');
         simBg.style.display = "block";
         simBtn.innerText = "Simulate Scan (Off)";
+        
+        // Show at full scale in simulation
+        if (chakra) {
+          chakra.setAttribute('scale', '0.45 0.45 0.45');
+          chakra.setAttribute('position', '0 0 0.02');
+        }
+        if (gems) {
+          gems.setAttribute('scale', '0.8 0.8 0.8');
+        }
       }
     }
   </script>
@@ -945,7 +1024,7 @@
         </a-entity>
         
         <!-- 2. The 3D Ashoka Chakra (Crystal & Gold Mesh Assembly) -->
-        <a-entity id="ashoka-chakra-mesh" position="0 0 0.02" scale="0.45 0.45 0.45" antigravity="rotSpeed: 0.2; bobAmp: 0.04;">
+        <a-entity id="ashoka-chakra-mesh" position="0 0 -0.5" scale="0 0 0" antigravity="rotSpeed: 0.2; bobAmp: 0.04;">
           <a-torus color="#FFD700" radius="0.8" tube="0.03" material="roughness: 0.1; metalness: 0.95;"></a-torus>
           <a-cylinder color="#FFD700" radius="0.12" height="0.08" rotation="90 0 0" material="roughness: 0.1; metalness: 0.95;"></a-cylinder>
           
@@ -967,7 +1046,7 @@
         </a-entity>
 
         <!-- 3. Programmatic Faceted 3D Diamond (Luxury Core of Shivam Jewels) -->
-        <a-entity id="luxury-gemstone" position="0 0 0.15" scale="0.8 0.8 0.8" antigravity="rotSpeed: -0.4; bobAmp: 0.05;">
+        <a-entity id="luxury-gemstone" position="0 0 0.15" scale="0 0 0" antigravity="rotSpeed: -0.4; bobAmp: 0.05;">
           <!-- Top Crown of the Diamond -->
           <a-cone color="#E2E8F0" radius-bottom="0.12" radius-top="0" height="0.1" open-ended="false" segments-radial="8" position="0 0.05 0" material="roughness: 0.05; metalness: 0.9; opacity: 0.85; transparent: true;"></a-cone>
           <!-- Bottom Pavilion of the Diamond -->
