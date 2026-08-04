@@ -19,7 +19,7 @@
       margin: 0;
       overflow: hidden;
       font-family: 'Montserrat', 'Segoe UI', Roboto, sans-serif;
-      background-color: #030712;
+      background-color: #252662; /* Royal blue base theme */
     }
     
     /* Loading & UI Overlay */
@@ -41,10 +41,10 @@
     
     /* Glassmorphism Invitation Card (Slides up when AR triggers) */
     .glass-card {
-      background: linear-gradient(135deg, rgba(8, 17, 32, 0.85) 0%, rgba(3, 7, 18, 0.95) 100%);
+      background: linear-gradient(135deg, rgba(37, 38, 98, 0.8) 0%, rgba(12, 12, 38, 0.95) 100%);
       backdrop-filter: blur(25px);
       -webkit-backdrop-filter: blur(25px);
-      border: 1px solid rgba(255, 215, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.25);
       border-radius: 24px;
       padding: 25px;
       width: 90%;
@@ -52,7 +52,7 @@
       color: #ffffff;
       text-align: center;
       box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 
-                  inset 0 0 20px rgba(255, 215, 0, 0.15);
+                  inset 0 0 20px rgba(37, 38, 98, 0.3);
       pointer-events: auto;
       transform: translateY(150%);
       transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1), opacity 1.2s ease;
@@ -68,17 +68,18 @@
       font-family: 'Cinzel', serif;
       font-size: 1.5rem;
       letter-spacing: 5px;
-      color: #ffd700;
+      color: #ffffff; /* White text brand header */
       margin: 0 0 4px 0;
       text-transform: uppercase;
       font-weight: 800;
-      text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+      text-shadow: 0 0 15px rgba(255, 255, 255, 0.6), 0 0 25px rgba(255, 215, 0, 0.3);
     }
     
     .brand-subtitle {
       font-size: 0.75rem;
       letter-spacing: 3px;
-      color: #cbd5e1;
+      color: #ffffff;
+      opacity: 0.85;
       margin: 0 0 15px 0;
       text-transform: uppercase;
       font-weight: 300;
@@ -86,21 +87,22 @@
     
     .card-divider {
       height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.6), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
       margin: 15px 0;
     }
     
     .invitation-text {
       font-size: 0.88rem;
       line-height: 1.6;
-      color: #e2e8f0;
+      color: #ffffff;
       margin-bottom: 20px;
       font-weight: 300;
     }
     
     .invitation-text strong {
-      color: #ffd700;
+      color: #ffffff;
       font-weight: 600;
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
     }
 
     /* RSVP Section styling */
@@ -118,9 +120,9 @@
     }
     
     .ar-btn {
-      background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
-      border: none;
-      color: #000;
+      background: linear-gradient(135deg, #252662 0%, #15153a 100%);
+      border: 1px solid rgba(255, 215, 0, 0.6);
+      color: #ffffff;
       padding: 10px 24px;
       font-size: 0.8rem;
       font-weight: bold;
@@ -128,12 +130,12 @@
       border-radius: 20px;
       cursor: pointer;
       text-transform: uppercase;
-      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+      box-shadow: 0 4px 15px rgba(37, 38, 98, 0.5);
       transition: all 0.3s ease;
     }
 
     .ar-btn:hover {
-      box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3), 0 0 10px rgba(37, 38, 98, 0.6);
       transform: translateY(-1px);
     }
     
@@ -143,35 +145,35 @@
 
     .ar-btn.secondary {
       background: transparent;
-      border: 1px solid rgba(255, 215, 0, 0.5);
-      color: #ffd700;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      color: #ffffff;
       box-shadow: none;
     }
 
     .ar-btn.secondary:hover {
-      background: rgba(255, 215, 0, 0.1);
+      background: rgba(255, 255, 255, 0.1);
     }
 
     .rsvp-success-msg {
       font-family: 'Cinzel', serif;
       font-size: 1.1rem;
-      color: #ffd700;
+      color: #ffffff;
       margin-top: 15px;
       animation: pulseGlow 2s infinite ease-in-out;
     }
 
     @keyframes pulseGlow {
-      0%, 100% { text-shadow: 0 0 5px rgba(255,215,0,0.2); }
-      50% { text-shadow: 0 0 15px rgba(255,215,0,0.8); }
+      0%, 100% { text-shadow: 0 0 5px rgba(255,255,255,0.2); }
+      50% { text-shadow: 0 0 15px rgba(255,255,255,0.8); }
     }
     
     /* Tracking instructions */
     .instruction-box {
-      background: rgba(3, 7, 18, 0.9);
-      border: 1px solid rgba(255, 215, 0, 0.25);
+      background: rgba(37, 38, 98, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.25);
       border-radius: 30px;
       padding: 12px 24px;
-      color: #fff;
+      color: #ffffff;
       font-size: 0.8rem;
       letter-spacing: 1px;
       text-align: center;
@@ -212,8 +214,8 @@
       border-radius: 20px;
       opacity: 0.18; /* Light and transparent */
       filter: sepia(1) saturate(8) hue-rotate(15deg) brightness(1.2) contrast(1.1);
-      border: 1px solid rgba(255, 215, 0, 0.35);
-      box-shadow: inset 0 0 30px rgba(255, 215, 0, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: inset 0 0 30px rgba(37, 38, 98, 0.5);
     }
     
     /* Glowing corners */
@@ -221,10 +223,10 @@
       position: absolute;
       width: 24px;
       height: 24px;
-      border-color: #ffd700;
+      border-color: #ffffff;
       border-style: solid;
       border-width: 0;
-      filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.8));
+      filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8));
       animation: cornerPulse 2s infinite ease-in-out;
     }
     .top-left { top: -2px; left: -2px; border-top-width: 4px; border-left-width: 4px; border-top-left-radius: 12px; }
@@ -242,8 +244,8 @@
       position: absolute;
       width: 100%;
       height: 3px;
-      background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.9), transparent);
-      box-shadow: 0 0 15px rgba(255, 215, 0, 0.9);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9), transparent);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
       left: 0;
       animation: scanSweep 3.5s infinite ease-in-out;
       z-index: 6;
@@ -259,7 +261,7 @@
     /* Self-Mapping Rays Animation */
     .mapping-ray {
       position: absolute;
-      background: linear-gradient(to bottom, rgba(255, 215, 0, 0.15), transparent);
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.15), transparent);
       width: 1px;
       height: 100%;
       transform-origin: top center;
@@ -283,7 +285,7 @@
       width: 100%;
       height: 100%;
       z-index: 100;
-      background: radial-gradient(circle at center, rgba(8, 17, 32, 0.98) 0%, rgba(3, 7, 18, 1) 100%);
+      background: radial-gradient(circle at center, rgba(37, 38, 98, 0.98) 0%, rgba(12, 12, 38, 1) 100%);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -301,17 +303,17 @@
     }
     
     .onboarding-card {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+      background: linear-gradient(135deg, rgba(37, 38, 98, 0.55) 0%, rgba(12, 12, 38, 0.8) 100%);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 215, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 28px;
       padding: 40px 30px;
       width: 90%;
       max-width: 400px;
       text-align: center;
       box-shadow: 0 30px 70px rgba(0, 0, 0, 0.9),
-                  inset 0 0 30px rgba(255, 215, 0, 0.05);
+                  inset 0 0 30px rgba(255, 255, 255, 0.05);
       animation: cardFloat 6s ease-in-out infinite;
     }
     
@@ -324,17 +326,18 @@
       font-family: 'Cinzel', serif;
       font-size: 1.8rem;
       letter-spacing: 6px;
-      color: #ffd700;
+      color: #ffffff;
       margin: 0 0 5px 0;
       font-weight: 800;
       text-transform: uppercase;
-      text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
     }
     
     .onboarding-subtitle {
       font-size: 0.8rem;
       letter-spacing: 4px;
-      color: #cbd5e1;
+      color: #ffffff;
+      opacity: 0.85;
       margin: 0 0 25px 0;
       text-transform: uppercase;
       font-weight: 300;
@@ -343,21 +346,22 @@
     .onboarding-desc {
       font-size: 0.9rem;
       line-height: 1.7;
-      color: #e2e8f0;
+      color: #ffffff;
       margin-bottom: 30px;
       font-weight: 300;
     }
     
     .onboarding-desc strong {
-      color: #ffd700;
+      color: #ffffff;
       font-weight: 600;
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
     }
     
     /* Luxury Gold Button */
     .luxury-btn {
-      background: linear-gradient(135deg, #ffd700 0%, #d4af37 50%, #aa7c11 100%);
-      border: none;
-      color: #030712;
+      background: linear-gradient(135deg, #252662 0%, #15153a 100%);
+      border: 1px solid rgba(255, 215, 0, 0.6);
+      color: #ffffff;
       padding: 16px 36px;
       font-size: 0.85rem;
       font-weight: 700;
@@ -365,7 +369,7 @@
       border-radius: 30px;
       cursor: pointer;
       text-transform: uppercase;
-      box-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
+      box-shadow: 0 0 25px rgba(37, 38, 98, 0.7);
       transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
       display: inline-flex;
       align-items: center;
@@ -373,7 +377,7 @@
     }
     
     .luxury-btn:hover {
-      box-shadow: 0 0 35px rgba(255, 215, 0, 0.6);
+      box-shadow: 0 0 35px rgba(255, 255, 255, 0.5), 0 0 15px rgba(37, 38, 98, 0.5);
       transform: translateY(-2px) scale(1.02);
     }
     
@@ -389,7 +393,7 @@
       width: 100%;
       height: 100%;
       z-index: 110;
-      background: radial-gradient(circle at center, rgba(15, 10, 10, 0.99) 0%, rgba(3, 3, 5, 1) 100%);
+      background: radial-gradient(circle at center, rgba(37, 38, 98, 0.99) 0%, rgba(12, 12, 38, 1) 100%);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -408,10 +412,10 @@
     }
     
     .error-card {
-      background: linear-gradient(135deg, rgba(255, 80, 80, 0.05) 0%, rgba(3, 7, 18, 0.9) 100%);
+      background: linear-gradient(135deg, rgba(37, 38, 98, 0.65) 0%, rgba(12, 12, 38, 0.9) 100%);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 80, 80, 0.35);
+      border: 1px solid rgba(255, 80, 80, 0.5);
       border-radius: 28px;
       padding: 40px 30px;
       width: 90%;
@@ -431,7 +435,8 @@
       font-family: 'Cinzel', serif;
       font-size: 1.4rem;
       letter-spacing: 3px;
-      color: #ff5252;
+      color: #ffffff;
+      text-shadow: 0 0 10px rgba(255, 82, 82, 0.5);
       margin: 0 0 15px 0;
       font-weight: 700;
     }
@@ -439,7 +444,7 @@
     .error-desc {
       font-size: 0.85rem;
       line-height: 1.6;
-      color: #e2e8f0;
+      color: #ffffff;
       margin-bottom: 25px;
       text-align: left;
     }
@@ -450,7 +455,7 @@
       margin-bottom: 25px;
       font-size: 0.85rem;
       line-height: 1.6;
-      color: #cbd5e1;
+      color: #ffffff;
       text-align: left;
     }
     
@@ -459,7 +464,8 @@
     }
     
     .error-steps strong {
-      color: #ffd700;
+      color: #ffffff;
+      text-decoration: underline;
     }
 
     /* Elegant Loading Overlay while AR initializes */
@@ -470,7 +476,7 @@
       width: 100%;
       height: 100%;
       z-index: 90;
-      background: #030712;
+      background: radial-gradient(circle at center, #252662 0%, #0c0d24 100%);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -488,11 +494,11 @@
     .spinner {
       width: 50px;
       height: 50px;
-      border: 3px solid rgba(255, 215, 0, 0.1);
+      border: 3px solid rgba(255, 255, 255, 0.15);
       border-radius: 50%;
-      border-top-color: #ffd700;
+      border-top-color: #ffffff;
       animation: spin 1s ease-in-out infinite;
-      filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
+      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
     }
     
     @keyframes spin {
@@ -500,7 +506,8 @@
     }
     
     .loading-text {
-      color: #ffd700;
+      color: #ffffff;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
       font-size: 0.85rem;
       letter-spacing: 2px;
       margin-top: 20px;
@@ -524,10 +531,10 @@
     }
     
     .sim-btn {
-      background: rgba(3, 7, 18, 0.85);
-      border: 1px solid rgba(255, 215, 0, 0.35);
+      background: rgba(37, 38, 98, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.35);
       backdrop-filter: blur(5px);
-      color: #ffd700;
+      color: #ffffff;
       padding: 10px 18px;
       font-size: 0.75rem;
       border-radius: 30px;
@@ -538,8 +545,8 @@
     }
     
     .sim-btn:hover {
-      background: rgba(255, 215, 0, 0.15);
-      box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
     }
 
     /* Mock camera feed background for simulator */
@@ -547,7 +554,7 @@
       position: absolute;
       width: 100%;
       height: 100%;
-      background: radial-gradient(circle, rgba(17,24,39,0.3) 0%, rgba(3,7,18,0.9) 100%);
+      background: radial-gradient(circle, rgba(37,38,98,0.3) 0%, rgba(12,12,38,0.9) 100%);
       z-index: 1;
       display: none;
     }
@@ -623,27 +630,80 @@
     }
 
     // --- Programmatic AR Startup ---
-    function startAR() {
+    async function startAR() {
       const onboarding = document.querySelector('#ar-onboarding');
       const loading = document.querySelector('#ar-loading');
+      const errorScreen = document.querySelector('#camera-error-screen');
+      const errorTitle = errorScreen.querySelector('.error-title');
+      const errorDesc = errorScreen.querySelector('.error-desc');
+      const errorSteps = errorScreen.querySelector('.error-steps');
       
       onboarding.classList.add('fade-out');
       loading.classList.add('visible');
       
-      if (arSystem) {
-        arSystem.start();
-      } else {
-        const sceneEl = document.querySelector('a-scene');
-        // If system not ready yet, wait for load
-        const startInterval = setInterval(() => {
-          arSystem = sceneEl.systems["mindar-image-system"];
-          if (arSystem) {
-            clearInterval(startInterval);
-            arSystem.start();
+      try {
+        // Check if mediaDevices API is available
+        if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+          // If HTTPS is missing, mediaDevices will be undefined
+          if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+            throw new Error("SECURE_CONTEXT_REQUIRED");
           }
-        }, 100);
+          throw new Error("API_UNSUPPORTED");
+        }
+
+        // Check if any camera exists
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const hasCamera = devices.some(device => device.kind === 'videoinput');
+        
+        if (!hasCamera) {
+          throw new Error("NO_CAMERA_DEVICE");
+        }
+
+        // Start MindAR
+        if (arSystem) {
+          arSystem.start();
+        } else {
+          const sceneEl = document.querySelector('a-scene');
+          const startInterval = setInterval(() => {
+            arSystem = sceneEl.systems["mindar-image-system"];
+            if (arSystem) {
+              clearInterval(startInterval);
+              arSystem.start();
+            }
+          }, 100);
+        }
+      } catch (err) {
+        console.error("Camera validation failed:", err);
+        loading.classList.remove('visible');
+        errorScreen.classList.add('visible');
+        
+        if (err.message === "SECURE_CONTEXT_REQUIRED") {
+          errorTitle.innerText = "Secure Connection Required";
+          errorDesc.innerHTML = "WebAR features require a secure HTTPS connection. Please load this page over HTTPS to allow camera permissions.";
+          errorSteps.innerHTML = `
+            <li>Check the URL and replace <strong>http://</strong> with <strong>https://</strong>.</li>
+            <li>If testing locally, please run a secure dev server or access via <strong>localhost</strong>.</li>
+          `;
+        } else if (err.message === "API_UNSUPPORTED" || err.message === "NO_CAMERA_DEVICE") {
+          errorTitle.innerText = "No Camera Detected";
+          errorDesc.innerHTML = "We could not detect a camera device on this system. Shivam Jewels' WebAR experience requires a camera to map the invitation card.";
+          errorSteps.innerHTML = `
+            <li>Please open this link on a <strong>mobile phone</strong> or a device with a camera.</li>
+            <li>Make sure your webcam is plugged in, active, and not in use by another app.</li>
+          `;
+        } else {
+          // Fallback generic permission prompt
+          errorTitle.innerText = "Camera Access Required";
+          errorDesc.innerHTML = "To project the 3D world of Shivam Jewels, this browser requires camera access. Please follow these quick steps:";
+          errorSteps.innerHTML = `
+            <li><strong>Tap lock icon</strong> (or site settings) in the browser address bar.</li>
+            <li>Switch the Camera permission to <strong>Allow</strong>.</li>
+            <li>Reload the page to begin the experience.</li>
+          `;
+        }
       }
     }
+
 
     // --- 1. Custom Antigravity Bobbing and Rotation Component ---
     AFRAME.registerComponent('antigravity', {
