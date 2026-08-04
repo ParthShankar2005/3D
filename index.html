@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
   <title>Shivam Jewels - 80th Independence Day WebAR Experience</title>
   
+  <!-- Premium Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+
   <!-- A-Frame (3D rendering framework) and MindAR (WebAR image tracking) -->
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.4/dist/mindar-image-aframe.prod.js"></script>
@@ -14,7 +19,7 @@
       margin: 0;
       overflow: hidden;
       font-family: 'Montserrat', 'Segoe UI', Roboto, sans-serif;
-      background-color: #050b14;
+      background-color: #030712;
     }
     
     /* Loading & UI Overlay */
@@ -31,22 +36,23 @@
       z-index: 10;
       pointer-events: none;
       box-sizing: border-box;
-      padding: 40px 20px;
+      padding: 30px 20px;
     }
     
     /* Glassmorphism Invitation Card (Slides up when AR triggers) */
     .glass-card {
-      background: rgba(5, 12, 24, 0.65);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      background: linear-gradient(135deg, rgba(8, 17, 32, 0.75) 0%, rgba(3, 7, 18, 0.85) 100%);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
       border: 1px solid rgba(255, 215, 0, 0.35);
-      border-radius: 20px;
+      border-radius: 24px;
       padding: 25px;
       width: 90%;
-      max-width: 360px;
+      max-width: 380px;
       color: #ffffff;
       text-align: center;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(255, 215, 0, 0.15);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 
+                  inset 0 0 20px rgba(255, 215, 0, 0.1);
       pointer-events: auto;
       transform: translateY(150%);
       transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1), opacity 1.2s ease;
@@ -59,21 +65,23 @@
     }
     
     .brand-title {
-      font-size: 1.4rem;
-      letter-spacing: 4px;
+      font-family: 'Cinzel', serif;
+      font-size: 1.5rem;
+      letter-spacing: 5px;
       color: #ffd700;
-      margin: 0 0 5px 0;
+      margin: 0 0 4px 0;
       text-transform: uppercase;
-      font-weight: 700;
-      text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+      font-weight: 800;
+      text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
     }
     
     .brand-subtitle {
-      font-size: 0.8rem;
-      letter-spacing: 2px;
-      color: #e2e8f0;
-      margin-bottom: 20px;
+      font-size: 0.75rem;
+      letter-spacing: 3px;
+      color: #cbd5e1;
+      margin: 0 0 15px 0;
       text-transform: uppercase;
+      font-weight: 300;
     }
     
     .card-divider {
@@ -83,45 +91,94 @@
     }
     
     .invitation-text {
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       line-height: 1.6;
-      color: #cbd5e1;
+      color: #e2e8f0;
       margin-bottom: 20px;
+      font-weight: 300;
+    }
+    
+    .invitation-text strong {
+      color: #ffd700;
+      font-weight: 600;
+    }
+
+    /* RSVP Section styling */
+    .rsvp-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .rsvp-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
     }
     
     .ar-btn {
       background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
       border: none;
       color: #000;
-      padding: 12px 30px;
-      font-size: 0.9rem;
+      padding: 10px 24px;
+      font-size: 0.8rem;
       font-weight: bold;
-      letter-spacing: 2px;
-      border-radius: 30px;
+      letter-spacing: 1.5px;
+      border-radius: 20px;
       cursor: pointer;
       text-transform: uppercase;
-      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
       transition: all 0.3s ease;
+    }
+
+    .ar-btn:hover {
+      box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+      transform: translateY(-1px);
     }
     
     .ar-btn:active {
-      transform: scale(0.95);
+      transform: scale(0.96);
+    }
+
+    .ar-btn.secondary {
+      background: transparent;
+      border: 1px solid rgba(255, 215, 0, 0.5);
+      color: #ffd700;
+      box-shadow: none;
+    }
+
+    .ar-btn.secondary:hover {
+      background: rgba(255, 215, 0, 0.1);
+    }
+
+    .rsvp-success-msg {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      color: #ffd700;
+      margin-top: 15px;
+      animation: pulseGlow 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { text-shadow: 0 0 5px rgba(255,215,0,0.2); }
+      50% { text-shadow: 0 0 15px rgba(255,215,0,0.8); }
     }
     
     /* Tracking instructions */
     .instruction-box {
-      background: rgba(0, 0, 0, 0.75);
-      border: 1px solid rgba(255, 215, 0, 0.2);
+      background: rgba(3, 7, 18, 0.85);
+      border: 1px solid rgba(255, 215, 0, 0.25);
       border-radius: 30px;
       padding: 12px 24px;
       color: #fff;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       letter-spacing: 1px;
       text-align: center;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.8);
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       transition: opacity 0.5s ease;
       pointer-events: auto;
     }
@@ -131,8 +188,8 @@
       position: absolute;
       width: 280px;
       height: 380px;
-      border: 2px dashed rgba(255, 215, 0, 0.4);
-      border-radius: 20px;
+      border: 2px dashed rgba(255, 215, 0, 0.3);
+      border-radius: 24px;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
@@ -144,25 +201,25 @@
     .scan-target::before {
       content: '';
       position: absolute;
-      width: 20px;
-      height: 20px;
+      width: 25px;
+      height: 25px;
       border-top: 4px solid #ffd700;
       border-left: 4px solid #ffd700;
       top: -2px;
       left: -2px;
-      border-top-left-radius: 10px;
+      border-top-left-radius: 12px;
     }
     
     .scan-target::after {
       content: '';
       position: absolute;
-      width: 20px;
-      height: 20px;
+      width: 25px;
+      height: 25px;
       border-bottom: 4px solid #ffd700;
       border-right: 4px solid #ffd700;
       bottom: -2px;
       right: -2px;
-      border-bottom-right-radius: 10px;
+      border-bottom-right-radius: 12px;
     }
     
     /* Developer Simulation Trigger */
@@ -175,32 +232,109 @@
     }
     
     .sim-btn {
-      background: rgba(0, 0, 0, 0.6);
-      border: 1px solid rgba(255, 215, 0, 0.4);
+      background: rgba(3, 7, 18, 0.85);
+      border: 1px solid rgba(255, 215, 0, 0.35);
       backdrop-filter: blur(5px);
       color: #ffd700;
-      padding: 8px 16px;
+      padding: 10px 18px;
       font-size: 0.75rem;
       border-radius: 30px;
       cursor: pointer;
       letter-spacing: 1px;
-      font-weight: bold;
+      font-weight: 600;
       transition: all 0.3s ease;
     }
     
     .sim-btn:hover {
-      background: rgba(255, 215, 0, 0.2);
-      box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+      background: rgba(255, 215, 0, 0.15);
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+    }
+
+    /* Mock camera feed background for simulator */
+    #simulator-bg {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(17,24,39,0.3) 0%, rgba(3,7,18,0.9) 100%);
+      z-index: 1;
+      display: none;
     }
   </style>
   
   <script>
+    // Configuration
+    const BACKEND_URL = "http://localhost:8080"; // Update with production backend URL if deployed
+    let guestId = null;
+
+    // Retrieve guest parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    guestId = urlParams.get('guest') || urlParams.get('id');
+
+    // Fetch personalized greeting from API
+    async function loadGuestGreeting() {
+      if (!guestId) return;
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/welcome/${guestId}`);
+        if (response.ok) {
+          const data = await response.json();
+          document.querySelector('.brand-title').innerText = `Welcome, ${data.name}`;
+          document.querySelector('.invitation-text').innerHTML = data.greeting;
+          
+          // Show RSVP option instead of default link if not yet answered
+          if (data.rsvp_status === 'PENDING') {
+            document.querySelector('.rsvp-container').innerHTML = `
+              <div class="rsvp-buttons">
+                <button class="ar-btn" onclick="submitRSVP('ATTENDING')">Accept</button>
+                <button class="ar-btn secondary" onclick="submitRSVP('DECLINED')">Decline</button>
+              </div>
+            `;
+          } else {
+            showRSVPDone(data.rsvp_status);
+          }
+        }
+      } catch (err) {
+        console.warn("FastAPI backend offline, loading local guest preview...", err);
+        // Local developer fallback for simulation testing
+        if (guestId === 'vip-guest') {
+          document.querySelector('.brand-title').innerText = "Welcome, Mr. Shankar";
+          document.querySelector('.invitation-text').innerHTML = "We are deeply honored to invite you to celebrate 80 years of Indian Independence and Shivam Jewels' legacy of fine diamonds.";
+        }
+      }
+    }
+
+    async function submitRSVP(status) {
+      if (!guestId) return;
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/rsvp/${guestId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status })
+        });
+        if (response.ok) {
+          showRSVPDone(status);
+        }
+      } catch (err) {
+        console.error("Failed to submit RSVP", err);
+        // Simulation UI update fallback
+        showRSVPDone(status);
+      }
+    }
+
+    function showRSVPDone(status) {
+      const container = document.querySelector('.rsvp-container');
+      if (status === 'ATTENDING') {
+        container.innerHTML = `<div class="rsvp-success-msg">✨ Attending — Thank You!</div>`;
+      } else {
+        container.innerHTML = `<div class="rsvp-success-msg" style="color: #cbd5e1;">Declined — Thank You.</div>`;
+      }
+    }
+
     // --- 1. Custom Antigravity Bobbing and Rotation Component ---
     AFRAME.registerComponent('antigravity', {
       schema: {
-        bobSpeed: {type: 'number', default: 0.0015},
-        bobAmp: {type: 'number', default: 0.08},
-        rotSpeed: {type: 'number', default: 0.3}
+        bobSpeed: {type: 'number', default: 0.0012},
+        bobAmp: {type: 'number', default: 0.05},
+        rotSpeed: {type: 'number', default: 0.2}
       },
       init: function() {
         this.initialY = this.el.object3D.position.y;
@@ -215,34 +349,34 @@
       }
     });
 
-    // --- 2. Tricolor Particle Generator (Rising Energy Particles) ---
+    // --- 2. Tricolor Particle Generator (Rising Vortex Particle Engine) ---
     AFRAME.registerComponent('rising-particles', {
       init: function() {
-        this.particleCount = 60;
-        this.colors = ['#FF9933', '#FFFFFF', '#138808', '#FFD700']; // Saffron, White, Green, Gold
+        this.particleCount = 80;
+        // Rich Tricolor Saffron (#FF8F00), Pure White (#FFFFFF), Deep Green (#1B5E20), and Luxury Gold (#FFD700)
+        this.colors = ['#FF8F00', '#FFFFFF', '#1B5E20', '#FFD700'];
         this.particles = [];
         
         for (let i = 0; i < this.particleCount; i++) {
           const el = document.createElement('a-entity');
           
-          // Spawning positions in a cylinder around the center portal
-          const radius = Math.random() * 1.0;
+          // Spawn in a spiral coordinates path
           const angle = Math.random() * Math.PI * 2;
+          const radius = Math.random() * 0.9 + 0.1;
           const x = Math.cos(angle) * radius;
-          const y = (Math.random() * 2.5) - 1.25;
-          const z = (Math.sin(angle) * radius);
+          const y = (Math.random() * 3.0) - 1.5;
+          const z = Math.sin(angle) * radius;
           
           el.setAttribute('geometry', {
             primitive: 'sphere',
-            radius: Math.random() * 0.015 + 0.005
+            radius: Math.random() * 0.012 + 0.004
           });
           
-          // Distribute Indian Tricolor & Luxury Gold
           const color = this.colors[Math.floor(Math.random() * this.colors.length)];
           el.setAttribute('material', {
             color: color,
             shader: 'flat',
-            opacity: Math.random() * 0.7 + 0.3
+            opacity: Math.random() * 0.75 + 0.25
           });
           
           el.setAttribute('position', { x, y, z });
@@ -251,10 +385,10 @@
           this.particles.push({
             el: el,
             speed: Math.random() * 0.006 + 0.003,
-            amplitude: Math.random() * 0.04,
-            phase: Math.random() * Math.PI * 2,
-            initialX: x,
-            initialZ: z
+            rotSpeed: Math.random() * 0.001 + 0.0005,
+            radius: radius,
+            angle: angle,
+            initialY: y
           });
         }
       },
@@ -263,16 +397,16 @@
           let pos = p.el.getAttribute('position');
           if (!pos) return;
           
-          // Rising physics
+          // Vortex spiral math: rise and rotate around the Y axis
+          p.angle += p.rotSpeed * timeDelta;
           pos.y += p.speed;
+          pos.x = Math.cos(p.angle) * p.radius;
+          pos.z = Math.sin(p.angle) * p.radius;
           
-          // Floating sway
-          pos.x = p.initialX + Math.sin(time * 0.002 + p.phase) * p.amplitude;
-          
-          // Reset at top threshold to generate infinite flow loop
-          if (pos.y > 1.5) {
-            pos.y = -1.25;
-            pos.x = p.initialX;
+          // Reset when particle floats too high
+          if (pos.y > 1.8) {
+            pos.y = -1.5;
+            p.angle = Math.random() * Math.PI * 2;
           }
           p.el.setAttribute('position', pos);
         });
@@ -281,20 +415,20 @@
 
     // --- AR Target Camera Event Listeners ---
     document.addEventListener("DOMContentLoaded", () => {
+      loadGuestGreeting();
+      
       const targetEl = document.querySelector('#ar-target');
       const glassCard = document.querySelector('.glass-card');
       const instruction = document.querySelector('.instruction-box');
       const scanReticle = document.querySelector('.scan-target');
       
       if (targetEl) {
-        // Detected! (60-75% area visible)
         targetEl.addEventListener("targetFound", () => {
           glassCard.classList.add('visible');
           instruction.style.opacity = '0';
           scanReticle.style.opacity = '0';
         });
         
-        // Tracking lost
         targetEl.addEventListener("targetLost", () => {
           glassCard.classList.remove('visible');
           instruction.style.opacity = '1';
@@ -310,24 +444,30 @@
       const scanReticle = document.querySelector('.scan-target');
       const simBtn = document.querySelector('.sim-btn');
       const portalNode = document.querySelector('#portal-group');
+      const simBg = document.querySelector('#simulator-bg');
       
       if (glassCard.classList.contains('visible')) {
         glassCard.classList.remove('visible');
         instruction.style.opacity = '1';
         scanReticle.style.opacity = '1';
         portalNode.setAttribute('visible', 'false');
+        simBg.style.display = "none";
         simBtn.innerText = "Simulate Scan (On)";
       } else {
         glassCard.classList.add('visible');
         instruction.style.opacity = '0';
         scanReticle.style.opacity = '0';
         portalNode.setAttribute('visible', 'true');
+        simBg.style.display = "block";
         simBtn.innerText = "Simulate Scan (Off)";
       }
     }
   </script>
 </head>
 <body>
+  <!-- Mock camera background for local testing -->
+  <div id="simulator-bg"></div>
+
   <!-- Camera Viewport Interactive Elements -->
   <div id="ar-overlay">
     <div class="instruction-box">
@@ -335,7 +475,7 @@
         <circle cx="12" cy="12" r="10" stroke="#ffd700" stroke-width="2"/>
         <path d="M12 8V12M12 16H12.01" stroke="#ffd700" stroke-width="2" stroke-linecap="round"/>
       </svg>
-      Point camera at Shivam Jewels Invitation Card (60%+ Visible)
+      Scan the Shivam Jewels Invitation Card (60%+ Visible)
     </div>
     
     <div class="scan-target"></div>
@@ -348,7 +488,9 @@
         "Celebrating the spirit of freedom, craftsmanship, heritage, and timeless elegance."
         Explore our signature <strong>Independence Day Collection</strong> and legacy portfolio.
       </p>
-      <button class="ar-btn" onclick="window.open('https://shivamjewels.com', '_blank')">Explore Collection</button>
+      <div class="rsvp-container">
+        <button class="ar-btn" onclick="window.open('https://shivamjewels.com', '_blank')">Explore Collection</button>
+      </div>
     </div>
   </div>
 
@@ -371,42 +513,50 @@
       <a-entity id="portal-group" position="0 0 0" visible="false">
         
         <!-- 1. Diamond-Facet Wireframe Rings (Portal Base) -->
-        <a-entity id="portal-facets" antigravity="rotSpeed: -0.15; bobAmp: 0.04;">
+        <a-entity id="portal-facets" antigravity="rotSpeed: -0.15; bobAmp: 0.03;">
           <a-ring color="#FFD700" radius-inner="0.65" radius-outer="0.68" opacity="0.8" rotation="90 0 0"></a-ring>
-          <a-ring color="#138808" radius-inner="0.85" radius-outer="0.87" opacity="0.5" rotation="45 45 0"></a-ring>
-          <a-ring color="#FF9933" radius-inner="0.85" radius-outer="0.87" opacity="0.5" rotation="-45 45 0"></a-ring>
+          <a-ring color="#1B5E20" radius-inner="0.85" radius-outer="0.87" opacity="0.4" rotation="45 45 0"></a-ring>
+          <a-ring color="#FF8F00" radius-inner="0.85" radius-outer="0.87" opacity="0.4" rotation="-45 45 0"></a-ring>
         </a-entity>
         
         <!-- 2. The 3D Ashoka Chakra (Crystal & Gold Mesh Assembly) -->
-        <a-entity id="ashoka-chakra-mesh" position="0 0 0.05" scale="0.5 0.5 0.5" antigravity="rotSpeed: 0.25; bobAmp: 0.06;">
-          <a-torus color="#FFD700" radius="0.8" tube="0.04" material="roughness: 0.15; metalness: 0.95;"></a-torus>
-          <a-cylinder color="#FFD700" radius="0.15" height="0.1" rotation="90 0 0" material="roughness: 0.15; metalness: 0.95;"></a-cylinder>
+        <a-entity id="ashoka-chakra-mesh" position="0 0 0.02" scale="0.45 0.45 0.45" antigravity="rotSpeed: 0.2; bobAmp: 0.04;">
+          <a-torus color="#FFD700" radius="0.8" tube="0.03" material="roughness: 0.1; metalness: 0.95;"></a-torus>
+          <a-cylinder color="#FFD700" radius="0.12" height="0.08" rotation="90 0 0" material="roughness: 0.1; metalness: 0.95;"></a-cylinder>
           
           <!-- Core Spokes -->
-          <a-box color="#FF9933" width="0.02" height="1.5" depth="0.02" rotation="0 0 0"></a-box>
-          <a-box color="#FFFFFF" width="0.02" height="1.5" depth="0.02" rotation="0 0 45"></a-box>
-          <a-box color="#138808" width="0.02" height="1.5" depth="0.02" rotation="0 0 90"></a-box>
+          <a-box color="#FF8F00" width="0.015" height="1.5" depth="0.015" rotation="0 0 0"></a-box>
+          <a-box color="#FFFFFF" width="0.015" height="1.5" depth="0.015" rotation="0 0 45"></a-box>
+          <a-box color="#1B5E20" width="0.015" height="1.5" depth="0.015" rotation="0 0 90"></a-box>
           
           <!-- Extra spokes populated programmatically -->
-          <a-box color="#FFD700" width="0.015" height="1.5" depth="0.015" rotation="0 0 15" opacity="0.7"></a-box>
-          <a-box color="#FFD700" width="0.015" height="1.5" depth="0.015" rotation="0 0 30" opacity="0.7"></a-box>
-          <a-box color="#FFD700" width="0.015" height="1.5" depth="0.015" rotation="0 0 60" opacity="0.7"></a-box>
-          <a-box color="#FFD700" width="0.015" height="1.5" depth="0.015" rotation="0 0 75" opacity="0.7"></a-box>
-          <a-box color="#FFD700" width="0.015" height="1.5" depth="0.015" rotation="0 0 105" opacity="0.7"></a-box>
-          <a-box color="#FFD700" width="0.015" height="1.5" depth="0.015" rotation="0 0 120" opacity="0.7"></a-box>
-          <a-box color="#FFD700" width="0.015" height="1.5" depth="0.015" rotation="0 0 135" opacity="0.7"></a-box>
-          <a-box color="#FFD700" width="0.015" height="1.5" depth="0.015" rotation="0 0 150" opacity="0.7"></a-box>
-          <a-box color="#FFD700" width="0.015" height="1.5" depth="0.015" rotation="0 0 165" opacity="0.7"></a-box>
+          <a-box color="#FFD700" width="0.01" height="1.5" depth="0.01" rotation="0 0 15" opacity="0.6"></a-box>
+          <a-box color="#FFD700" width="0.01" height="1.5" depth="0.01" rotation="0 0 30" opacity="0.6"></a-box>
+          <a-box color="#FFD700" width="0.01" height="1.5" depth="0.01" rotation="0 0 60" opacity="0.6"></a-box>
+          <a-box color="#FFD700" width="0.01" height="1.5" depth="0.01" rotation="0 0 75" opacity="0.6"></a-box>
+          <a-box color="#FFD700" width="0.01" height="1.5" depth="0.01" rotation="0 0 105" opacity="0.6"></a-box>
+          <a-box color="#FFD700" width="0.01" height="1.5" depth="0.01" rotation="0 0 120" opacity="0.6"></a-box>
+          <a-box color="#FFD700" width="0.01" height="1.5" depth="0.01" rotation="0 0 135" opacity="0.6"></a-box>
+          <a-box color="#FFD700" width="0.01" height="1.5" depth="0.01" rotation="0 0 150" opacity="0.6"></a-box>
+          <a-box color="#FFD700" width="0.01" height="1.5" depth="0.01" rotation="0 0 165" opacity="0.6"></a-box>
+        </a-entity>
+
+        <!-- 3. Programmatic Faceted 3D Diamond (Luxury Core of Shivam Jewels) -->
+        <a-entity id="luxury-gemstone" position="0 0 0.15" scale="0.8 0.8 0.8" antigravity="rotSpeed: -0.4; bobAmp: 0.05;">
+          <!-- Top Crown of the Diamond -->
+          <a-cone color="#E2E8F0" radius-bottom="0.12" radius-top="0" height="0.1" open-ended="false" segments-radial="8" position="0 0.05 0" material="roughness: 0.05; metalness: 0.9; opacity: 0.85; transparent: true;"></a-cone>
+          <!-- Bottom Pavilion of the Diamond -->
+          <a-cone color="#E2E8F0" radius-bottom="0.12" radius-top="0" height="0.15" open-ended="false" segments-radial="8" position="0 -0.075 0" rotation="180 0 0" material="roughness: 0.05; metalness: 0.9; opacity: 0.85; transparent: true;"></a-cone>
         </a-entity>
         
-        <!-- 3. Dynamic Rising Antigravity Particle Stream -->
+        <!-- 4. Dynamic Rising Antigravity Vortex Particle Stream -->
         <a-entity id="antigravity-particles" rising-particles></a-entity>
         
-        <!-- Ambient and reflective lighting -->
-        <a-light type="ambient" color="#ffffff" intensity="0.5"></a-light>
-        <a-light type="directional" color="#ffd700" intensity="1.2" position="1 2 1"></a-light>
-        <a-light type="point" color="#138808" intensity="0.8" position="-1 -1 1"></a-light>
-        <a-light type="point" color="#FF9933" intensity="0.8" position="1 -1 1"></a-light>
+        <!-- Lights config for metallic & crystal reflection -->
+        <a-light type="ambient" color="#ffffff" intensity="0.6"></a-light>
+        <a-light type="directional" color="#ffd700" intensity="1.5" position="1 3 2"></a-light>
+        <a-light type="point" color="#1B5E20" intensity="1.0" position="-1.5 -1 1.5"></a-light>
+        <a-light type="point" color="#FF8F00" intensity="1.0" position="1.5 -1 1.5"></a-light>
         
       </a-entity>
     </a-entity>
