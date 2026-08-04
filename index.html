@@ -234,46 +234,6 @@
       box-shadow: inset 0 0 40px rgba(255, 255, 255, 0.15), 0 0 20px rgba(255, 255, 255, 0.05);
     }
 
-    /* Circular rays mapping guide for QR code */
-    .scan-qr-rays-guide {
-      position: absolute;
-      left: 50%;
-      bottom: 22%; /* Align with physical QR code position on the card template */
-      transform: translate(-50%, 50%);
-      width: 140px;
-      height: 140px;
-      border: 2px dashed rgba(255, 255, 255, 0.7);
-      border-radius: 50%;
-      box-shadow: 0 0 25px rgba(255, 255, 255, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.3);
-      pointer-events: none;
-      animation: rotate-rays 12s linear infinite;
-    }
-    
-    .scan-qr-rays-guide::before,
-    .scan-qr-rays-guide::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 160px;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
-      transform-origin: center;
-    }
-    
-    .scan-qr-rays-guide::before {
-      transform: translate(-50%, -50%) rotate(45deg);
-    }
-    
-    .scan-qr-rays-guide::after {
-      transform: translate(-50%, -50%) rotate(-45deg);
-    }
-
-    @keyframes rotate-rays {
-      from { transform: translate(-50%, 50%) rotate(0deg); }
-      to { transform: translate(-50%, 50%) rotate(360deg); }
-    }
-
     /* Glowing corners */
     .corner-bracket {
       position: absolute;
@@ -364,50 +324,7 @@
       }
     }
 
-    /* Self-Mapping Rays Animation */
-    .mapping-ray {
-      position: absolute;
-      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.15), transparent);
-      width: 1px;
-      height: 100%;
-      transform-origin: top center;
-      animation: rayPulse 4s infinite alternate ease-in-out;
-    }
 
-    .ray-1 {
-      left: 25%;
-      transform: rotate(-5deg);
-      animation-delay: 0s;
-    }
-
-    .ray-2 {
-      left: 50%;
-      transform: rotate(0deg);
-      animation-delay: 1s;
-    }
-
-    .ray-3 {
-      left: 75%;
-      transform: rotate(5deg);
-      animation-delay: 2s;
-    }
-
-    @keyframes rayPulse {
-      0% {
-        opacity: 0.1;
-        height: 30%;
-      }
-
-      50% {
-        opacity: 0.35;
-        height: 100%;
-      }
-
-      100% {
-        opacity: 0.05;
-        height: 50%;
-      }
-    }
 
     /* Luxury Onboarding Overlay Screen */
     #ar-onboarding {
@@ -1290,11 +1207,7 @@
     <!-- Redesigned Self-Mapping Card Target Overlay -->
     <div class="scan-target">
       <div class="scan-card-blueprint"></div>
-      <div class="scan-qr-rays-guide"></div>
       <div class="scan-line"></div>
-      <div class="mapping-ray ray-1"></div>
-      <div class="mapping-ray ray-2"></div>
-      <div class="mapping-ray ray-3"></div>
       <div class="corner-bracket top-left"></div>
       <div class="corner-bracket top-right"></div>
       <div class="corner-bracket bottom-left"></div>
