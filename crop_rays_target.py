@@ -17,8 +17,8 @@ def crop_target():
     cy = int(height * 0.69)
 
     # Size of the crop box (capture the QR code and the outer circular dashed guide)
-    # The rays extend to about 45% of the card's width
-    crop_size = int(width * 0.46)
+    # The rays extend to about 74% of the card's width
+    crop_size = int(width * 0.74)
     half_size = crop_size // 2
 
     # Define crop bounding box [left, top, right, bottom]
