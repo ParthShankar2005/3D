@@ -41,7 +41,7 @@
     
     /* Glassmorphism Invitation Card (Slides up when AR triggers) */
     .glass-card {
-      background: linear-gradient(135deg, rgba(8, 17, 32, 0.75) 0%, rgba(3, 7, 18, 0.85) 100%);
+      background: linear-gradient(135deg, rgba(8, 17, 32, 0.85) 0%, rgba(3, 7, 18, 0.95) 100%);
       backdrop-filter: blur(25px);
       -webkit-backdrop-filter: blur(25px);
       border: 1px solid rgba(255, 215, 0, 0.35);
@@ -52,7 +52,7 @@
       color: #ffffff;
       text-align: center;
       box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 
-                  inset 0 0 20px rgba(255, 215, 0, 0.1);
+                  inset 0 0 20px rgba(255, 215, 0, 0.15);
       pointer-events: auto;
       transform: translateY(150%);
       transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1), opacity 1.2s ease;
@@ -167,7 +167,7 @@
     
     /* Tracking instructions */
     .instruction-box {
-      background: rgba(3, 7, 18, 0.85);
+      background: rgba(3, 7, 18, 0.9);
       border: 1px solid rgba(255, 215, 0, 0.25);
       border-radius: 30px;
       padding: 12px 24px;
@@ -183,43 +183,335 @@
       pointer-events: auto;
     }
     
-    /* Pulsing camera scan target reticle */
+    /* Redesigned Self-Mapping Card Target Overlay (3:4 Ratio) */
     .scan-target {
       position: absolute;
       width: 280px;
-      height: 380px;
-      border: 2px dashed rgba(255, 215, 0, 0.3);
-      border-radius: 24px;
+      height: 373px; /* 3:4 aspect ratio to match invitation card (1086x1448) */
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       pointer-events: none;
       z-index: 5;
       transition: opacity 0.5s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     
-    .scan-target::before {
-      content: '';
+    /* Transparent image layout guide */
+    .scan-card-blueprint {
       position: absolute;
-      width: 25px;
-      height: 25px;
-      border-top: 4px solid #ffd700;
-      border-left: 4px solid #ffd700;
-      top: -2px;
-      left: -2px;
-      border-top-left-radius: 12px;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('Invitation card.png');
+      background-size: cover;
+      background-position: center;
+      border-radius: 20px;
+      opacity: 0.18; /* Light and transparent */
+      filter: sepia(1) saturate(8) hue-rotate(15deg) brightness(1.2) contrast(1.1);
+      border: 1px solid rgba(255, 215, 0, 0.35);
+      box-shadow: inset 0 0 30px rgba(255, 215, 0, 0.15);
     }
     
-    .scan-target::after {
-      content: '';
+    /* Glowing corners */
+    .corner-bracket {
       position: absolute;
-      width: 25px;
-      height: 25px;
-      border-bottom: 4px solid #ffd700;
-      border-right: 4px solid #ffd700;
-      bottom: -2px;
-      right: -2px;
-      border-bottom-right-radius: 12px;
+      width: 24px;
+      height: 24px;
+      border-color: #ffd700;
+      border-style: solid;
+      border-width: 0;
+      filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.8));
+      animation: cornerPulse 2s infinite ease-in-out;
+    }
+    .top-left { top: -2px; left: -2px; border-top-width: 4px; border-left-width: 4px; border-top-left-radius: 12px; }
+    .top-right { top: -2px; right: -2px; border-top-width: 4px; border-right-width: 4px; border-top-right-radius: 12px; }
+    .bottom-left { bottom: -2px; left: -2px; border-bottom-width: 4px; border-left-width: 4px; border-bottom-left-radius: 12px; }
+    .bottom-right { bottom: -2px; right: -2px; border-bottom-width: 4px; border-right-width: 4px; border-bottom-right-radius: 12px; }
+    
+    @keyframes cornerPulse {
+      0%, 100% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.02); opacity: 1; }
+    }
+    
+    /* Mapping Laser Line Sweep */
+    .scan-line {
+      position: absolute;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.9), transparent);
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.9);
+      left: 0;
+      animation: scanSweep 3.5s infinite ease-in-out;
+      z-index: 6;
+    }
+    
+    @keyframes scanSweep {
+      0% { top: 0%; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+    
+    /* Self-Mapping Rays Animation */
+    .mapping-ray {
+      position: absolute;
+      background: linear-gradient(to bottom, rgba(255, 215, 0, 0.15), transparent);
+      width: 1px;
+      height: 100%;
+      transform-origin: top center;
+      animation: rayPulse 4s infinite alternate ease-in-out;
+    }
+    .ray-1 { left: 25%; transform: rotate(-5deg); animation-delay: 0s; }
+    .ray-2 { left: 50%; transform: rotate(0deg); animation-delay: 1s; }
+    .ray-3 { left: 75%; transform: rotate(5deg); animation-delay: 2s; }
+    
+    @keyframes rayPulse {
+      0% { opacity: 0.1; height: 30%; }
+      50% { opacity: 0.35; height: 100%; }
+      100% { opacity: 0.05; height: 50%; }
+    }
+
+    /* Luxury Onboarding Overlay Screen */
+    #ar-onboarding {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 100;
+      background: radial-gradient(circle at center, rgba(8, 17, 32, 0.98) 0%, rgba(3, 7, 18, 1) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #ffffff;
+      transition: opacity 0.8s cubic-bezier(0.19, 1, 0.22, 1), visibility 0.8s;
+      box-sizing: border-box;
+      padding: 20px;
+    }
+    
+    #ar-onboarding.fade-out {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    
+    .onboarding-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 215, 0, 0.25);
+      border-radius: 28px;
+      padding: 40px 30px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.9),
+                  inset 0 0 30px rgba(255, 215, 0, 0.05);
+      animation: cardFloat 6s ease-in-out infinite;
+    }
+    
+    @keyframes cardFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    
+    .onboarding-brand {
+      font-family: 'Cinzel', serif;
+      font-size: 1.8rem;
+      letter-spacing: 6px;
+      color: #ffd700;
+      margin: 0 0 5px 0;
+      font-weight: 800;
+      text-transform: uppercase;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    }
+    
+    .onboarding-subtitle {
+      font-size: 0.8rem;
+      letter-spacing: 4px;
+      color: #cbd5e1;
+      margin: 0 0 25px 0;
+      text-transform: uppercase;
+      font-weight: 300;
+    }
+    
+    .onboarding-desc {
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: #e2e8f0;
+      margin-bottom: 30px;
+      font-weight: 300;
+    }
+    
+    .onboarding-desc strong {
+      color: #ffd700;
+      font-weight: 600;
+    }
+    
+    /* Luxury Gold Button */
+    .luxury-btn {
+      background: linear-gradient(135deg, #ffd700 0%, #d4af37 50%, #aa7c11 100%);
+      border: none;
+      color: #030712;
+      padding: 16px 36px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      border-radius: 30px;
+      cursor: pointer;
+      text-transform: uppercase;
+      box-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
+      transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .luxury-btn:hover {
+      box-shadow: 0 0 35px rgba(255, 215, 0, 0.6);
+      transform: translateY(-2px) scale(1.02);
+    }
+    
+    .luxury-btn:active {
+      transform: translateY(1px) scale(0.98);
+    }
+
+    /* Camera Error Screen */
+    #camera-error-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 110;
+      background: radial-gradient(circle at center, rgba(15, 10, 10, 0.99) 0%, rgba(3, 3, 5, 1) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #ffffff;
+      box-sizing: border-box;
+      padding: 20px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.5s ease, visibility 0.5s;
+    }
+    
+    #camera-error-screen.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .error-card {
+      background: linear-gradient(135deg, rgba(255, 80, 80, 0.05) 0%, rgba(3, 7, 18, 0.9) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 80, 80, 0.35);
+      border-radius: 28px;
+      padding: 40px 30px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.9);
+    }
+    
+    .error-icon {
+      font-size: 3rem;
+      color: #ff5252;
+      margin-bottom: 20px;
+      filter: drop-shadow(0 0 10px rgba(255, 82, 82, 0.5));
+    }
+    
+    .error-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.4rem;
+      letter-spacing: 3px;
+      color: #ff5252;
+      margin: 0 0 15px 0;
+      font-weight: 700;
+    }
+    
+    .error-desc {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: #e2e8f0;
+      margin-bottom: 25px;
+      text-align: left;
+    }
+    
+    .error-steps {
+      margin: 0;
+      padding-left: 20px;
+      margin-bottom: 25px;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: #cbd5e1;
+      text-align: left;
+    }
+    
+    .error-steps li {
+      margin-bottom: 10px;
+    }
+    
+    .error-steps strong {
+      color: #ffd700;
+    }
+
+    /* Elegant Loading Overlay while AR initializes */
+    #ar-loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 90;
+      background: #030712;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.5s ease, visibility 0.5s;
+    }
+    
+    #ar-loading.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(255, 215, 0, 0.1);
+      border-radius: 50%;
+      border-top-color: #ffd700;
+      animation: spin 1s ease-in-out infinite;
+      filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .loading-text {
+      color: #ffd700;
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      margin-top: 20px;
+      text-transform: uppercase;
+      font-family: 'Cinzel', serif;
+      animation: pulseText 1.5s infinite ease-in-out;
+    }
+    
+    @keyframes pulseText {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
     }
     
     /* Developer Simulation Trigger */
@@ -265,6 +557,7 @@
     // Configuration
     const BACKEND_URL = "http://localhost:8080"; // Update with production backend URL if deployed
     let guestId = null;
+    let arSystem = null;
 
     // Retrieve guest parameters
     const urlParams = new URLSearchParams(window.location.search);
@@ -326,6 +619,29 @@
         container.innerHTML = `<div class="rsvp-success-msg">✨ Attending — Thank You!</div>`;
       } else {
         container.innerHTML = `<div class="rsvp-success-msg" style="color: #cbd5e1;">Declined — Thank You.</div>`;
+      }
+    }
+
+    // --- Programmatic AR Startup ---
+    function startAR() {
+      const onboarding = document.querySelector('#ar-onboarding');
+      const loading = document.querySelector('#ar-loading');
+      
+      onboarding.classList.add('fade-out');
+      loading.classList.add('visible');
+      
+      if (arSystem) {
+        arSystem.start();
+      } else {
+        const sceneEl = document.querySelector('a-scene');
+        // If system not ready yet, wait for load
+        const startInterval = setInterval(() => {
+          arSystem = sceneEl.systems["mindar-image-system"];
+          if (arSystem) {
+            clearInterval(startInterval);
+            arSystem.start();
+          }
+        }, 100);
       }
     }
 
@@ -417,10 +733,30 @@
     document.addEventListener("DOMContentLoaded", () => {
       loadGuestGreeting();
       
+      const sceneEl = document.querySelector('a-scene');
       const targetEl = document.querySelector('#ar-target');
       const glassCard = document.querySelector('.glass-card');
       const instruction = document.querySelector('.instruction-box');
       const scanReticle = document.querySelector('.scan-target');
+      const loading = document.querySelector('#ar-loading');
+      const errorScreen = document.querySelector('#camera-error-screen');
+      
+      // Store reference to system once scene initializes
+      sceneEl.addEventListener('loaded', () => {
+        arSystem = sceneEl.systems["mindar-image-system"];
+      });
+
+      // Camera startup successful
+      sceneEl.addEventListener("arReady", (event) => {
+        loading.classList.remove('visible');
+      });
+
+      // Camera startup failed (permission denied or device blocked)
+      sceneEl.addEventListener("arError", (event) => {
+        console.error("Camera access or AR initialization error:", event);
+        loading.classList.remove('visible');
+        errorScreen.classList.add('visible');
+      });
       
       if (targetEl) {
         targetEl.addEventListener("targetFound", () => {
@@ -439,12 +775,17 @@
 
     // Developer Simulator Function
     function toggleSimulation() {
+      const onboarding = document.querySelector('#ar-onboarding');
       const glassCard = document.querySelector('.glass-card');
       const instruction = document.querySelector('.instruction-box');
       const scanReticle = document.querySelector('.scan-target');
       const simBtn = document.querySelector('.sim-btn');
       const portalNode = document.querySelector('#portal-group');
       const simBg = document.querySelector('#simulator-bg');
+      
+      if (onboarding) {
+        onboarding.classList.add('fade-out');
+      }
       
       if (glassCard.classList.contains('visible')) {
         glassCard.classList.remove('visible');
@@ -465,6 +806,50 @@
   </script>
 </head>
 <body>
+  <!-- Onboarding screen overlay -->
+  <div id="ar-onboarding">
+    <div class="onboarding-card">
+      <h1 class="onboarding-brand">Shivam Jewels</h1>
+      <div class="onboarding-subtitle">Shivam Jewels World</div>
+      <div class="card-divider" style="margin-bottom: 25px;"></div>
+      <p class="onboarding-desc">
+        We are deeply honored to invite you to celebrate <strong>80 years of Indian Independence</strong> and our legacy of fine diamonds.
+        <br><br>
+        Please allow camera access to experience the exclusive collection in immersive <strong>3D WebAR</strong>.
+      </p>
+      <button class="luxury-btn" onclick="startAR()">
+        <span>Enter Experience</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Camera Permission Error Guide -->
+  <div id="camera-error-screen">
+    <div class="error-card">
+      <div class="error-icon">⚠️</div>
+      <h2 class="error-title">Camera Access Required</h2>
+      <p class="error-desc">
+        To project the 3D world of Shivam Jewels, this browser requires camera access. Please follow these quick steps:
+      </p>
+      <ul class="error-steps">
+        <li><strong>Tap lock icon</strong> (or site settings) in the browser address bar.</li>
+        <li>Switch the Camera permission to <strong>Allow</strong>.</li>
+        <li>Reload the page to begin the experience.</li>
+      </ul>
+      <button class="ar-btn" onclick="window.location.reload()">Reload Page</button>
+    </div>
+  </div>
+
+  <!-- Loading state during camera startup -->
+  <div id="ar-loading">
+    <div class="spinner"></div>
+    <div class="loading-text">Initializing Camera...</div>
+  </div>
+
   <!-- Mock camera background for local testing -->
   <div id="simulator-bg"></div>
 
@@ -475,10 +860,21 @@
         <circle cx="12" cy="12" r="10" stroke="#ffd700" stroke-width="2"/>
         <path d="M12 8V12M12 16H12.01" stroke="#ffd700" stroke-width="2" stroke-linecap="round"/>
       </svg>
-      Scan the Shivam Jewels Invitation Card (60%+ Visible)
+      Align card within guide to project 3D world
     </div>
     
-    <div class="scan-target"></div>
+    <!-- Redesigned Self-Mapping Card Target Overlay -->
+    <div class="scan-target">
+      <div class="scan-card-blueprint"></div>
+      <div class="scan-line"></div>
+      <div class="mapping-ray ray-1"></div>
+      <div class="mapping-ray ray-2"></div>
+      <div class="mapping-ray ray-3"></div>
+      <div class="corner-bracket top-left"></div>
+      <div class="corner-bracket top-right"></div>
+      <div class="corner-bracket bottom-left"></div>
+      <div class="corner-bracket bottom-right"></div>
+    </div>
     
     <div class="glass-card">
       <h1 class="brand-title">Shivam Jewels</h1>
@@ -500,7 +896,7 @@
   </div>
 
   <!-- WebAR Scene Pipeline -->
-  <a-scene mindar-image="imageTargetSrc: ./compiled_targets.mind; autoStart: true; filterMinCF:0.0001; filterBeta: 0.001;" 
+  <a-scene mindar-image="imageTargetSrc: ./compiled_targets.mind; autoStart: false; filterMinCF:0.0001; filterBeta: 0.001;" 
            color-space="sRGB" 
            renderer="colorManagement: true, physicallyCorrectLights: true" 
            vr-mode-ui="enabled: false" 
