@@ -630,7 +630,6 @@
     }
 
     // --- Programmatic AR Startup ---
-    // --- Programmatic AR Startup ---
     function startAR() {
       const onboarding = document.querySelector('#ar-onboarding');
       const loading = document.querySelector('#ar-loading');
@@ -638,13 +637,31 @@
       onboarding.classList.add('fade-out');
       loading.classList.add('visible');
       
+      const sceneEl = document.querySelector('a-scene');
+      
+      // Auto-hide loading screen after 6.5 seconds as a fallback in case arReady is delayed
+      const fallbackTimeout = setTimeout(() => {
+        if (loading.classList.contains('visible')) {
+          console.warn("arReady event timed out. Forcing loader hide.");
+          loading.classList.remove('visible');
+        }
+      }, 6500);
+      
+      sceneEl.addEventListener("arReady", () => {
+        clearTimeout(fallbackTimeout);
+        loading.classList.remove('visible');
+      }, { once: true });
+      
+      if (sceneEl.systems && sceneEl.systems["mindar-image-system"]) {
+        arSystem = sceneEl.systems["mindar-image-system"];
+      }
+      
       if (arSystem) {
         arSystem.start();
       } else {
-        const sceneEl = document.querySelector('a-scene');
         const startInterval = setInterval(() => {
-          arSystem = sceneEl.systems["mindar-image-system"];
-          if (arSystem) {
+          if (sceneEl.systems && sceneEl.systems["mindar-image-system"]) {
+            arSystem = sceneEl.systems["mindar-image-system"];
             clearInterval(startInterval);
             arSystem.start();
           }
@@ -749,10 +766,14 @@
       const loading = document.querySelector('#ar-loading');
       const errorScreen = document.querySelector('#camera-error-screen');
       
-      // Store reference to system once scene initializes
-      sceneEl.addEventListener('loaded', () => {
+      // Store reference to system once scene initializes (handle potential A-Frame race condition)
+      if (sceneEl.hasLoaded) {
         arSystem = sceneEl.systems["mindar-image-system"];
-      });
+      } else {
+        sceneEl.addEventListener('loaded', () => {
+          arSystem = sceneEl.systems["mindar-image-system"];
+        });
+      }
 
       // Camera startup successful
       sceneEl.addEventListener("arReady", (event) => {
@@ -904,7 +925,7 @@
   </div>
 
   <!-- WebAR Scene Pipeline -->
-  <a-scene mindar-image="imageTargetSrc: ./compiled_targets.mind; autoStart: false; filterMinCF:0.0001; filterBeta: 0.001;" 
+  <a-scene mindar-image="imageTargetSrc: ./compiled_targets.mind; autoStart: false; filterMinCF:0.0001; filterBeta: 0.001; uiLoading: no; uiScanning: no; uiError: no;" 
            color-space="sRGB" 
            renderer="colorManagement: true, physicallyCorrectLights: true" 
            vr-mode-ui="enabled: false" 
