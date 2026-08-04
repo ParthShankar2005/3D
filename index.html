@@ -17,7 +17,7 @@
   <!-- A-Frame (3D rendering framework) and MindAR (WebAR image tracking) -->
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
   <style>
     body {
       margin: 0;
@@ -856,70 +856,18 @@
 
       if (targetEl) {
         targetEl.addEventListener("targetFound", () => {
-          glassCard.classList.add('visible');
-          instruction.style.opacity = '0';
-          scanReticle.style.opacity = '0';
-
-          // Restore default instruction text in case it was changed to "Tracking lost"
-          instruction.innerHTML = `
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" stroke="#ffd700" stroke-width="2"/>
-              <path d="M12 8V12M12 16H12.01" stroke="#ffd700" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-            Align card within guide to project 3D world
-          `;
-
-          const portalNode = document.querySelector('#portal-group');
-          if (portalNode) {
-            portalNode.setAttribute('visible', 'true');
-
-            // Animate Ashoka Chakra coming from behind the card (scale and position slide)
-            const chakra = document.querySelector('#ashoka-chakra-mesh');
-            if (chakra) {
-              chakra.setAttribute('animation', 'property: scale; from: 0 0 0; to: 0.45 0.45 0.45; dur: 1500; easing: easeOutElastic');
-              chakra.setAttribute('animation__pos', 'property: position; from: 0 0 -0.5; to: 0 0 0.12; dur: 1500; easing: easeOutQuad');
-            }
-
-            // Animate luxury gemstone scaling up with a slight delay
-            const gems = document.querySelector('#luxury-gemstone');
-            if (gems) {
-              gems.setAttribute('animation', 'property: scale; from: 0 0 0; to: 0.8 0.8 0.8; dur: 1500; delay: 200; easing: easeOutElastic');
-            }
-          }
-
-          // Start simulated accuracy tracker
-          startAccuracySimulation();
+          // MindAR aligned successfully, now initialize physical QR scanner loop to validate details
+          startQRScanner();
         });
 
         targetEl.addEventListener("targetLost", () => {
-          glassCard.classList.remove('visible');
-          instruction.style.opacity = '1';
-          scanReticle.style.opacity = '1';
-
-          // Clear accuracy tracker
-          if (accuracyInterval) {
-            clearInterval(accuracyInterval);
-            accuracyInterval = null;
+          // Clear QR scanner loop
+          if (qrScanInterval) {
+            clearInterval(qrScanInterval);
+            qrScanInterval = null;
           }
-
-          const portalNode = document.querySelector('#portal-group');
-          if (portalNode) {
-            portalNode.setAttribute('visible', 'false');
-
-            // Reset animations and properties so they re-trigger next time
-            const chakra = document.querySelector('#ashoka-chakra-mesh');
-            if (chakra) {
-              chakra.removeAttribute('animation');
-              chakra.removeAttribute('animation__pos');
-              chakra.setAttribute('scale', '0 0 0');
-              chakra.setAttribute('position', '0 0 -0.5');
-            }
-            const gems = document.querySelector('#luxury-gemstone');
-            if (gems) {
-              gems.removeAttribute('animation');
-              gems.setAttribute('scale', '0 0 0');
-            }
-          }
+          qrValidated = false;
+          reset3DView();
         });
       }
     });
@@ -1079,67 +1027,134 @@
       }
     }
 
-    function startAccuracySimulation() {
-      if (accuracyInterval) clearInterval(accuracyInterval);
+    // --- Developer Bypass & Target Accuracy Simulation ---
+    // (Note: accuracyInterval is replaced by physical QR code target detection tracking loop)
+    let qrScanInterval = null;
+    let qrValidated = false;
+    let lastQrSeenTime = 0;
 
-      currentAccuracy = 90; // Start with healthy alignment strength
-
-      accuracyInterval = setInterval(() => {
-        // Don't drop accuracy if dev bypass mode is on
+    function startQRScanner() {
+      if (qrScanInterval) clearInterval(qrScanInterval);
+      
+      const qrCanvas = document.createElement('canvas');
+      const qrContext = qrCanvas.getContext('2d');
+      
+      qrScanInterval = setInterval(() => {
         if (isBypassed) return;
-
-        // Jitter simulation
-        let variance = Math.random() * 8 - 4; // -4% to +4% variance
-        currentAccuracy = Math.max(0, Math.min(100, currentAccuracy + variance));
-
-        // 8% chance of sudden tracking accuracy drop
-        if (Math.random() < 0.08) {
-          currentAccuracy -= 22; // Lose 22% accuracy instantly
-          console.warn(`Simulated accuracy drop! Current: ${currentAccuracy.toFixed(1)}%`);
-        }
-
-        // If accuracy falls below 50% limit (e.g. handshake moves card too far away)
-        if (currentAccuracy < 50) {
-          console.warn("Accuracy fell below 50% limit. Resetting tracking system.");
-          clearInterval(accuracyInterval);
-          accuracyInterval = null;
-
-          const portalNode = document.querySelector('#portal-group');
-          const glassCard = document.querySelector('.glass-card');
-          const instruction = document.querySelector('.instruction-box');
-          const scanReticle = document.querySelector('.scan-target');
-
-          if (portalNode) {
-            portalNode.setAttribute('visible', 'false');
-
-            const chakra = document.querySelector('#ashoka-chakra-mesh');
-            if (chakra) {
-              chakra.removeAttribute('animation');
-              chakra.removeAttribute('animation__pos');
-              chakra.setAttribute('scale', '0 0 0');
-              chakra.setAttribute('position', '0 0 -0.5');
+        
+        const video = document.querySelector('video');
+        if (!video || video.paused || video.ended) return;
+        
+        // Wait for video dimensions to load
+        if (video.videoWidth === 0) return;
+        
+        qrCanvas.width = video.videoWidth;
+        qrCanvas.height = video.videoHeight;
+        qrContext.drawImage(video, 0, 0, qrCanvas.width, qrCanvas.height);
+        
+        try {
+          const imageData = qrContext.getImageData(0, 0, qrCanvas.width, qrCanvas.height);
+          const code = jsQR(imageData.data, imageData.width, imageData.height);
+          
+          if (code) {
+            const decodedData = code.data.toLowerCase();
+            // Validate the QR code contains target invite card domains or link signatures
+            if (decodedData.includes('sj.world') || decodedData.includes('sjar.vercel.app') || decodedData.includes('shivamjewels') || decodedData.includes('http')) {
+              lastQrSeenTime = Date.now();
+              
+              if (!qrValidated) {
+                qrValidated = true;
+                console.log("QR Code details successfully scanned and validated:", code.data);
+                
+                // Calculate dynamic distance based on QR code pixel size in viewport
+                const loc = code.location;
+                const dx = loc.topRightCorner.x - loc.topLeftCorner.x;
+                const dy = loc.topRightCorner.y - loc.topLeftCorner.y;
+                const qrWidthPx = Math.sqrt(dx * dx + dy * dy);
+                
+                // Calibration metric: at 1 ft (30cm), a 6cm physical QR code is ~130px wide
+                const estimatedDistanceCm = (30 * 130) / qrWidthPx;
+                console.log(`Dynamic calculation - QR code width: ${qrWidthPx.toFixed(1)}px. Distance: ${estimatedDistanceCm.toFixed(1)}cm.`);
+                
+                // Successful verification allows the 3D presentation to load
+                present3DView();
+              }
             }
-            const gems = document.querySelector('#luxury-gemstone');
-            if (gems) {
-              gems.removeAttribute('animation');
-              gems.setAttribute('scale', '0 0 0');
+          } else {
+            // If QR code is not seen for more than 3 seconds during active tracking, reset
+            if (qrValidated && (Date.now() - lastQrSeenTime > 3000)) {
+              console.warn("QR code tracking lost. Resetting 3D portal.");
+              qrValidated = false;
+              reset3DView();
             }
           }
-
-          if (glassCard) glassCard.classList.remove('visible');
-          if (scanReticle) scanReticle.style.opacity = '1';
-          if (instruction) {
-            instruction.style.opacity = '1';
-            instruction.innerHTML = `
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" stroke="#ffd700" stroke-width="2"/>
-                <path d="M12 8V12M12 16H12.01" stroke="#ffd700" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-              Tracking lost. Re-align card with transparent template to restore
-            `;
-          }
+        } catch (e) {
+          console.error("QR Code validation scan error:", e);
         }
-      }, 1000);
+      }, 250);
+    }
+
+    function present3DView() {
+      const portalNode = document.querySelector('#portal-group');
+      const glassCard = document.querySelector('.glass-card');
+      const instruction = document.querySelector('.instruction-box');
+      const scanReticle = document.querySelector('.scan-target');
+      const chakra = document.querySelector('#ashoka-chakra-mesh');
+      const gems = document.querySelector('#luxury-gemstone');
+
+      if (portalNode) {
+        portalNode.setAttribute('visible', 'true');
+        
+        // Trigger smooth emerging scale and slide-forward animations
+        if (chakra) {
+          chakra.setAttribute('animation', 'property: scale; from: 0 0 0; to: 0.45 0.45 0.45; dur: 1500; easing: easeOutElastic');
+          chakra.setAttribute('animation__pos', 'property: position; from: 0 0 -0.5; to: 0 0 0.12; dur: 1500; easing: easeOutQuad');
+        }
+        if (gems) {
+          gems.setAttribute('animation', 'property: scale; from: 0 0 0; to: 0.8 0.8 0.8; dur: 1500; delay: 200; easing: easeOutElastic');
+        }
+      }
+      
+      if (glassCard) glassCard.classList.add('visible');
+      if (instruction) instruction.style.opacity = '0';
+      if (scanReticle) scanReticle.style.opacity = '0';
+    }
+
+    function reset3DView() {
+      const portalNode = document.querySelector('#portal-group');
+      const glassCard = document.querySelector('.glass-card');
+      const instruction = document.querySelector('.instruction-box');
+      const scanReticle = document.querySelector('.scan-target');
+      const chakra = document.querySelector('#ashoka-chakra-mesh');
+      const gems = document.querySelector('#luxury-gemstone');
+
+      if (portalNode) {
+        portalNode.setAttribute('visible', 'false');
+        
+        if (chakra) {
+          chakra.removeAttribute('animation');
+          chakra.removeAttribute('animation__pos');
+          chakra.setAttribute('scale', '0 0 0');
+          chakra.setAttribute('position', '0 0 -0.5');
+        }
+        if (gems) {
+          gems.removeAttribute('animation');
+          gems.setAttribute('scale', '0 0 0');
+        }
+      }
+
+      if (glassCard) glassCard.classList.remove('visible');
+      if (scanReticle) scanReticle.style.opacity = '1';
+      if (instruction) {
+        instruction.style.opacity = '1';
+        instruction.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="#ffd700" stroke-width="2"/>
+            <path d="M12 8V12M12 16H12.01" stroke="#ffd700" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Align card within guide to scan QR code
+        `;
+      }
     }
   </script>
 </head>
@@ -1201,7 +1216,7 @@
         <circle cx="12" cy="12" r="10" stroke="#ffd700" stroke-width="2" />
         <path d="M12 8V12M12 16H12.01" stroke="#ffd700" stroke-width="2" stroke-linecap="round" />
       </svg>
-      Align card within guide to project 3D world
+      Align card within guide to scan QR code
     </div>
 
     <!-- Redesigned Self-Mapping Card Target Overlay -->
