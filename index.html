@@ -25,8 +25,9 @@
       :root {
         --primary-gold: #d4af37;
         --accent-glow: #ffd700;
-        --bg-dark: rgba(10, 12, 18, 0.85);
-        --glass-border: rgba(212, 175, 55, 0.3);
+        --laser-cyan: #00f0ff;
+        --bg-dark: rgba(10, 12, 18, 0.88);
+        --glass-border: rgba(212, 175, 55, 0.35);
       }
 
       * {
@@ -54,7 +55,7 @@
         z-index: 1;
       }
 
-      /* HUD Glass Overlay */
+      /* HUD Glass Header */
       #hud-header {
         position: fixed;
         top: 16px;
@@ -75,7 +76,7 @@
 
       .brand-title {
         font-family: 'Cinzel', serif;
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 700;
         letter-spacing: 2px;
         color: #fff;
@@ -89,10 +90,23 @@
         color: var(--primary-gold);
       }
 
+      /* Stage Indicator Pill */
+      #stage-badge {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 12px;
+        background: rgba(0, 240, 255, 0.15);
+        color: var(--laser-cyan);
+        border: 1px solid rgba(0, 240, 255, 0.4);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+
       /* Controls Panel */
       #control-panel {
         position: fixed;
-        bottom: 24px;
+        bottom: 20px;
         left: 50%;
         transform: translateX(-50%);
         z-index: 100;
@@ -101,32 +115,32 @@
         -webkit-backdrop-filter: blur(16px);
         border: 1px solid var(--glass-border);
         border-radius: 20px;
-        padding: 14px 20px;
+        padding: 14px 18px;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 12px;
-        width: 90%;
-        max-width: 480px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        gap: 10px;
+        width: 92%;
+        max-width: 520px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.7);
       }
 
       .btn-group {
         display: flex;
-        gap: 10px;
+        gap: 8px;
         width: 100%;
       }
 
       button {
         flex: 1;
-        padding: 12px 16px;
+        padding: 10px 12px;
         font-family: 'Montserrat', sans-serif;
-        font-size: 13px;
+        font-size: 11px;
         font-weight: 600;
-        letter-spacing: 1px;
+        letter-spacing: 0.5px;
         text-transform: uppercase;
         border: 1px solid var(--primary-gold);
-        border-radius: 12px;
+        border-radius: 10px;
         background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(0, 0, 0, 0.6));
         color: #ffffff;
         cursor: pointer;
@@ -134,7 +148,8 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
+        gap: 4px;
+        white-space: nowrap;
       }
 
       button:hover {
@@ -146,22 +161,38 @@
       button.active {
         background: var(--primary-gold);
         color: #000;
-        box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+        box-shadow: 0 0 18px rgba(255, 215, 0, 0.6);
       }
 
-      /* Gem Color Pickers */
+      button.stage-btn.active {
+        background: var(--laser-cyan);
+        color: #000;
+        border-color: var(--laser-cyan);
+        box-shadow: 0 0 18px rgba(0, 240, 255, 0.6);
+      }
+
+      /* Controls Sub-row */
+      .sub-controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        gap: 12px;
+        padding-top: 4px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
       .color-selector {
         display: flex;
         align-items: center;
-        gap: 12px;
-        font-size: 12px;
+        gap: 8px;
+        font-size: 11px;
         color: #ccc;
-        letter-spacing: 0.5px;
       }
 
       .color-swatch {
-        width: 24px;
-        height: 24px;
+        width: 20px;
+        height: 20px;
         border-radius: 50%;
         border: 2px solid transparent;
         cursor: pointer;
@@ -171,10 +202,10 @@
       .color-swatch:hover, .color-swatch.selected {
         transform: scale(1.25);
         border-color: #fff;
-        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
       }
 
-      /* Card Overlay Blueprint Frame */
+      /* Card Alignment Scanner Blueprint Wireframe */
       #scanner-blueprint {
         position: fixed;
         top: 50%;
@@ -215,6 +246,7 @@
     <!-- Top Header -->
     <div id="hud-header">
       <div class="brand-title">💎 Shivam <span>Jewels</span></div>
+      <div id="stage-badge">Evolution Mode</div>
     </div>
 
     <!-- Alignment Scanner Wireframe -->
@@ -225,18 +257,30 @@
 
     <!-- Bottom Controls Panel -->
     <div id="control-panel">
+      <!-- Main Action Buttons -->
       <div class="btn-group">
         <button id="startButton">▶ Start AR</button>
         <button id="stopButton">⏸ Pause</button>
         <button id="bypassButton">🔍 WebGL Preview</button>
       </div>
 
-      <div class="color-selector">
-        <span>Diamond Grade:</span>
-        <div class="color-swatch selected" data-color="0xffffff" style="background: radial-gradient(circle, #ffffff, #e0f7fa);" title="D-Flawless Pure White"></div>
-        <div class="color-swatch" data-color="0xffd700" style="background: radial-gradient(circle, #ffe082, #ffb300);" title="Fancy Intense Yellow"></div>
-        <div class="color-swatch" data-color="0x29b6f6" style="background: radial-gradient(circle, #e0f7fa, #0288d1);" title="Rare Blue Diamond"></div>
-        <div class="color-swatch" data-color="0xf48fb1" style="background: radial-gradient(circle, #fce4ec, #d81b60);" title="Argyle Pink Diamond"></div>
+      <!-- Transformation Stage Buttons -->
+      <div class="btn-group">
+        <button class="stage-btn" id="btnStageRough">🪨 1. Rough</button>
+        <button class="stage-btn active" id="btnStageTransform">⚡ 2. Morph Sweep</button>
+        <button class="stage-btn" id="btnStagePolished">💎 3. Polished</button>
+        <button class="stage-btn" id="btnStageAuto">🔄 Auto Loop</button>
+      </div>
+
+      <!-- Gem Color Selection -->
+      <div class="sub-controls">
+        <div class="color-selector">
+          <span>Grade:</span>
+          <div class="color-swatch selected" data-color="0xffffff" style="background: radial-gradient(circle, #ffffff, #e0f7fa);" title="D-Flawless Pure White"></div>
+          <div class="color-swatch" data-color="0xffd700" style="background: radial-gradient(circle, #ffe082, #ffb300);" title="Fancy Intense Yellow"></div>
+          <div class="color-swatch" data-color="0x29b6f6" style="background: radial-gradient(circle, #e0f7fa, #0288d1);" title="Rare Blue Diamond"></div>
+          <div class="color-swatch" data-color="0xf48fb1" style="background: radial-gradient(circle, #fce4ec, #d81b60);" title="Argyle Pink Diamond"></div>
+        </div>
       </div>
     </div>
 
@@ -247,54 +291,90 @@
 
       let mindarThree = null;
       let renderer, scene, camera, anchor;
-      let diamondMesh, lightGroup, pointLights = [];
+      let roughMesh, polishedMesh, laserGroup, laserRing, laserLight;
+      let lightGroup, pointLights = [];
       let isBypassMode = false;
-      let animationFrameId = null;
+      let envTexture = null;
+      let transformGroup = null;
+
+      // Morph States: 'rough', 'transform', 'polished', 'auto'
+      let currentStage = 'transform';
+      let autoLoopTime = 0;
 
       // ----------------------------------------------------
-      // 1. CREATE FACETED NATURAL BRILLIANT DIAMOND GEOMETRY
+      // 1. ROUGH OCTAHEDRAL CRYSTAL GEOMETRY & MATERIAL
       // ----------------------------------------------------
-      function createDiamondGeometry() {
-        const geom = new THREE.BufferGeometry();
+      function createRoughDiamondGeometry() {
+        const geom = new THREE.OctahedronGeometry(0.72, 1);
+        const posAttr = geom.attributes.position;
         
-        // Key landmark points of a round brilliant cut diamond
-        const apexTop = [0, 0.45, 0];        // Table top peak
-        const apexBottom = [0, -0.65, 0];    // Culet (bottom point)
+        // Add subtle organic surface noise to imitate natural unpolished crystal
+        for (let i = 0; i < posAttr.count; i++) {
+          const vx = posAttr.getX(i);
+          const vy = posAttr.getY(i);
+          const vz = posAttr.getZ(i);
+
+          const noise = (Math.sin(vx * 12.0) * Math.cos(vy * 12.0) * Math.sin(vz * 12.0)) * 0.045;
+          posAttr.setXYZ(i, vx + noise, vy + noise, vz + noise);
+        }
+
+        geom.computeVertexNormals();
+        return geom;
+      }
+
+      function createRoughDiamondMaterial() {
+        return new THREE.MeshPhysicalMaterial({
+          color: new THREE.Color(0xf5e6ca),   // Natural warm octahedral crystal tint
+          emissive: new THREE.Color(0x332200),
+          roughness: 0.38,
+          metalness: 0.0,
+          transmission: 0.65,                 // Semi-translucent raw stone
+          ior: 2.1,
+          thickness: 1.5,
+          transparent: true,
+          opacity: 0.9,
+          flatShading: true
+        });
+      }
+
+      // ----------------------------------------------------
+      // 2. POLISHED ROUND BRILLIANT CUT GEOMETRY & MATERIAL
+      // ----------------------------------------------------
+      function createPolishedDiamondGeometry() {
+        const geom = new THREE.BufferGeometry();
+        const apexTop = [0, 0.45, 0];
+        const apexBottom = [0, -0.65, 0];
         
         const numFacets = 16;
         const crownRadius = 0.55;
         const girdleRadius = 0.75;
         const crownHeight = 0.25;
         const girdleHeight = 0.0;
-        const pavilionHeight = -0.45;
 
         const vertices = [];
 
-        // Generate girdle & crown vertices around radius
         for (let i = 0; i < numFacets; i++) {
           const angle1 = (i / numFacets) * Math.PI * 2;
           const angle2 = ((i + 1) / numFacets) * Math.PI * 2;
 
-          // Upper Crown Table Vertices
           const x1_c = Math.cos(angle1) * crownRadius;
           const z1_c = Math.sin(angle1) * crownRadius;
           const x2_c = Math.cos(angle2) * crownRadius;
           const z2_c = Math.sin(angle2) * crownRadius;
 
-          // Girdle Edge Vertices
           const x1_g = Math.cos(angle1) * girdleRadius;
           const z1_g = Math.sin(angle1) * girdleRadius;
           const x2_g = Math.cos(angle2) * girdleRadius;
           const z2_g = Math.sin(angle2) * girdleRadius;
 
-          // 1. Table Top Facets (Triangles from center table to crown)
+          // Table Top Facets
           vertices.push(...apexTop, x1_c, crownHeight, z1_c, x2_c, crownHeight, z2_c);
 
-          // 2. Crown Upper Bezel Facets (Quads split into 2 triangles)
+          // Crown Upper Bezel Facets
           vertices.push(x1_c, crownHeight, z1_c, x1_g, girdleHeight, z1_g, x2_g, girdleHeight, z2_g);
           vertices.push(x1_c, crownHeight, z1_c, x2_g, girdleHeight, z2_g, x2_c, crownHeight, z2_c);
 
-          // 3. Pavilion Lower Facets (Triangles from girdle to bottom culet)
+          // Pavilion Lower Facets
           vertices.push(x1_g, girdleHeight, z1_g, apexBottom[0], apexBottom[1], apexBottom[2], x2_g, girdleHeight, z2_g);
         }
 
@@ -303,23 +383,20 @@
         return geom;
       }
 
-      // ----------------------------------------------------
-      // 2. HIGH-END PHYSICAL DIAMOND SHADER MATERIAL
-      // ----------------------------------------------------
-      function createDiamondMaterial(colorHex = 0xffffff, envMap = null) {
+      function createPolishedDiamondMaterial(colorHex = 0xffffff, envMap = null) {
         return new THREE.MeshPhysicalMaterial({
           color: new THREE.Color(colorHex),
           emissive: new THREE.Color(0x050a15),
-          roughness: 0.0,            // Mirror polished surface
-          metalness: 0.0,            // Pure dielectric gemstone
-          transmission: 0.98,        // High optical transparency for inner sparkle
-          ior: 2.417,                // Exact Refractive Index of Natural Diamond
-          reflectivity: 1.0,         // Maximum surface reflection
-          clearcoat: 1.0,            // Extra outer polish layer
+          roughness: 0.0,
+          metalness: 0.0,
+          transmission: 0.98,
+          ior: 2.417,                // Exact Natural Diamond Refractive Index
+          reflectivity: 1.0,
+          clearcoat: 1.0,
           clearcoatRoughness: 0.0,
-          dispersion: 0.06,          // Physical chromatic dispersion (Fire & Rainbow splits)
-          thickness: 1.2,            // Internal refraction ray length
-          flatShading: true,         // Sharp facet reflections!
+          dispersion: 0.06,          // Physical dispersion (Rainbow Fire)
+          thickness: 1.2,
+          flatShading: true,
           envMap: envMap,
           envMapIntensity: 3.5,
           transparent: true,
@@ -328,21 +405,42 @@
       }
 
       // ----------------------------------------------------
-      // 3. STUDIO LIGHTING SYSTEM & ENVIRONMENT SETUP
+      // 3. LASER SCANNING BEAM & SWEEP RING
       // ----------------------------------------------------
-      function setupDiamondLighting(targetScene, rendererInstance) {
+      function createLaserScannerGroup() {
+        laserGroup = new THREE.Group();
+
+        // Laser Ring
+        const ringGeo = new THREE.TorusGeometry(0.85, 0.02, 16, 64);
+        const ringMat = new THREE.MeshBasicMaterial({
+          color: 0x00f0ff,
+          transparent: true,
+          opacity: 0.95
+        });
+        laserRing = new THREE.Mesh(ringGeo, ringMat);
+        laserRing.rotation.x = Math.PI / 2;
+        laserGroup.add(laserRing);
+
+        // Laser Light Emission
+        laserLight = new THREE.PointLight(0x00f0ff, 4.0, 3.0);
+        laserGroup.add(laserLight);
+
+        return laserGroup;
+      }
+
+      // ----------------------------------------------------
+      // 4. STUDIO LIGHTING RIG & ENVIRONMENT SETUP
+      // ----------------------------------------------------
+      function setupLightingSystem(targetScene, rendererInstance) {
         lightGroup = new THREE.Group();
 
-        // Ambient Fill
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         lightGroup.add(ambientLight);
 
-        // Key Overhead Spotlight for Brilliance
         const keyLight = new THREE.DirectionalLight(0xffffff, 3.5);
         keyLight.position.set(2, 4, 3);
         lightGroup.add(keyLight);
 
-        // Colored Orbiting Point Lights to provoke Chromatic Fire & Sparkles
         const lightColors = [0xffd700, 0x00ffff, 0xff007f, 0x76ff03];
         pointLights = [];
 
@@ -360,18 +458,117 @@
 
         targetScene.add(lightGroup);
 
-        // Generate Studio Environment Map for photorealistic reflections
         const pmremGenerator = new THREE.PMREMGenerator(rendererInstance);
         pmremGenerator.compileEquirectangularShader();
         const roomEnv = new RoomEnvironment();
-        const envTexture = pmremGenerator.fromScene(roomEnv).texture;
+        const texture = pmremGenerator.fromScene(roomEnv).texture;
         pmremGenerator.dispose();
 
-        return envTexture;
+        return texture;
       }
 
       // ----------------------------------------------------
-      // 4. INITIALIZATION & WEBAR SETUP
+      // 5. ASSEMBLE DUAL-STATE TRANSFORMING GEMSTONE
+      // ----------------------------------------------------
+      function buildTransformingGemstone(envMap) {
+        transformGroup = new THREE.Group();
+
+        // 1. Rough Octahedron Mesh
+        const roughGeo = createRoughDiamondGeometry();
+        const roughMat = createRoughDiamondMaterial();
+        roughMesh = new THREE.Mesh(roughGeo, roughMat);
+        roughMesh.scale.set(0.65, 0.65, 0.65);
+        roughMesh.position.set(0, 0.2, 0);
+        transformGroup.add(roughMesh);
+
+        // 2. Polished Brilliant Cut Mesh
+        const polishedGeo = createPolishedDiamondGeometry();
+        const polishedMat = createPolishedDiamondMaterial(0xffffff, envMap);
+        polishedMesh = new THREE.Mesh(polishedGeo, polishedMat);
+        polishedMesh.scale.set(0.65, 0.65, 0.65);
+        polishedMesh.position.set(0, 0.2, 0);
+        transformGroup.add(polishedMesh);
+
+        // 3. Laser Scanner Ring
+        const laser = createLaserScannerGroup();
+        laser.position.set(0, 0.2, 0);
+        transformGroup.add(laser);
+
+        // 4. Outer Gold Halo Ring
+        const haloGeo = new THREE.TorusGeometry(0.9, 0.015, 16, 64);
+        const haloMat = new THREE.MeshStandardMaterial({
+          color: 0xd4af37,
+          metalness: 0.9,
+          roughness: 0.1,
+          emissive: 0x443300
+        });
+        const haloRing = new THREE.Mesh(haloGeo, haloMat);
+        haloRing.rotation.x = Math.PI / 2;
+        haloRing.position.set(0, -0.4, 0);
+        transformGroup.add(haloRing);
+
+        return transformGroup;
+      }
+
+      // ----------------------------------------------------
+      // 6. ANIMATION & MORPH TRANSFORMATION LOOP
+      // ----------------------------------------------------
+      function updateTransformationLoop() {
+        const time = Date.now() * 0.0015;
+
+        // Gem Rotation
+        if (transformGroup) {
+          transformGroup.rotation.y += 0.008;
+          transformGroup.rotation.x = Math.sin(time) * 0.12;
+        }
+
+        // Orbit point lights for facet sparkles
+        pointLights.forEach((pLight) => {
+          pLight.userData.angle += pLight.userData.speed;
+          pLight.position.x = Math.cos(pLight.userData.angle) * pLight.userData.radius;
+          pLight.position.z = Math.sin(pLight.userData.angle) * pLight.userData.radius;
+          pLight.position.y = pLight.userData.baseY + Math.sin(pLight.userData.angle * 2) * 0.2;
+        });
+
+        // Handle Transformation Stages
+        if (currentStage === 'auto') {
+          autoLoopTime += 0.015;
+          const cycle = (Math.sin(autoLoopTime) + 1) / 2; // 0 to 1 smooth oscillation
+          applyMorphRatio(cycle);
+        } else if (currentStage === 'rough') {
+          applyMorphRatio(0.0);
+        } else if (currentStage === 'polished') {
+          applyMorphRatio(1.0);
+        } else if (currentStage === 'transform') {
+          // Sweeping sweep effect
+          const sweep = (Math.sin(time * 2.0) + 1) / 2;
+          applyMorphRatio(sweep);
+        }
+      }
+
+      function applyMorphRatio(ratio) {
+        // ratio: 0.0 (Pure Rough) -> 1.0 (Pure Polished)
+        if (!roughMesh || !polishedMesh || !laserGroup) return;
+
+        roughMesh.material.opacity = Math.max(0.0, 1.0 - ratio * 1.2);
+        polishedMesh.material.opacity = Math.min(1.0, ratio * 1.2);
+        roughMesh.visible = roughMesh.material.opacity > 0.02;
+        polishedMesh.visible = polishedMesh.material.opacity > 0.02;
+
+        // Laser Ring Y Sweep Position across diamond height (-0.5 to +0.5)
+        const laserY = (ratio - 0.5) * 1.1;
+        laserGroup.position.y = 0.2 + laserY;
+
+        // Laser Intensity pulses during transformation phase
+        const isLaserActive = (ratio > 0.05 && ratio < 0.95);
+        laserGroup.visible = isLaserActive;
+        if (isLaserActive) {
+          laserLight.intensity = 3.0 + Math.sin(Date.now() * 0.02) * 1.5;
+        }
+      }
+
+      // ----------------------------------------------------
+      // 7. WEBAR INITIALIZATION
       // ----------------------------------------------------
       async function initWebAR() {
         mindarThree = new MindARThree({
@@ -384,69 +581,26 @@
         camera = mindarThree.camera;
 
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.2;
+        renderer.toneMappingExposure = 1.25;
 
-        // Anchor setup on physical card target
         anchor = mindarThree.addAnchor(0);
 
-        // Set up Studio Lighting & EnvMap
-        const envMap = setupDiamondLighting(scene, renderer);
+        envTexture = setupLightingSystem(scene, renderer);
+        const gem = buildTransformingGemstone(envTexture);
+        anchor.group.add(gem);
 
-        // Build Diamond 3D Mesh
-        const diamondGeo = createDiamondGeometry();
-        const diamondMat = createDiamondMaterial(0xffffff, envMap);
-        diamondMesh = new THREE.Mesh(diamondGeo, diamondMat);
-
-        diamondMesh.scale.set(0.65, 0.65, 0.65);
-        diamondMesh.position.set(0, 0.2, 0);
-
-        // Add Floating Halo Ring under the Diamond
-        const ringGeo = new THREE.TorusGeometry(0.85, 0.015, 16, 64);
-        const ringMat = new THREE.MeshStandardMaterial({
-          color: 0xd4af37,
-          metalness: 0.9,
-          roughness: 0.1,
-          emissive: 0x554000
-        });
-        const haloRing = new THREE.Mesh(ringGeo, ringMat);
-        haloRing.rotation.x = Math.PI / 2;
-
-        const gemGroup = new THREE.Group();
-        gemGroup.add(diamondMesh);
-        gemGroup.add(haloRing);
-
-        anchor.group.add(gemGroup);
-
-        // Start MindAR
         await mindarThree.start();
 
-        // Main Render & Animation Loop
         renderer.setAnimationLoop(() => {
-          animateDiamond();
+          updateTransformationLoop();
           renderer.render(scene, camera);
         });
 
         document.querySelector("#scanner-blueprint").classList.remove("hidden");
       }
 
-      // Animation Loop logic
-      function animateDiamond() {
-        if (diamondMesh) {
-          diamondMesh.rotation.y += 0.008;
-          diamondMesh.rotation.x = Math.sin(Date.now() * 0.001) * 0.15;
-        }
-
-        // Orbit point lights for dynamic facet sparkle
-        pointLights.forEach((pLight) => {
-          pLight.userData.angle += pLight.userData.speed;
-          pLight.position.x = Math.cos(pLight.userData.angle) * pLight.userData.radius;
-          pLight.position.z = Math.sin(pLight.userData.angle) * pLight.userData.radius;
-          pLight.position.y = pLight.userData.baseY + Math.sin(pLight.userData.angle * 2) * 0.2;
-        });
-      }
-
       // ----------------------------------------------------
-      // 5. EVENT LISTENERS & INTERACTIVE HUD
+      // 8. EVENT LISTENERS & HUD UI CONTROLS
       // ----------------------------------------------------
       document.querySelector("#startButton").addEventListener("click", async () => {
         if (!mindarThree) {
@@ -454,7 +608,7 @@
         } else {
           await mindarThree.start();
           renderer.setAnimationLoop(() => {
-            animateDiamond();
+            updateTransformationLoop();
             renderer.render(scene, camera);
           });
         }
@@ -469,7 +623,7 @@
         document.querySelector("#scanner-blueprint").classList.add("hidden");
       });
 
-      // WebGL Direct Preview Bypass
+      // WebGL Bypass Preview Mode
       document.querySelector("#bypassButton").addEventListener("click", () => {
         isBypassMode = !isBypassMode;
         const btn = document.querySelector("#bypassButton");
@@ -479,29 +633,26 @@
           document.querySelector("#scanner-blueprint").classList.add("hidden");
 
           if (!renderer) {
-            // Standalone Three.js fallback render if MindAR isn't started yet
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 1.2;
+            renderer.toneMappingExposure = 1.25;
             document.querySelector("#container").appendChild(renderer.domElement);
 
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
-            camera.position.set(0, 0.5, 2.5);
+            camera.position.set(0, 0.4, 2.4);
 
-            const envMap = setupDiamondLighting(scene, renderer);
-            const diamondGeo = createDiamondGeometry();
-            const diamondMat = createDiamondMaterial(0xffffff, envMap);
-            diamondMesh = new THREE.Mesh(diamondGeo, diamondMat);
-            scene.add(diamondMesh);
+            envTexture = setupLightingSystem(scene, renderer);
+            const gem = buildTransformingGemstone(envTexture);
+            scene.add(gem);
           } else {
-            camera.position.set(0, 0.5, 2.5);
+            camera.position.set(0, 0.4, 2.4);
             camera.lookAt(0, 0, 0);
           }
 
           renderer.setAnimationLoop(() => {
-            animateDiamond();
+            updateTransformationLoop();
             renderer.render(scene, camera);
           });
         } else {
@@ -510,20 +661,43 @@
         }
       });
 
-      // Gem Color Picker Selection
+      // Stage Selection Logic
+      const stageButtons = {
+        'btnStageRough': 'rough',
+        'btnStageTransform': 'transform',
+        'btnStagePolished': 'polished',
+        'btnStageAuto': 'auto'
+      };
+
+      Object.entries(stageButtons).forEach(([btnId, stageKey]) => {
+        document.querySelector(`#${btnId}`).addEventListener("click", () => {
+          document.querySelectorAll(".stage-btn").forEach(b => b.classList.remove("active"));
+          document.querySelector(`#${btnId}`).classList.add("active");
+
+          currentStage = stageKey;
+          const badge = document.querySelector("#stage-badge");
+
+          if (stageKey === 'rough') badge.textContent = "Raw Octahedron Crystal";
+          else if (stageKey === 'transform') badge.textContent = "Laser Sweep Processing";
+          else if (stageKey === 'polished') badge.textContent = "Flawless Brilliant Cut";
+          else if (stageKey === 'auto') badge.textContent = "Continuous Evolution Loop";
+        });
+      });
+
+      // Diamond Color Selector
       document.querySelectorAll(".color-swatch").forEach((swatch) => {
-        swatch.addEventListener("click", (e) => {
+        swatch.addEventListener("click", () => {
           document.querySelectorAll(".color-swatch").forEach(s => s.classList.remove("selected"));
           swatch.classList.add("selected");
 
           const colorHex = parseInt(swatch.getAttribute("data-color"));
-          if (diamondMesh) {
-            diamondMesh.material.color.setHex(colorHex);
+          if (polishedMesh) {
+            polishedMesh.material.color.setHex(colorHex);
           }
         });
       });
 
-      // Auto start WebAR on page load
+      // Auto initialize WebAR on load
       window.addEventListener("DOMContentLoaded", () => {
         initWebAR().catch(err => {
           console.log("WebAR Auto-start awaiting user interaction:", err);
