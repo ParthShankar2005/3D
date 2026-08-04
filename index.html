@@ -1,1191 +1,534 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Shivam Jewels - 80th Independence Day WebAR Experience</title>
+    
+    <!-- 1. Google Fonts & Design Styles -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-    content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-  <title>Shivam Jewels - 80th Independence Day WebAR Experience</title>
-
-  <!-- Premium Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Montserrat:wght@300;400;600&display=swap"
-    rel="stylesheet">
-
-  <!-- A-Frame (3D rendering framework) and MindAR (WebAR image tracking) -->
-  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      font-family: 'Montserrat', 'Segoe UI', Roboto, sans-serif;
-      background-color: #252662;
-      /* Royal blue base theme */
-    }
-
-    /* Loading & UI Overlay */
-    #ar-overlay {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      left: 0;
-      top: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 10;
-      pointer-events: none;
-      box-sizing: border-box;
-      padding: 30px 20px;
-    }
-
-    /* Glassmorphism Invitation Card (Slides up when AR triggers) */
-    .glass-card {
-      background: linear-gradient(135deg, rgba(37, 38, 98, 0.8) 0%, rgba(12, 12, 38, 0.95) 100%);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      border-radius: 24px;
-      padding: 25px;
-      width: 90%;
-      max-width: 380px;
-      color: #ffffff;
-      text-align: center;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8),
-        inset 0 0 20px rgba(37, 38, 98, 0.3);
-      pointer-events: auto;
-      transform: translateY(150%);
-      transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1), opacity 1.2s ease;
-      opacity: 0;
-    }
-
-    .glass-card.visible {
-      transform: translateY(0);
-      opacity: 1;
-    }
-
-    .brand-title {
-      font-family: 'Cinzel', serif;
-      font-size: 1.5rem;
-      letter-spacing: 5px;
-      color: #ffffff;
-      /* White text brand header */
-      margin: 0 0 4px 0;
-      text-transform: uppercase;
-      font-weight: 800;
-      text-shadow: 0 0 15px rgba(255, 255, 255, 0.6), 0 0 25px rgba(255, 215, 0, 0.3);
-    }
-
-    .brand-subtitle {
-      font-size: 0.75rem;
-      letter-spacing: 3px;
-      color: #ffffff;
-      opacity: 0.85;
-      margin: 0 0 15px 0;
-      text-transform: uppercase;
-      font-weight: 300;
-    }
-
-    .card-divider {
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-      margin: 15px 0;
-    }
-
-    .invitation-text {
-      font-size: 0.88rem;
-      line-height: 1.6;
-      color: #ffffff;
-      margin-bottom: 20px;
-      font-weight: 300;
-    }
-
-    .invitation-text strong {
-      color: #ffffff;
-      font-weight: 600;
-      text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
-    }
-
-    /* RSVP Section styling */
-    .rsvp-container {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 10px;
-    }
-
-    .rsvp-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-    }
-
-    .ar-btn {
-      background: linear-gradient(135deg, #252662 0%, #15153a 100%);
-      border: 1px solid rgba(255, 215, 0, 0.6);
-      color: #ffffff;
-      padding: 10px 24px;
-      font-size: 0.8rem;
-      font-weight: bold;
-      letter-spacing: 1.5px;
-      border-radius: 20px;
-      cursor: pointer;
-      text-transform: uppercase;
-      box-shadow: 0 4px 15px rgba(37, 38, 98, 0.5);
-      transition: all 0.3s ease;
-    }
-
-    .ar-btn:hover {
-      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3), 0 0 10px rgba(37, 38, 98, 0.6);
-      transform: translateY(-1px);
-    }
-
-    .ar-btn:active {
-      transform: scale(0.96);
-    }
-
-    .ar-btn.secondary {
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      color: #ffffff;
-      box-shadow: none;
-    }
-
-    .ar-btn.secondary:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .rsvp-success-msg {
-      font-family: 'Cinzel', serif;
-      font-size: 1.1rem;
-      color: #ffffff;
-      margin-top: 15px;
-      animation: pulseGlow 2s infinite ease-in-out;
-    }
-
-    @keyframes pulseGlow {
-
-      0%,
-      100% {
-        text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
-      }
-
-      50% {
-        text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+    <!-- 2. Importmap for Three.js (r160) and MindAR -->
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+        "mindar-image-three": "https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
       }
     }
+    </script>
 
-    /* Tracking instructions */
-    .instruction-box {
-      background: rgba(37, 38, 98, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      border-radius: 30px;
-      padding: 12px 24px;
-      color: #ffffff;
-      font-size: 0.8rem;
-      letter-spacing: 1px;
-      text-align: center;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      transition: opacity 0.5s ease;
-      pointer-events: auto;
-    }
-
-    /* Redesigned Self-Mapping Card Target Overlay (3:4 Ratio) */
-    .scan-target {
-      position: absolute;
-      width: 280px;
-      height: 373px;
-      /* 3:4 aspect ratio to match invitation card (1086x1448) */
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      z-index: 5;
-      transition: opacity 0.5s ease;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    /* Transparent image layout guide */
-    .scan-card-blueprint {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: url('shivam_jewels_print_ready_card.jpg');
-      background-size: cover;
-      background-position: center;
-      border-radius: 20px;
-      opacity: 0.22;
-      /* Light and transparent */
-      filter: grayscale(1) brightness(1.6) contrast(1.1);
-      /* Pure white transparent aura */
-      border: 2px dashed rgba(255, 255, 255, 0.55);
-      box-shadow: inset 0 0 40px rgba(255, 255, 255, 0.15), 0 0 20px rgba(255, 255, 255, 0.05);
-    }
-
-    /* Glowing corners */
-    .corner-bracket {
-      position: absolute;
-      width: 24px;
-      height: 24px;
-      border-color: #ffffff;
-      border-style: solid;
-      border-width: 0;
-      filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8));
-      animation: cornerPulse 2s infinite ease-in-out;
-    }
-
-    .top-left {
-      top: -2px;
-      left: -2px;
-      border-top-width: 4px;
-      border-left-width: 4px;
-      border-top-left-radius: 12px;
-    }
-
-    .top-right {
-      top: -2px;
-      right: -2px;
-      border-top-width: 4px;
-      border-right-width: 4px;
-      border-top-right-radius: 12px;
-    }
-
-    .bottom-left {
-      bottom: -2px;
-      left: -2px;
-      border-bottom-width: 4px;
-      border-left-width: 4px;
-      border-bottom-left-radius: 12px;
-    }
-
-    .bottom-right {
-      bottom: -2px;
-      right: -2px;
-      border-bottom-width: 4px;
-      border-right-width: 4px;
-      border-bottom-right-radius: 12px;
-    }
-
-    @keyframes cornerPulse {
-
-      0%,
-      100% {
-        transform: scale(1);
-        opacity: 0.7;
+    <style>
+      :root {
+        --primary-gold: #d4af37;
+        --accent-glow: #ffd700;
+        --bg-dark: rgba(10, 12, 18, 0.85);
+        --glass-border: rgba(212, 175, 55, 0.3);
       }
 
-      50% {
-        transform: scale(1.02);
-        opacity: 1;
+      * {
+        box-sizing: border-box;
+        user-select: none;
       }
-    }
 
-    /* Mapping Laser Line Sweep */
-    .scan-line {
-      position: absolute;
-      width: 100%;
-      height: 3px;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9), transparent);
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
-      left: 0;
-      animation: scanSweep 3.5s infinite ease-in-out;
-      z-index: 6;
-    }
+      body, html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background-color: #050608;
+        font-family: 'Montserrat', sans-serif;
+        color: #ffffff;
+      }
 
-    @keyframes scanSweep {
-      0% {
-        top: 0%;
+      #container {
+        width: 100vw;
+        height: 100vh;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
+      }
+
+      /* HUD Glass Overlay */
+      #hud-header {
+        position: fixed;
+        top: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 100;
+        background: var(--bg-dark);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid var(--glass-border);
+        border-radius: 30px;
+        padding: 10px 24px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 15px rgba(212, 175, 55, 0.15);
+      }
+
+      .brand-title {
+        font-family: 'Cinzel', serif;
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: #fff;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .brand-title span {
+        color: var(--primary-gold);
+      }
+
+      /* Controls Panel */
+      #control-panel {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 100;
+        background: var(--bg-dark);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 14px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        width: 90%;
+        max-width: 480px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+      }
+
+      .btn-group {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+      }
+
+      button {
+        flex: 1;
+        padding: 12px 16px;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        border: 1px solid var(--primary-gold);
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(0, 0, 0, 0.6));
+        color: #ffffff;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      button:hover {
+        background: linear-gradient(135deg, rgba(212, 175, 55, 0.5), rgba(212, 175, 55, 0.1));
+        box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+        transform: translateY(-2px);
+      }
+
+      button.active {
+        background: var(--primary-gold);
+        color: #000;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+      }
+
+      /* Gem Color Pickers */
+      .color-selector {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 12px;
+        color: #ccc;
+        letter-spacing: 0.5px;
+      }
+
+      .color-swatch {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: transform 0.2s, border-color 0.2s;
+      }
+
+      .color-swatch:hover, .color-swatch.selected {
+        transform: scale(1.25);
+        border-color: #fff;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+      }
+
+      /* Card Overlay Blueprint Frame */
+      #scanner-blueprint {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 280px;
+        height: 420px;
+        border: 2px dashed rgba(212, 175, 55, 0.4);
+        border-radius: 16px;
+        pointer-events: none;
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.5s ease;
+      }
+
+      #scanner-blueprint::after {
+        content: "ALIGN INVITATION CARD HERE";
+        font-family: 'Cinzel', serif;
+        font-size: 11px;
+        letter-spacing: 2px;
+        color: rgba(212, 175, 55, 0.7);
+        text-align: center;
+        background: rgba(0, 0, 0, 0.6);
+        padding: 6px 12px;
+        border-radius: 8px;
+      }
+
+      .hidden {
         opacity: 0;
+        pointer-events: none;
       }
-
-      10% {
-        opacity: 1;
-      }
-
-      90% {
-        opacity: 1;
-      }
-
-      100% {
-        top: 100%;
-        opacity: 0;
-      }
-    }
-
-
-
-    /* Luxury Onboarding Overlay Screen */
-    #ar-onboarding {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 100;
-      background: radial-gradient(circle at center, rgba(37, 38, 98, 0.98) 0%, rgba(12, 12, 38, 1) 100%);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      color: #ffffff;
-      transition: opacity 0.8s cubic-bezier(0.19, 1, 0.22, 1), visibility 0.8s;
-      box-sizing: border-box;
-      padding: 20px;
-    }
-
-    #ar-onboarding.fade-out {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    .onboarding-card {
-      background: linear-gradient(135deg, rgba(37, 38, 98, 0.55) 0%, rgba(12, 12, 38, 0.8) 100%);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 28px;
-      padding: 40px 30px;
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
-      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.9),
-        inset 0 0 30px rgba(255, 255, 255, 0.05);
-      animation: cardFloat 6s ease-in-out infinite;
-    }
-
-    @keyframes cardFloat {
-
-      0%,
-      100% {
-        transform: translateY(0);
-      }
-
-      50% {
-        transform: translateY(-8px);
-      }
-    }
-
-    .onboarding-brand {
-      font-family: 'Cinzel', serif;
-      font-size: 1.8rem;
-      letter-spacing: 6px;
-      color: #ffffff;
-      margin: 0 0 5px 0;
-      font-weight: 800;
-      text-transform: uppercase;
-      text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-    }
-
-    .onboarding-subtitle {
-      font-size: 0.8rem;
-      letter-spacing: 4px;
-      color: #ffffff;
-      opacity: 0.85;
-      margin: 0 0 25px 0;
-      text-transform: uppercase;
-      font-weight: 300;
-    }
-
-    .onboarding-desc {
-      font-size: 0.9rem;
-      line-height: 1.7;
-      color: #ffffff;
-      margin-bottom: 30px;
-      font-weight: 300;
-    }
-
-    .onboarding-desc strong {
-      color: #ffffff;
-      font-weight: 600;
-      text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
-    }
-
-    /* Luxury Gold Button */
-    .luxury-btn {
-      background: linear-gradient(135deg, #252662 0%, #15153a 100%);
-      border: 1px solid rgba(255, 215, 0, 0.6);
-      color: #ffffff;
-      padding: 16px 36px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      border-radius: 30px;
-      cursor: pointer;
-      text-transform: uppercase;
-      box-shadow: 0 0 25px rgba(37, 38, 98, 0.7);
-      transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .luxury-btn:hover {
-      box-shadow: 0 0 35px rgba(255, 255, 255, 0.5), 0 0 15px rgba(37, 38, 98, 0.5);
-      transform: translateY(-2px) scale(1.02);
-    }
-
-    .luxury-btn:active {
-      transform: translateY(1px) scale(0.98);
-    }
-
-    /* Camera Error Screen */
-    #camera-error-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 110;
-      background: radial-gradient(circle at center, rgba(37, 38, 98, 0.99) 0%, rgba(12, 12, 38, 1) 100%);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      color: #ffffff;
-      box-sizing: border-box;
-      padding: 20px;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.5s ease, visibility 0.5s;
-    }
-
-    #camera-error-screen.visible {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .error-card {
-      background: linear-gradient(135deg, rgba(37, 38, 98, 0.65) 0%, rgba(12, 12, 38, 0.9) 100%);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 80, 80, 0.5);
-      border-radius: 28px;
-      padding: 40px 30px;
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
-      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.9);
-    }
-
-    .error-icon {
-      font-size: 3rem;
-      color: #ff5252;
-      margin-bottom: 20px;
-      filter: drop-shadow(0 0 10px rgba(255, 82, 82, 0.5));
-    }
-
-    .error-title {
-      font-family: 'Cinzel', serif;
-      font-size: 1.4rem;
-      letter-spacing: 3px;
-      color: #ffffff;
-      text-shadow: 0 0 10px rgba(255, 82, 82, 0.5);
-      margin: 0 0 15px 0;
-      font-weight: 700;
-    }
-
-    .error-desc {
-      font-size: 0.85rem;
-      line-height: 1.6;
-      color: #ffffff;
-      margin-bottom: 25px;
-      text-align: left;
-    }
-
-    .error-steps {
-      margin: 0;
-      padding-left: 20px;
-      margin-bottom: 25px;
-      font-size: 0.85rem;
-      line-height: 1.6;
-      color: #ffffff;
-      text-align: left;
-    }
-
-    .error-steps li {
-      margin-bottom: 10px;
-    }
-
-    .error-steps strong {
-      color: #ffffff;
-      text-decoration: underline;
-    }
-
-    /* Elegant Loading Overlay while AR initializes */
-    #ar-loading {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 90;
-      background: radial-gradient(circle at center, #252662 0%, #0c0d24 100%);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.5s ease, visibility 0.5s;
-    }
-
-    #ar-loading.visible {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .spinner {
-      width: 50px;
-      height: 50px;
-      border: 3px solid rgba(255, 255, 255, 0.15);
-      border-radius: 50%;
-      border-top-color: #ffffff;
-      animation: spin 1s ease-in-out infinite;
-      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    .loading-text {
-      color: #ffffff;
-      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-      font-size: 0.85rem;
-      letter-spacing: 2px;
-      margin-top: 20px;
-      text-transform: uppercase;
-      font-family: 'Cinzel', serif;
-      animation: pulseText 1.5s infinite ease-in-out;
-    }
-
-    @keyframes pulseText {
-
-      0%,
-      100% {
-        opacity: 0.6;
-      }
-
-      50% {
-        opacity: 1;
-      }
-    }
-
-  </style>
-
-  <script>
-    // Configuration
-    const BACKEND_URL = "http://localhost:8080"; // Update with production backend URL if deployed
-    let guestId = null;
-    let arSystem = null;
-
-    // Retrieve guest parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    guestId = urlParams.get('guest') || urlParams.get('id');
-
-    // Fetch personalized greeting from API
-    async function loadGuestGreeting() {
-      if (!guestId) return;
-      try {
-        const response = await fetch(`${BACKEND_URL}/api/welcome/${guestId}`);
-        if (response.ok) {
-          const data = await response.json();
-          document.querySelector('.brand-title').innerText = `Welcome, ${data.name}`;
-          document.querySelector('.invitation-text').innerHTML = data.greeting;
-
-          // Show RSVP option instead of default link if not yet answered
-          if (data.rsvp_status === 'PENDING') {
-            document.querySelector('.rsvp-container').innerHTML = `
-              <div class="rsvp-buttons">
-                <button class="ar-btn" onclick="submitRSVP('ATTENDING')">Accept</button>
-                <button class="ar-btn secondary" onclick="submitRSVP('DECLINED')">Decline</button>
-              </div>
-            `;
-          } else {
-            showRSVPDone(data.rsvp_status);
-          }
-        }
-      } catch (err) {
-        console.warn("FastAPI backend offline, loading local guest preview...", err);
-        // Local developer fallback for simulation testing
-        if (guestId === 'vip-guest') {
-          document.querySelector('.brand-title').innerText = "Welcome, Mr. Shankar";
-          document.querySelector('.invitation-text').innerHTML = "We are deeply honored to invite you to celebrate 80 years of Indian Independence and Shivam Jewels' legacy of fine diamonds.";
-        }
-      }
-    }
-
-    async function submitRSVP(status) {
-      if (!guestId) return;
-      try {
-        const response = await fetch(`${BACKEND_URL}/api/rsvp/${guestId}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status })
-        });
-        if (response.ok) {
-          showRSVPDone(status);
-        }
-      } catch (err) {
-        console.error("Failed to submit RSVP", err);
-        // Simulation UI update fallback
-        showRSVPDone(status);
-      }
-    }
-
-    function showRSVPDone(status) {
-      const container = document.querySelector('.rsvp-container');
-      if (status === 'ATTENDING') {
-        container.innerHTML = `<div class="rsvp-success-msg">✨ Attending — Thank You!</div>`;
-      } else {
-        container.innerHTML = `<div class="rsvp-success-msg" style="color: #cbd5e1;">Declined — Thank You.</div>`;
-      }
-    }
-
-    // --- Programmatic AR Startup ---
-    function startAR() {
-      const onboarding = document.querySelector('#ar-onboarding');
-      const loading = document.querySelector('#ar-loading');
-
-      onboarding.classList.add('fade-out');
-      loading.classList.add('visible');
-
-      const sceneEl = document.querySelector('a-scene');
-
-      // Auto-hide loading screen after 6.5 seconds as a fallback in case arReady is delayed
-      const fallbackTimeout = setTimeout(() => {
-        if (loading.classList.contains('visible')) {
-          console.warn("arReady event timed out. Forcing loader hide.");
-          loading.classList.remove('visible');
-        }
-      }, 6500);
-
-      sceneEl.addEventListener("arReady", () => {
-        clearTimeout(fallbackTimeout);
-        loading.classList.remove('visible');
-      }, { once: true });
-
-      if (sceneEl.systems && sceneEl.systems["mindar-image-system"]) {
-        arSystem = sceneEl.systems["mindar-image-system"];
-      }
-
-      if (arSystem) {
-        arSystem.start();
-      } else {
-        const startInterval = setInterval(() => {
-          if (sceneEl.systems && sceneEl.systems["mindar-image-system"]) {
-            arSystem = sceneEl.systems["mindar-image-system"];
-            clearInterval(startInterval);
-            arSystem.start();
-          }
-        }, 50);
-      }
-    }
-
-
-    // --- 1. Custom Antigravity Bobbing and Rotation Component ---
-    AFRAME.registerComponent('antigravity', {
-      schema: {
-        bobSpeed: { type: 'number', default: 0.0012 },
-        bobAmp: { type: 'number', default: 0.05 },
-        rotSpeed: { type: 'number', default: 0.2 }
-      },
-      init: function () {
-        this.initialY = this.el.object3D.position.y;
-      },
-      tick: function (time, timeDelta) {
-        // Smooth sinusoidal bobbing (antigravity float effect)
-        const newY = this.initialY + (Math.sin(time * this.data.bobSpeed) * this.data.bobAmp);
-        this.el.object3D.position.y = newY;
-
-        // Slow, luxurious gold rotation
-        this.el.object3D.rotation.y += (this.data.rotSpeed * Math.PI / 180);
-      }
-    });
-
-    // --- 2. Tricolor Particle Generator (Rising Vortex Particle Engine) ---
-    AFRAME.registerComponent('rising-particles', {
-      init: function () {
-        this.particleCount = 80;
-        // Rich Tricolor Saffron (#FF8F00), Pure White (#FFFFFF), Deep Green (#1B5E20), and Luxury Gold (#FFD700)
-        this.colors = ['#FF8F00', '#FFFFFF', '#1B5E20', '#FFD700'];
-        this.particles = [];
-
-        for (let i = 0; i < this.particleCount; i++) {
-          const el = document.createElement('a-entity');
-
-          // Spawn in a spiral coordinates path
-          const angle = Math.random() * Math.PI * 2;
-          const radius = Math.random() * 0.9 + 0.1;
-          const x = Math.cos(angle) * radius;
-          const y = (Math.random() * 3.0) - 1.5;
-          const z = Math.sin(angle) * radius;
-
-          el.setAttribute('geometry', {
-            primitive: 'sphere',
-            radius: Math.random() * 0.012 + 0.004
-          });
-
-          const color = this.colors[Math.floor(Math.random() * this.colors.length)];
-          el.setAttribute('material', {
-            color: color,
-            shader: 'flat',
-            opacity: Math.random() * 0.75 + 0.25
-          });
-
-          el.setAttribute('position', { x, y, z });
-          this.el.appendChild(el);
-
-          this.particles.push({
-            el: el,
-            speed: Math.random() * 0.006 + 0.003,
-            rotSpeed: Math.random() * 0.001 + 0.0005,
-            radius: radius,
-            angle: angle,
-            initialY: y
-          });
-        }
-      },
-      tick: function (time, timeDelta) {
-        this.particles.forEach(p => {
-          let pos = p.el.getAttribute('position');
-          if (!pos) return;
-
-          // Vortex spiral math: rise and rotate around the Y axis
-          p.angle += p.rotSpeed * timeDelta;
-          pos.y += p.speed;
-          pos.x = Math.cos(p.angle) * p.radius;
-          pos.z = Math.sin(p.angle) * p.radius;
-
-          // Reset when particle floats too high
-          if (pos.y > 1.8) {
-            pos.y = -1.5;
-            p.angle = Math.random() * Math.PI * 2;
-          }
-          p.el.setAttribute('position', pos);
-        });
-      }
-    });
-
-    // --- AR Target Camera Event Listeners ---
-    document.addEventListener("DOMContentLoaded", () => {
-      loadGuestGreeting();
-
-      const sceneEl = document.querySelector('a-scene');
-      const targetEl = document.querySelector('#ar-target');
-      const glassCard = document.querySelector('.glass-card');
-      const instruction = document.querySelector('.instruction-box');
-      const scanReticle = document.querySelector('.scan-target');
-      const loading = document.querySelector('#ar-loading');
-      const errorScreen = document.querySelector('#camera-error-screen');
-
-      // Store reference to system once scene initializes (handle potential A-Frame race condition)
-      if (sceneEl.hasLoaded) {
-        arSystem = sceneEl.systems["mindar-image-system"];
-      } else {
-        sceneEl.addEventListener('loaded', () => {
-          arSystem = sceneEl.systems["mindar-image-system"];
-        });
-      }
-
-      // Camera startup successful
-      sceneEl.addEventListener("arReady", (event) => {
-        loading.classList.remove('visible');
-      });
-
-      // Camera startup failed (permission denied or device blocked)
-      sceneEl.addEventListener("arError", (event) => {
-        console.error("Camera access or AR initialization error:", event);
-        loading.classList.remove('visible');
-        errorScreen.classList.add('visible');
-      });
-
-      if (targetEl) {
-        targetEl.addEventListener("targetFound", () => {
-          // MindAR aligned successfully, now initialize physical QR scanner loop to validate details
-          startQRScanner();
-        });
-
-        targetEl.addEventListener("targetLost", () => {
-          // Clear QR scanner loop
-          if (qrScanInterval) {
-            clearInterval(qrScanInterval);
-            qrScanInterval = null;
-          }
-          qrValidated = false;
-          reset3DView();
-        });
-      }
-    });
-
-    // Developer Simulator Function
-    function toggleSimulation() {
-      const onboarding = document.querySelector('#ar-onboarding');
-      const glassCard = document.querySelector('.glass-card');
-      const instruction = document.querySelector('.instruction-box');
-      const scanReticle = document.querySelector('.scan-target');
-      const simBtn = document.querySelector('.sim-btn');
-      const portalNode = document.querySelector('#portal-group');
-      const simBg = document.querySelector('#simulator-bg');
-      const chakra = document.querySelector('#ashoka-chakra-mesh');
-      const gems = document.querySelector('#luxury-gemstone');
-      const targetEl = document.querySelector('#ar-target');
-      const sceneEl = document.querySelector('a-scene');
-
-      if (onboarding) {
-        onboarding.classList.add('fade-out');
-      }
-
-      if (glassCard.classList.contains('visible')) {
-        glassCard.classList.remove('visible');
-        instruction.style.opacity = '1';
-        scanReticle.style.opacity = '1';
-
-        // Reparent back to targetEl
-        if (portalNode && targetEl) {
-          targetEl.appendChild(portalNode);
-          portalNode.setAttribute('position', '0 0 0');
-          portalNode.setAttribute('visible', 'false');
-        }
-
-        simBg.style.display = "none";
-        simBtn.innerText = "Simulate Scan (On)";
-
-        // Reset scale & position in simulation
-        if (chakra) {
-          chakra.removeAttribute('animation');
-          chakra.removeAttribute('animation__pos');
-          chakra.setAttribute('scale', '0 0 0');
-          chakra.setAttribute('position', '0 0 -0.5');
-        }
-        if (gems) {
-          gems.removeAttribute('animation');
-          gems.setAttribute('scale', '0 0 0');
-        }
-      } else {
-        glassCard.classList.add('visible');
-        instruction.style.opacity = '0';
-        scanReticle.style.opacity = '0';
-
-        // Reparent to sceneEl so it shows up in front of the camera (escaping the hidden ar-target parent)
-        if (portalNode && sceneEl) {
-          sceneEl.appendChild(portalNode);
-          portalNode.setAttribute('position', '0 0 -2.2');
-          portalNode.setAttribute('visible', 'true');
-        }
-
-        simBg.style.display = "block";
-        simBtn.innerText = "Simulate Scan (Off)";
-
-        // Show at full scale in simulation
-        if (chakra) {
-          chakra.setAttribute('scale', '0.45 0.45 0.45');
-          chakra.setAttribute('position', '0 0 0.12');
-        }
-        if (gems) {
-          gems.setAttribute('scale', '0.8 0.8 0.8');
-        }
-      }
-    }
-
-
-
-    // --- QR Code Scanner & Distance Calculation Loop ---
-    let qrScanInterval = null;
-    let qrValidated = false;
-    let lastQrSeenTime = 0;
-
-    function startQRScanner() {
-      if (qrScanInterval) clearInterval(qrScanInterval);
-      
-      const qrCanvas = document.createElement('canvas');
-      const qrContext = qrCanvas.getContext('2d');
-      
-      qrScanInterval = setInterval(() => {
-        
-        const video = document.querySelector('video');
-        if (!video || video.paused || video.ended) return;
-        
-        // Wait for video dimensions to load
-        if (video.videoWidth === 0) return;
-        
-        qrCanvas.width = video.videoWidth;
-        qrCanvas.height = video.videoHeight;
-        qrContext.drawImage(video, 0, 0, qrCanvas.width, qrCanvas.height);
-        
-        try {
-          const imageData = qrContext.getImageData(0, 0, qrCanvas.width, qrCanvas.height);
-          const code = jsQR(imageData.data, imageData.width, imageData.height);
-          
-          if (code) {
-            const decodedData = code.data.toLowerCase();
-            // Validate the QR code contains target invite card domains or link signatures
-            if (decodedData.includes('sj.world') || decodedData.includes('sjar.vercel.app') || decodedData.includes('shivamjewels') || decodedData.includes('http')) {
-              lastQrSeenTime = Date.now();
-              
-              if (!qrValidated) {
-                qrValidated = true;
-                console.log("QR Code details successfully scanned and validated:", code.data);
-                
-                // Calculate dynamic distance based on QR code pixel size in viewport
-                const loc = code.location;
-                const dx = loc.topRightCorner.x - loc.topLeftCorner.x;
-                const dy = loc.topRightCorner.y - loc.topLeftCorner.y;
-                const qrWidthPx = Math.sqrt(dx * dx + dy * dy);
-                
-                // Calibration metric: at 1 ft (30cm), a 6cm physical QR code is ~130px wide
-                const estimatedDistanceCm = (30 * 130) / qrWidthPx;
-                console.log(`Dynamic calculation - QR code width: ${qrWidthPx.toFixed(1)}px. Distance: ${estimatedDistanceCm.toFixed(1)}cm.`);
-                
-                // Successful verification allows the 3D presentation to load
-                present3DView();
-              }
-            }
-          } else {
-            // If QR code is not seen for more than 3 seconds during active tracking, reset
-            if (qrValidated && (Date.now() - lastQrSeenTime > 3000)) {
-              console.warn("QR code tracking lost. Resetting 3D portal.");
-              qrValidated = false;
-              reset3DView();
-            }
-          }
-        } catch (e) {
-          console.error("QR Code validation scan error:", e);
-        }
-      }, 250);
-    }
-
-    function present3DView() {
-      const portalNode = document.querySelector('#portal-group');
-      const glassCard = document.querySelector('.glass-card');
-      const instruction = document.querySelector('.instruction-box');
-      const scanReticle = document.querySelector('.scan-target');
-      const chakra = document.querySelector('#ashoka-chakra-mesh');
-      const gems = document.querySelector('#luxury-gemstone');
-
-      if (portalNode) {
-        portalNode.setAttribute('visible', 'true');
-        
-        // Trigger smooth emerging scale and slide-forward animations
-        if (chakra) {
-          chakra.setAttribute('animation', 'property: scale; from: 0 0 0; to: 0.45 0.45 0.45; dur: 1500; easing: easeOutElastic');
-          chakra.setAttribute('animation__pos', 'property: position; from: 0 0 -0.5; to: 0 0 0.12; dur: 1500; easing: easeOutQuad');
-        }
-        if (gems) {
-          gems.setAttribute('animation', 'property: scale; from: 0 0 0; to: 0.8 0.8 0.8; dur: 1500; delay: 200; easing: easeOutElastic');
-        }
-      }
-      
-      if (glassCard) glassCard.classList.add('visible');
-      if (instruction) instruction.style.opacity = '0';
-      if (scanReticle) scanReticle.style.opacity = '0';
-    }
-
-    function reset3DView() {
-      const portalNode = document.querySelector('#portal-group');
-      const glassCard = document.querySelector('.glass-card');
-      const instruction = document.querySelector('.instruction-box');
-      const scanReticle = document.querySelector('.scan-target');
-      const chakra = document.querySelector('#ashoka-chakra-mesh');
-      const gems = document.querySelector('#luxury-gemstone');
-
-      if (portalNode) {
-        portalNode.setAttribute('visible', 'false');
-        
-        if (chakra) {
-          chakra.removeAttribute('animation');
-          chakra.removeAttribute('animation__pos');
-          chakra.setAttribute('scale', '0 0 0');
-          chakra.setAttribute('position', '0 0 -0.5');
-        }
-        if (gems) {
-          gems.removeAttribute('animation');
-          gems.setAttribute('scale', '0 0 0');
-        }
-      }
-
-      if (glassCard) glassCard.classList.remove('visible');
-      if (scanReticle) scanReticle.style.opacity = '1';
-      if (instruction) {
-        instruction.style.opacity = '1';
-        instruction.innerHTML = `
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="10" stroke="#ffd700" stroke-width="2"/>
-            <path d="M12 8V12M12 16H12.01" stroke="#ffd700" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-          Align card within guide to scan QR code
-        `;
-      }
-    }
-  </script>
-</head>
-
-<body>
-  <!-- Onboarding screen overlay -->
-  <div id="ar-onboarding">
-    <div class="onboarding-card">
-      <h1 class="onboarding-brand">Shivam Jewels</h1>
-      <div class="onboarding-subtitle">Shivam Jewels World</div>
-      <div class="card-divider" style="margin-bottom: 25px;"></div>
-      <p class="onboarding-desc">
-        We are deeply honored to invite you to celebrate <strong>80 years of Indian Independence</strong> and our legacy
-        of fine diamonds.
-        <br><br>
-        Please allow camera access to experience the exclusive collection in immersive <strong>3D WebAR</strong>.
-      </p>
-      <button class="luxury-btn" onclick="startAR()">
-        <span>Enter Experience</span>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-          stroke-linecap="round" stroke-linejoin="round">
-          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-          <circle cx="12" cy="13" r="4" />
-        </svg>
-      </button>
-    </div>
-  </div>
-
-  <!-- Camera Permission Error Guide -->
-  <div id="camera-error-screen">
-    <div class="error-card">
-      <div class="error-icon">⚠️</div>
-      <h2 class="error-title">Camera Access Required</h2>
-      <p class="error-desc">
-        To project the 3D world of Shivam Jewels, this browser requires camera access. Please follow these quick steps:
-      </p>
-      <ul class="error-steps">
-        <li><strong>Tap lock icon</strong> (or site settings) in the browser address bar.</li>
-        <li>Switch the Camera permission to <strong>Allow</strong>.</li>
-        <li>Reload the page to begin the experience.</li>
-      </ul>
-      <button class="ar-btn" onclick="window.location.reload()">Reload Page</button>
-    </div>
-  </div>
-
-  <!-- Loading state during camera startup -->
-  <div id="ar-loading">
-    <div class="spinner"></div>
-    <div class="loading-text">Initializing Camera...</div>
-  </div>
-
-
-
-  <!-- Camera Viewport Interactive Elements -->
-  <div id="ar-overlay">
-    <div class="instruction-box">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="10" stroke="#ffd700" stroke-width="2" />
-        <path d="M12 8V12M12 16H12.01" stroke="#ffd700" stroke-width="2" stroke-linecap="round" />
-      </svg>
-      Align card within guide to scan QR code
+    </style>
+  </head>
+  <body>
+
+    <!-- Top Header -->
+    <div id="hud-header">
+      <div class="brand-title">💎 Shivam <span>Jewels</span></div>
     </div>
 
-    <!-- Redesigned Self-Mapping Card Target Overlay -->
-    <div class="scan-target">
-      <div class="scan-card-blueprint"></div>
-      <div class="scan-line"></div>
-      <div class="corner-bracket top-left"></div>
-      <div class="corner-bracket top-right"></div>
-      <div class="corner-bracket bottom-left"></div>
-      <div class="corner-bracket bottom-right"></div>
-    </div>
+    <!-- Alignment Scanner Wireframe -->
+    <div id="scanner-blueprint"></div>
 
-    <div class="glass-card">
-      <h1 class="brand-title">Shivam Jewels</h1>
-      <p class="brand-subtitle">Celebrating 80 Years of Freedom</p>
-      <div class="card-divider"></div>
-      <p class="invitation-text">
-        "Celebrating the spirit of freedom, craftsmanship, heritage, and timeless elegance."
-        Explore our signature <strong>Independence Day Collection</strong> and legacy portfolio.
-      </p>
-      <div class="rsvp-container">
-        <button class="ar-btn" onclick="window.open('https://in.sj.world', '_blank')">Explore Collection</button>
+    <!-- Main Container for MindAR + Three.js -->
+    <div id="container"></div>
+
+    <!-- Bottom Controls Panel -->
+    <div id="control-panel">
+      <div class="btn-group">
+        <button id="startButton">▶ Start AR</button>
+        <button id="stopButton">⏸ Pause</button>
+        <button id="bypassButton">🔍 WebGL Preview</button>
+      </div>
+
+      <div class="color-selector">
+        <span>Diamond Grade:</span>
+        <div class="color-swatch selected" data-color="0xffffff" style="background: radial-gradient(circle, #ffffff, #e0f7fa);" title="D-Flawless Pure White"></div>
+        <div class="color-swatch" data-color="0xffd700" style="background: radial-gradient(circle, #ffe082, #ffb300);" title="Fancy Intense Yellow"></div>
+        <div class="color-swatch" data-color="0x29b6f6" style="background: radial-gradient(circle, #e0f7fa, #0288d1);" title="Rare Blue Diamond"></div>
+        <div class="color-swatch" data-color="0xf48fb1" style="background: radial-gradient(circle, #fce4ec, #d81b60);" title="Argyle Pink Diamond"></div>
       </div>
     </div>
-  </div>
 
+    <script type="module">
+      import * as THREE from 'three';
+      import { MindARThree } from 'mindar-image-three';
+      import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
+      let mindarThree = null;
+      let renderer, scene, camera, anchor;
+      let diamondMesh, lightGroup, pointLights = [];
+      let isBypassMode = false;
+      let animationFrameId = null;
 
-  <!-- WebAR Scene Pipeline -->
-  <a-scene
-    mindar-image="imageTargetSrc: ./compiled_targets.mind; autoStart: false; filterMinCF:0.0001; filterBeta: 0.001; uiLoading: no; uiScanning: no; uiError: no;"
-    color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights: true" vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: false">
+      // ----------------------------------------------------
+      // 1. CREATE FACETED NATURAL BRILLIANT DIAMOND GEOMETRY
+      // ----------------------------------------------------
+      function createDiamondGeometry() {
+        const geom = new THREE.BufferGeometry();
+        
+        // Key landmark points of a round brilliant cut diamond
+        const apexTop = [0, 0.45, 0];        // Table top peak
+        const apexBottom = [0, -0.65, 0];    // Culet (bottom point)
+        
+        const numFacets = 16;
+        const crownRadius = 0.55;
+        const girdleRadius = 0.75;
+        const crownHeight = 0.25;
+        const girdleHeight = 0.0;
+        const pavilionHeight = -0.45;
 
-    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+        const vertices = [];
 
-    <!-- Dynamic AR Target Coordinate Entity -->
-    <a-entity id="ar-target" mindar-image-target="targetIndex: 0">
-      <a-entity id="portal-group" position="0 0 0" visible="false">
+        // Generate girdle & crown vertices around radius
+        for (let i = 0; i < numFacets; i++) {
+          const angle1 = (i / numFacets) * Math.PI * 2;
+          const angle2 = ((i + 1) / numFacets) * Math.PI * 2;
 
-        <!-- 1. Diamond-Facet Wireframe Rings (Portal Base) -->
-        <a-entity id="portal-facets" antigravity="rotSpeed: -0.15; bobAmp: 0.03;">
-          <a-ring color="#FFD700" radius-inner="0.65" radius-outer="0.68" opacity="0.8" rotation="90 0 0"></a-ring>
-          <a-ring color="#1B5E20" radius-inner="0.85" radius-outer="0.87" opacity="0.4" rotation="45 45 0"></a-ring>
-          <a-ring color="#FF8F00" radius-inner="0.85" radius-outer="0.87" opacity="0.4" rotation="-45 45 0"></a-ring>
-        </a-entity>
+          // Upper Crown Table Vertices
+          const x1_c = Math.cos(angle1) * crownRadius;
+          const z1_c = Math.sin(angle1) * crownRadius;
+          const x2_c = Math.cos(angle2) * crownRadius;
+          const z2_c = Math.sin(angle2) * crownRadius;
 
-        <!-- 2. The 3D Ashoka Chakra (Crystal & Gold Mesh Assembly) -->
-        <a-entity id="ashoka-chakra-mesh" position="0 0 -0.5" scale="0 0 0" antigravity="rotSpeed: 0.2; bobAmp: 0.04;">
-          <a-torus color="#FFD700" radius="0.8" tube="0.03" material="roughness: 0.1; metalness: 0.95;"></a-torus>
-          <a-cylinder color="#FFD700" radius="0.12" height="0.08" rotation="90 0 0"
-            material="roughness: 0.1; metalness: 0.95;"></a-cylinder>
+          // Girdle Edge Vertices
+          const x1_g = Math.cos(angle1) * girdleRadius;
+          const z1_g = Math.sin(angle1) * girdleRadius;
+          const x2_g = Math.cos(angle2) * girdleRadius;
+          const z2_g = Math.sin(angle2) * girdleRadius;
 
-          <!-- Core Spokes -->
-          <a-box color="#FF8F00" width="0.015" height="1.5" depth="0.015" rotation="0 0 0"></a-box>
-          <a-box color="#FFFFFF" width="0.015" height="1.5" depth="0.015" rotation="0 0 45"></a-box>
-          <a-box color="#1B5E20" width="0.015" height="1.5" depth="0.015" rotation="0 0 90"></a-box>
+          // 1. Table Top Facets (Triangles from center table to crown)
+          vertices.push(...apexTop, x1_c, crownHeight, z1_c, x2_c, crownHeight, z2_c);
 
-          <!-- Extra spokes populated programmatically -->
-          <a-box color="#FFD700" width="0.01" height="1.5" depth="0.01" rotation="0 0 15" opacity="0.6"></a-box>
-          <a-box color="#FFD700" width="0.01" height="1.5" depth="0.01" rotation="0 0 30" opacity="0.6"></a-box>
-          <a-box color="#FFD700" width="0.01" height="1.5" depth="0.01" rotation="0 0 60" opacity="0.6"></a-box>
-          <a-box color="#FFD700" width="0.01" height="1.5" depth="0.01" rotation="0 0 75" opacity="0.6"></a-box>
-          <a-box color="#FFD700" width="0.01" height="1.5" depth="0.01" rotation="0 0 105" opacity="0.6"></a-box>
-          <a-box color="#FFD700" width="0.01" height="1.5" depth="0.01" rotation="0 0 120" opacity="0.6"></a-box>
-          <a-box color="#FFD700" width="0.01" height="1.5" depth="0.01" rotation="0 0 135" opacity="0.6"></a-box>
-          <a-box color="#FFD700" width="0.01" height="1.5" depth="0.01" rotation="0 0 150" opacity="0.6"></a-box>
-          <a-box color="#FFD700" width="0.01" height="1.5" depth="0.01" rotation="0 0 165" opacity="0.6"></a-box>
-        </a-entity>
+          // 2. Crown Upper Bezel Facets (Quads split into 2 triangles)
+          vertices.push(x1_c, crownHeight, z1_c, x1_g, girdleHeight, z1_g, x2_g, girdleHeight, z2_g);
+          vertices.push(x1_c, crownHeight, z1_c, x2_g, girdleHeight, z2_g, x2_c, crownHeight, z2_c);
 
-        <!-- 3. Programmatic Faceted 3D Diamond (Luxury Core of Shivam Jewels) -->
-        <a-entity id="luxury-gemstone" position="0 0 0.15" scale="0 0 0" antigravity="rotSpeed: -0.4; bobAmp: 0.05;">
-          <!-- Top Crown of the Diamond -->
-          <a-cone color="#E2E8F0" radius-bottom="0.12" radius-top="0" height="0.1" open-ended="false"
-            segments-radial="8" position="0 0.05 0"
-            material="roughness: 0.05; metalness: 0.9; opacity: 0.85; transparent: true;"></a-cone>
-          <!-- Bottom Pavilion of the Diamond -->
-          <a-cone color="#E2E8F0" radius-bottom="0.12" radius-top="0" height="0.15" open-ended="false"
-            segments-radial="8" position="0 -0.075 0" rotation="180 0 0"
-            material="roughness: 0.05; metalness: 0.9; opacity: 0.85; transparent: true;"></a-cone>
-        </a-entity>
+          // 3. Pavilion Lower Facets (Triangles from girdle to bottom culet)
+          vertices.push(x1_g, girdleHeight, z1_g, apexBottom[0], apexBottom[1], apexBottom[2], x2_g, girdleHeight, z2_g);
+        }
 
-        <!-- 4. Dynamic Rising Antigravity Vortex Particle Stream -->
-        <a-entity id="antigravity-particles" rising-particles></a-entity>
+        geom.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+        geom.computeVertexNormals();
+        return geom;
+      }
 
-        <!-- Lights config for metallic & crystal reflection -->
-        <a-light type="ambient" color="#ffffff" intensity="0.6"></a-light>
-        <a-light type="directional" color="#ffd700" intensity="1.5" position="1 3 2"></a-light>
-        <a-light type="point" color="#1B5E20" intensity="1.0" position="-1.5 -1 1.5"></a-light>
-        <a-light type="point" color="#FF8F00" intensity="1.0" position="1.5 -1 1.5"></a-light>
+      // ----------------------------------------------------
+      // 2. HIGH-END PHYSICAL DIAMOND SHADER MATERIAL
+      // ----------------------------------------------------
+      function createDiamondMaterial(colorHex = 0xffffff, envMap = null) {
+        return new THREE.MeshPhysicalMaterial({
+          color: new THREE.Color(colorHex),
+          emissive: new THREE.Color(0x050a15),
+          roughness: 0.0,            // Mirror polished surface
+          metalness: 0.0,            // Pure dielectric gemstone
+          transmission: 0.98,        // High optical transparency for inner sparkle
+          ior: 2.417,                // Exact Refractive Index of Natural Diamond
+          reflectivity: 1.0,         // Maximum surface reflection
+          clearcoat: 1.0,            // Extra outer polish layer
+          clearcoatRoughness: 0.0,
+          dispersion: 0.06,          // Physical chromatic dispersion (Fire & Rainbow splits)
+          thickness: 1.2,            // Internal refraction ray length
+          flatShading: true,         // Sharp facet reflections!
+          envMap: envMap,
+          envMapIntensity: 3.5,
+          transparent: true,
+          opacity: 1.0
+        });
+      }
 
-      </a-entity>
-    </a-entity>
-    </scene>
-</body>
+      // ----------------------------------------------------
+      // 3. STUDIO LIGHTING SYSTEM & ENVIRONMENT SETUP
+      // ----------------------------------------------------
+      function setupDiamondLighting(targetScene, rendererInstance) {
+        lightGroup = new THREE.Group();
 
+        // Ambient Fill
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        lightGroup.add(ambientLight);
+
+        // Key Overhead Spotlight for Brilliance
+        const keyLight = new THREE.DirectionalLight(0xffffff, 3.5);
+        keyLight.position.set(2, 4, 3);
+        lightGroup.add(keyLight);
+
+        // Colored Orbiting Point Lights to provoke Chromatic Fire & Sparkles
+        const lightColors = [0xffd700, 0x00ffff, 0xff007f, 0x76ff03];
+        pointLights = [];
+
+        lightColors.forEach((col, idx) => {
+          const pLight = new THREE.PointLight(col, 2.5, 5);
+          pLight.userData = {
+            angle: (idx / lightColors.length) * Math.PI * 2,
+            speed: 0.02 + idx * 0.005,
+            radius: 1.8 + idx * 0.2,
+            baseY: 0.3 * Math.sin(idx)
+          };
+          lightGroup.add(pLight);
+          pointLights.push(pLight);
+        });
+
+        targetScene.add(lightGroup);
+
+        // Generate Studio Environment Map for photorealistic reflections
+        const pmremGenerator = new THREE.PMREMGenerator(rendererInstance);
+        pmremGenerator.compileEquirectangularShader();
+        const roomEnv = new RoomEnvironment();
+        const envTexture = pmremGenerator.fromScene(roomEnv).texture;
+        pmremGenerator.dispose();
+
+        return envTexture;
+      }
+
+      // ----------------------------------------------------
+      // 4. INITIALIZATION & WEBAR SETUP
+      // ----------------------------------------------------
+      async function initWebAR() {
+        mindarThree = new MindARThree({
+          container: document.querySelector("#container"),
+          imageTargetSrc: "https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.mind"
+        });
+
+        renderer = mindarThree.renderer;
+        scene = mindarThree.scene;
+        camera = mindarThree.camera;
+
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.2;
+
+        // Anchor setup on physical card target
+        anchor = mindarThree.addAnchor(0);
+
+        // Set up Studio Lighting & EnvMap
+        const envMap = setupDiamondLighting(scene, renderer);
+
+        // Build Diamond 3D Mesh
+        const diamondGeo = createDiamondGeometry();
+        const diamondMat = createDiamondMaterial(0xffffff, envMap);
+        diamondMesh = new THREE.Mesh(diamondGeo, diamondMat);
+
+        diamondMesh.scale.set(0.65, 0.65, 0.65);
+        diamondMesh.position.set(0, 0.2, 0);
+
+        // Add Floating Halo Ring under the Diamond
+        const ringGeo = new THREE.TorusGeometry(0.85, 0.015, 16, 64);
+        const ringMat = new THREE.MeshStandardMaterial({
+          color: 0xd4af37,
+          metalness: 0.9,
+          roughness: 0.1,
+          emissive: 0x554000
+        });
+        const haloRing = new THREE.Mesh(ringGeo, ringMat);
+        haloRing.rotation.x = Math.PI / 2;
+
+        const gemGroup = new THREE.Group();
+        gemGroup.add(diamondMesh);
+        gemGroup.add(haloRing);
+
+        anchor.group.add(gemGroup);
+
+        // Start MindAR
+        await mindarThree.start();
+
+        // Main Render & Animation Loop
+        renderer.setAnimationLoop(() => {
+          animateDiamond();
+          renderer.render(scene, camera);
+        });
+
+        document.querySelector("#scanner-blueprint").classList.remove("hidden");
+      }
+
+      // Animation Loop logic
+      function animateDiamond() {
+        if (diamondMesh) {
+          diamondMesh.rotation.y += 0.008;
+          diamondMesh.rotation.x = Math.sin(Date.now() * 0.001) * 0.15;
+        }
+
+        // Orbit point lights for dynamic facet sparkle
+        pointLights.forEach((pLight) => {
+          pLight.userData.angle += pLight.userData.speed;
+          pLight.position.x = Math.cos(pLight.userData.angle) * pLight.userData.radius;
+          pLight.position.z = Math.sin(pLight.userData.angle) * pLight.userData.radius;
+          pLight.position.y = pLight.userData.baseY + Math.sin(pLight.userData.angle * 2) * 0.2;
+        });
+      }
+
+      // ----------------------------------------------------
+      // 5. EVENT LISTENERS & INTERACTIVE HUD
+      // ----------------------------------------------------
+      document.querySelector("#startButton").addEventListener("click", async () => {
+        if (!mindarThree) {
+          await initWebAR();
+        } else {
+          await mindarThree.start();
+          renderer.setAnimationLoop(() => {
+            animateDiamond();
+            renderer.render(scene, camera);
+          });
+        }
+        document.querySelector("#scanner-blueprint").classList.remove("hidden");
+      });
+
+      document.querySelector("#stopButton").addEventListener("click", () => {
+        if (mindarThree) {
+          mindarThree.stop();
+          renderer.setAnimationLoop(null);
+        }
+        document.querySelector("#scanner-blueprint").classList.add("hidden");
+      });
+
+      // WebGL Direct Preview Bypass
+      document.querySelector("#bypassButton").addEventListener("click", () => {
+        isBypassMode = !isBypassMode;
+        const btn = document.querySelector("#bypassButton");
+
+        if (isBypassMode) {
+          btn.classList.add("active");
+          document.querySelector("#scanner-blueprint").classList.add("hidden");
+
+          if (!renderer) {
+            // Standalone Three.js fallback render if MindAR isn't started yet
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.2;
+            document.querySelector("#container").appendChild(renderer.domElement);
+
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.set(0, 0.5, 2.5);
+
+            const envMap = setupDiamondLighting(scene, renderer);
+            const diamondGeo = createDiamondGeometry();
+            const diamondMat = createDiamondMaterial(0xffffff, envMap);
+            diamondMesh = new THREE.Mesh(diamondGeo, diamondMat);
+            scene.add(diamondMesh);
+          } else {
+            camera.position.set(0, 0.5, 2.5);
+            camera.lookAt(0, 0, 0);
+          }
+
+          renderer.setAnimationLoop(() => {
+            animateDiamond();
+            renderer.render(scene, camera);
+          });
+        } else {
+          btn.classList.remove("active");
+          document.querySelector("#scanner-blueprint").classList.remove("hidden");
+        }
+      });
+
+      // Gem Color Picker Selection
+      document.querySelectorAll(".color-swatch").forEach((swatch) => {
+        swatch.addEventListener("click", (e) => {
+          document.querySelectorAll(".color-swatch").forEach(s => s.classList.remove("selected"));
+          swatch.classList.add("selected");
+
+          const colorHex = parseInt(swatch.getAttribute("data-color"));
+          if (diamondMesh) {
+            diamondMesh.material.color.setHex(colorHex);
+          }
+        });
+      });
+
+      // Auto start WebAR on page load
+      window.addEventListener("DOMContentLoaded", () => {
+        initWebAR().catch(err => {
+          console.log("WebAR Auto-start awaiting user interaction:", err);
+        });
+      });
+    </script>
+  </body>
 </html>

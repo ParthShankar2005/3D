@@ -2,6 +2,7 @@ import os
 from typing import Optional
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import sqlite3
 
@@ -22,6 +23,7 @@ app.add_middleware(
 )
 
 DB_FILE = os.environ.get("DB_PATH", "guests.db")
+
 
 # Ensure directory path exists if DB_FILE is in a custom folder (like /data on Render)
 db_dir = os.path.dirname(DB_FILE)
@@ -44,6 +46,9 @@ def init_db():
     conn.close()
 
 init_db()
+
+# Mount WebAR static frontend
+app.mount("/web", StaticFiles(directory=".", html=True), name="static")
 
 # Pydantic Schemas
 class GuestCreate(BaseModel):
