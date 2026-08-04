@@ -37,9 +37,7 @@ def init_db():
             id TEXT PRIMARY KEY,
             name TEXT NOT NULL,
             greeting TEXT NOT NULL,
-            rsvp_status TEXT DEFAULT 'PENDING', -- PENDING, ATTENDING, DECLINED
-            scan_count INTEGER DEFAULT 0,
-            last_scanned TIMESTAMP
+            rsvp_status TEXT DEFAULT 'PENDING' -- PENDING, ATTENDING, DECLINED
         )
     """)
     conn.commit()
@@ -80,17 +78,10 @@ def create_guest(guest: GuestCreate, db: sqlite3.Connection = Depends(get_db)):
     except sqlite3.IntegrityError:
         raise HTTPException(status_code=400, detail="Guest ID already exists")
 
-@app.get("/api/welcome/{guest_id}", summary="Get personalized greeting and log the card scan")
+@app.get("/api/welcome/{guest_id}", summary="Get personalized greeting")
 def get_greeting(guest_id: str, db: sqlite3.Connection = Depends(get_db)):
     cursor = db.cursor()
-    # Update scan count and return greeting
-    cursor.execute(
-        "UPDATE guests SET scan_count = scan_count + 1, last_scanned = datetime('now') WHERE id = ?",
-        (guest_id.lower().strip(),)
-    )
-    db.commit()
-    
-    cursor.execute("SELECT id, name, greeting, rsvp_status, scan_count FROM guests WHERE id = ?", (guest_id.lower().strip(),))
+    cursor.execute("SELECT id, name, greeting, rsvp_status FROM guests WHERE id = ?", (guest_id.lower().strip(),))
     row = cursor.fetchone()
     if not row:
         raise HTTPException(status_code=404, detail="Guest not found")
@@ -130,19 +121,10 @@ def get_dashboard(db: sqlite3.Connection = Depends(get_db)):
     cursor.execute("SELECT COUNT(*) FROM guests WHERE rsvp_status = 'DECLINED'")
     declined = cursor.fetchone()[0]
     
-    # Scanned cards
-    cursor.execute("SELECT COUNT(*) FROM guests WHERE scan_count > 0")
-    scanned = cursor.fetchone()[0]
-    
-    cursor.execute("SELECT id, name, rsvp_status, scan_count, last_scanned FROM guests ORDER BY last_scanned DESC LIMIT 20")
-    recent_scans = [dict(row) for row in cursor.fetchall()]
-    
     return {
         "total_guests": total,
         "attending": attending,
-        "declined": declined,
-        "scanned_cards": scanned,
-        "recent_scans": recent_scans
+        "declined": declined
     }
 
 if __name__ == "__main__":
