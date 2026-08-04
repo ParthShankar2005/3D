@@ -528,6 +528,8 @@
       right: 20px;
       z-index: 20;
       pointer-events: auto;
+      display: flex;
+      gap: 10px;
     }
     
     .sim-btn {
@@ -793,6 +795,15 @@
           instruction.style.opacity = '0';
           scanReticle.style.opacity = '0';
           
+          // Restore default instruction text in case it was changed to "Tracking lost"
+          instruction.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="#ffd700" stroke-width="2"/>
+              <path d="M12 8V12M12 16H12.01" stroke="#ffd700" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Align card within guide to project 3D world
+          `;
+
           const portalNode = document.querySelector('#portal-group');
           if (portalNode) {
             portalNode.setAttribute('visible', 'true');
@@ -829,6 +840,9 @@
               });
             }
           }
+
+          // Start simulated accuracy tracker
+          startAccuracySimulation();
         });
         
         targetEl.addEventListener("targetLost", () => {
@@ -836,6 +850,12 @@
           instruction.style.opacity = '1';
           scanReticle.style.opacity = '1';
           
+          // Clear accuracy tracker
+          if (accuracyInterval) {
+            clearInterval(accuracyInterval);
+            accuracyInterval = null;
+          }
+
           const portalNode = document.querySelector('#portal-group');
           if (portalNode) {
             portalNode.setAttribute('visible', 'false');
@@ -910,6 +930,140 @@
           gems.setAttribute('scale', '0.8 0.8 0.8');
         }
       }
+    }
+
+    // --- Developer Bypass & Target Accuracy Simulation ---
+    let isBypassed = false;
+    let accuracyInterval = null;
+    let currentAccuracy = 100;
+
+    function bypassScanning() {
+      const onboarding = document.querySelector('#ar-onboarding');
+      const loading = document.querySelector('#ar-loading');
+      const glassCard = document.querySelector('.glass-card');
+      const instruction = document.querySelector('.instruction-box');
+      const scanReticle = document.querySelector('.scan-target');
+      const portalNode = document.querySelector('#portal-group');
+      const chakra = document.querySelector('#ashoka-chakra-mesh');
+      const gems = document.querySelector('#luxury-gemstone');
+      const simBg = document.querySelector('#simulator-bg');
+      
+      isBypassed = !isBypassed;
+      
+      // Stop the camera engine if it was running
+      if (isBypassed && arSystem) {
+        try { arSystem.stop(); } catch(e) {}
+      }
+      
+      if (onboarding) onboarding.classList.add('fade-out');
+      if (loading) loading.classList.remove('visible');
+      
+      if (isBypassed) {
+        // Show mock backdrop
+        simBg.style.display = "block";
+        document.querySelector('.bypass-btn').innerText = "Restore Camera";
+        
+        // Show 3D portals at full scale
+        portalNode.setAttribute('visible', 'true');
+        if (chakra) {
+          chakra.setAttribute('scale', '0.45 0.45 0.45');
+          chakra.setAttribute('position', '0 0 0.02');
+        }
+        if (gems) {
+          gems.setAttribute('scale', '0.8 0.8 0.8');
+        }
+        
+        // Hide overlay target templates
+        glassCard.classList.add('visible');
+        instruction.style.opacity = '0';
+        scanReticle.style.opacity = '0';
+      } else {
+        // Restore system values
+        simBg.style.display = "none";
+        document.querySelector('.bypass-btn').innerText = "Bypass Camera & Scan";
+        
+        portalNode.setAttribute('visible', 'false');
+        if (chakra) {
+          chakra.removeAttribute('animation');
+          chakra.removeAttribute('animation__pos');
+          chakra.setAttribute('scale', '0 0 0');
+          chakra.setAttribute('position', '0 0 -0.5');
+        }
+        if (gems) {
+          gems.removeAttribute('animation');
+          gems.setAttribute('scale', '0 0 0');
+        }
+        
+        glassCard.classList.remove('visible');
+        instruction.style.opacity = '1';
+        scanReticle.style.opacity = '1';
+        
+        // Re-open camera system
+        startAR();
+      }
+    }
+
+    function startAccuracySimulation() {
+      if (accuracyInterval) clearInterval(accuracyInterval);
+      
+      currentAccuracy = 90; // Start with healthy alignment strength
+      
+      accuracyInterval = setInterval(() => {
+        // Don't drop accuracy if dev bypass mode is on
+        if (isBypassed) return;
+        
+        // Jitter simulation
+        let variance = Math.random() * 8 - 4; // -4% to +4% variance
+        currentAccuracy = Math.max(0, Math.min(100, currentAccuracy + variance));
+        
+        // 8% chance of sudden tracking accuracy drop
+        if (Math.random() < 0.08) {
+          currentAccuracy -= 22; // Lose 22% accuracy instantly
+          console.warn(`Simulated accuracy drop! Current: ${currentAccuracy.toFixed(1)}%`);
+        }
+        
+        // If accuracy falls below 50% limit (e.g. handshake moves card too far away)
+        if (currentAccuracy < 50) {
+          console.warn("Accuracy fell below 50% limit. Resetting tracking system.");
+          clearInterval(accuracyInterval);
+          accuracyInterval = null;
+          
+          const portalNode = document.querySelector('#portal-group');
+          const glassCard = document.querySelector('.glass-card');
+          const instruction = document.querySelector('.instruction-box');
+          const scanReticle = document.querySelector('.scan-target');
+          
+          if (portalNode) {
+            portalNode.setAttribute('visible', 'false');
+            
+            const chakra = document.querySelector('#ashoka-chakra-mesh');
+            if (chakra) {
+              chakra.removeAttribute('animation');
+              chakra.removeAttribute('animation__pos');
+              chakra.setAttribute('scale', '0 0 0');
+              chakra.setAttribute('position', '0 0 -0.5');
+            }
+            const gems = document.querySelector('#luxury-gemstone');
+            if (gems) {
+              gems.removeAttribute('animation');
+              gems.setAttribute('scale', '0 0 0');
+            }
+          }
+          
+          if (glassCard) glassCard.classList.remove('visible');
+          if (scanReticle) scanReticle.style.opacity = '1';
+          if (instruction) {
+            instruction.style.opacity = '1';
+            instruction.innerHTML = `
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="#ffd700" stroke-width="2"/>
+                <path d="M12 8V12M12 16H12.01" stroke="#ffd700" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              Tracking lost. Re-align card with transparent template to restore
+            `;
+          }
+        }
+      }, 1000);
     }
   </script>
 </head>
@@ -1000,7 +1154,8 @@
 
   <!-- Developer HUD: Click this button in your browser to inspect animations immediately! -->
   <div id="dev-control">
-    <button class="sim-btn" onclick="toggleSimulation()">Simulate Scan (On)</button>
+    <button class="sim-btn" onclick="toggleSimulation()">Simulate Scan</button>
+    <button class="sim-btn bypass-btn" onclick="bypassScanning()">Bypass Camera & Scan</button>
   </div>
 
   <!-- WebAR Scene Pipeline -->
