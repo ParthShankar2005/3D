@@ -21,7 +21,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DB_FILE = "guests.db"
+DB_FILE = os.environ.get("DB_PATH", "guests.db")
+
+# Ensure directory path exists if DB_FILE is in a custom folder (like /data on Render)
+db_dir = os.path.dirname(DB_FILE)
+if db_dir and not os.path.exists(db_dir):
+    os.makedirs(db_dir, exist_ok=True)
 
 # Database initialization
 def init_db():
