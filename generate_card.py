@@ -65,8 +65,8 @@ def stitch_qr_onto_card(base_image_path, qr_img, output_path):
     print(f"Success! Compiled card with QR code saved to: {output_path}")
 
 if __name__ == "__main__":
-    # URL pointing to the user's live GitHub Pages WebAR portal
-    target_url = "https://parthshankar2005.github.io/3D/"
+    # URL pointing to the user's live custom domain WebAR portal
+    target_url = "https://www.3d-shivamai.studio/"
     
     print(f"Generating QR Code for: {target_url}")
     qr_code_image = generate_qr_code(target_url)
