@@ -12,7 +12,7 @@
 
   <!-- A-Frame (3D rendering framework) and MindAR (WebAR image tracking) -->
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.4/dist/mindar-image-aframe.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
   
   <style>
     body {
@@ -212,10 +212,10 @@
       background-size: cover;
       background-position: center;
       border-radius: 20px;
-      opacity: 0.18; /* Light and transparent */
-      filter: sepia(1) saturate(8) hue-rotate(15deg) brightness(1.2) contrast(1.1);
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      box-shadow: inset 0 0 30px rgba(37, 38, 98, 0.5);
+      opacity: 0.22; /* Light and transparent */
+      filter: grayscale(1) brightness(1.6) contrast(1.1); /* Pure white transparent aura */
+      border: 2px dashed rgba(255, 255, 255, 0.55);
+      box-shadow: inset 0 0 40px rgba(255, 255, 255, 0.15), 0 0 20px rgba(255, 255, 255, 0.05);
     }
     
     /* Glowing corners */
@@ -630,77 +630,25 @@
     }
 
     // --- Programmatic AR Startup ---
-    async function startAR() {
+    // --- Programmatic AR Startup ---
+    function startAR() {
       const onboarding = document.querySelector('#ar-onboarding');
       const loading = document.querySelector('#ar-loading');
-      const errorScreen = document.querySelector('#camera-error-screen');
-      const errorTitle = errorScreen.querySelector('.error-title');
-      const errorDesc = errorScreen.querySelector('.error-desc');
-      const errorSteps = errorScreen.querySelector('.error-steps');
       
       onboarding.classList.add('fade-out');
       loading.classList.add('visible');
       
-      try {
-        // Check if mediaDevices API is available
-        if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
-          // If HTTPS is missing, mediaDevices will be undefined
-          if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
-            throw new Error("SECURE_CONTEXT_REQUIRED");
+      if (arSystem) {
+        arSystem.start();
+      } else {
+        const sceneEl = document.querySelector('a-scene');
+        const startInterval = setInterval(() => {
+          arSystem = sceneEl.systems["mindar-image-system"];
+          if (arSystem) {
+            clearInterval(startInterval);
+            arSystem.start();
           }
-          throw new Error("API_UNSUPPORTED");
-        }
-
-        // Check if any camera exists
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const hasCamera = devices.some(device => device.kind === 'videoinput');
-        
-        if (!hasCamera) {
-          throw new Error("NO_CAMERA_DEVICE");
-        }
-
-        // Start MindAR
-        if (arSystem) {
-          arSystem.start();
-        } else {
-          const sceneEl = document.querySelector('a-scene');
-          const startInterval = setInterval(() => {
-            arSystem = sceneEl.systems["mindar-image-system"];
-            if (arSystem) {
-              clearInterval(startInterval);
-              arSystem.start();
-            }
-          }, 100);
-        }
-      } catch (err) {
-        console.error("Camera validation failed:", err);
-        loading.classList.remove('visible');
-        errorScreen.classList.add('visible');
-        
-        if (err.message === "SECURE_CONTEXT_REQUIRED") {
-          errorTitle.innerText = "Secure Connection Required";
-          errorDesc.innerHTML = "WebAR features require a secure HTTPS connection. Please load this page over HTTPS to allow camera permissions.";
-          errorSteps.innerHTML = `
-            <li>Check the URL and replace <strong>http://</strong> with <strong>https://</strong>.</li>
-            <li>If testing locally, please run a secure dev server or access via <strong>localhost</strong>.</li>
-          `;
-        } else if (err.message === "API_UNSUPPORTED" || err.message === "NO_CAMERA_DEVICE") {
-          errorTitle.innerText = "No Camera Detected";
-          errorDesc.innerHTML = "We could not detect a camera device on this system. Shivam Jewels' WebAR experience requires a camera to map the invitation card.";
-          errorSteps.innerHTML = `
-            <li>Please open this link on a <strong>mobile phone</strong> or a device with a camera.</li>
-            <li>Make sure your webcam is plugged in, active, and not in use by another app.</li>
-          `;
-        } else {
-          // Fallback generic permission prompt
-          errorTitle.innerText = "Camera Access Required";
-          errorDesc.innerHTML = "To project the 3D world of Shivam Jewels, this browser requires camera access. Please follow these quick steps:";
-          errorSteps.innerHTML = `
-            <li><strong>Tap lock icon</strong> (or site settings) in the browser address bar.</li>
-            <li>Switch the Camera permission to <strong>Allow</strong>.</li>
-            <li>Reload the page to begin the experience.</li>
-          `;
-        }
+        }, 50);
       }
     }
 
