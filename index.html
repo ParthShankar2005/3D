@@ -811,33 +811,14 @@
             // Animate Ashoka Chakra coming from behind the card (scale and position slide)
             const chakra = document.querySelector('#ashoka-chakra-mesh');
             if (chakra) {
-              chakra.setAttribute('animation', {
-                property: 'scale',
-                from: '0 0 0',
-                to: '0.45 0.45 0.45',
-                dur: 1500,
-                easing: 'easeOutElastic'
-              });
-              chakra.setAttribute('animation__pos', {
-                property: 'position',
-                from: '0 0 -0.5',
-                to: '0 0 0.02',
-                dur: 1500,
-                easing: 'easeOutQuad'
-              });
+              chakra.setAttribute('animation', 'property: scale; from: 0 0 0; to: 0.45 0.45 0.45; dur: 1500; easing: easeOutElastic');
+              chakra.setAttribute('animation__pos', 'property: position; from: 0 0 -0.5; to: 0 0 0.12; dur: 1500; easing: easeOutQuad');
             }
             
             // Animate luxury gemstone scaling up with a slight delay
             const gems = document.querySelector('#luxury-gemstone');
             if (gems) {
-              gems.setAttribute('animation', {
-                property: 'scale',
-                from: '0 0 0',
-                to: '0.8 0.8 0.8',
-                dur: 1500,
-                delay: 200,
-                easing: 'easeOutElastic'
-              });
+              gems.setAttribute('animation', 'property: scale; from: 0 0 0; to: 0.8 0.8 0.8; dur: 1500; delay: 200; easing: easeOutElastic');
             }
           }
 
@@ -924,7 +905,7 @@
         // Show at full scale in simulation
         if (chakra) {
           chakra.setAttribute('scale', '0.45 0.45 0.45');
-          chakra.setAttribute('position', '0 0 0.02');
+          chakra.setAttribute('position', '0 0 0.12');
         }
         if (gems) {
           gems.setAttribute('scale', '0.8 0.8 0.8');
@@ -967,7 +948,7 @@
         portalNode.setAttribute('visible', 'true');
         if (chakra) {
           chakra.setAttribute('scale', '0.45 0.45 0.45');
-          chakra.setAttribute('position', '0 0 0.02');
+          chakra.setAttribute('position', '0 0 0.12');
         }
         if (gems) {
           gems.setAttribute('scale', '0.8 0.8 0.8');
