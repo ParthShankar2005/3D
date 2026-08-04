@@ -980,7 +980,7 @@
       } else {
         // Restore system values
         simBg.style.display = "none";
-        document.querySelector('.bypass-btn').innerText = "Bypass Camera & Scan";
+        document.querySelector('.bypass-btn').innerText = "Bypass Scan";
         
         portalNode.setAttribute('visible', 'false');
         if (chakra) {
@@ -1154,8 +1154,8 @@
 
   <!-- Developer HUD: Click this button in your browser to inspect animations immediately! -->
   <div id="dev-control">
-    <button class="sim-btn" onclick="toggleSimulation()">Simulate Scan</button>
-    <button class="sim-btn bypass-btn" onclick="bypassScanning()">Bypass Camera & Scan</button>
+    <button class="sim-btn" onclick="window.open('https://shivamjewels.com', '_blank')">SJWorld Website</button>
+    <button class="sim-btn bypass-btn" onclick="bypassScanning()">Bypass Scan</button>
   </div>
 
   <!-- WebAR Scene Pipeline -->
