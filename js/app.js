@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     '#a855f7', // Electric Violet
     '#f43f5e', // Hot Crimson
     '#10b981', // Emerald Green
-    '#f59e0b'  # Amber Gold
+    '#f59e0b'  // Amber Gold
   ];
   let colorIndex = 0;
 
@@ -309,13 +309,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnStartAr = document.getElementById('btn-start-ar');
   const modalOverlay = document.getElementById('permission-modal');
   if (btnStartAr && modalOverlay) {
-    btnStartAr.addEventListener('click', async () => {
-      playSound('click');
+    btnStartAr.addEventListener('click', async (e) => {
+      if (e) e.stopPropagation();
+      console.log("Allow Camera button clicked by user.");
+
+      // Immediately hide permission modal and reveal scanning reticle
       modalOverlay.classList.add('hidden');
       if (reticle) reticle.classList.remove('hidden');
-      
-      if (audioCtx && audioCtx.state === 'suspended') {
-        audioCtx.resume();
+
+      try {
+        playSound('click');
+      } catch (audioErr) {
+        console.warn("Audio chime ignored:", audioErr);
       }
 
       // Start MindAR camera system on user gesture click
@@ -325,7 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (arSystem) {
             console.log("Invoking mindar-image-system.start()...");
             await arSystem.start();
-            console.log("MindAR system started successfully.");
+            console.log("MindAR camera system started successfully.");
           } else {
             console.warn("arSystem not ready on scene, waiting for renderstart...");
             arScene.addEventListener('renderstart', async () => {
