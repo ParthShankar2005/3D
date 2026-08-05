@@ -81,6 +81,8 @@
     <a-assets>
       <!-- Load 3D GLB Model asset -->
       <a-asset-item id="glbModel" src="./assets/model.glb"></a-asset-item>
+      <!-- Load Shivam Jewels Thank You Banner Image asset -->
+      <img id="shivamBanner" src="./assets/shivam_banner.png" />
     </a-assets>
 
     <!-- Camera setup -->
@@ -94,34 +96,44 @@
       <a-entity light="type: directional; color: #38bdf8; intensity: 2.5" position="2 4 3"></a-entity>
       <a-entity light="type: directional; color: #f59e0b; intensity: 1.5" position="-2 -2 2"></a-entity>
 
-      <!-- Floating & Rotating 3D Diamond Model -->
+      <!-- 1. Shivam Jewels Thank You Poster Banner Overlapping QR Code Target -->
+      <a-plane
+        id="banner-plane"
+        src="#shivamBanner"
+        position="0 0 0"
+        rotation="0 0 0"
+        width="1.5"
+        height="1.9"
+        material="transparent: true; side: double; shader: flat;">
+      </a-plane>
+
+      <!-- 2. Floating & Rotating 3D Diamond Model on the Upside of the Picture -->
       <a-gltf-model
         id="3d-model-entity"
         src="#glbModel"
-        position="0 0.15 0"
+        position="0 1.3 0.15"
         rotation="0 0 0"
         scale="0.75 0.75 0.75"
         animation="property: rotation; to: 0 360 0; loop: true; dur: 6000; easing: linear"
-        animation__float="property: position; from: 0 0.1 0; to: 0 0.35 0; dir: alternate; loop: true; dur: 1800; easing: easeInOutSine">
+        animation__float="property: position; from: 0 1.2 0.15; to: 0 1.45 0.15; dir: alternate; loop: true; dur: 1800; easing: easeInOutSine">
       </a-gltf-model>
 
-      <!-- Floating 3D Text Badge: SHIVAM JEWELS -->
-      <a-entity position="0 1.1 0" animation="property: position; from: 0 1.0 0; to: 0 1.25 0; dir: alternate; loop: true; dur: 1800; easing: easeInOutSine">
-        <!-- Gold Shivam Jewels Branding -->
+      <!-- 3. Floating 3D Text Badge: SHIVAM JEWELS Above the Diamond -->
+      <a-entity position="0 2.1 0.15" animation="property: position; from: 0 2.0 0.15; to: 0 2.25 0.15; dir: alternate; loop: true; dur: 1800; easing: easeInOutSine">
         <a-text
           value="SHIVAM JEWELS"
           align="center"
           color="#f59e0b"
-          width="4.5"
+          width="5.0"
           wrap-count="14"
           side="double">
         </a-text>
         <a-text
-          value="DIAMOND COLLECTION"
-          position="0 -0.22 0"
+          value="JCK LAS VEGAS"
+          position="0 -0.24 0"
           align="center"
           color="#38bdf8"
-          width="2.5"
+          width="3.0"
           wrap-count="20"
           side="double">
         </a-text>
