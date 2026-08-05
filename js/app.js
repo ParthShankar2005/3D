@@ -318,17 +318,25 @@ document.addEventListener('DOMContentLoaded', () => {
         audioCtx.resume();
       }
 
-      // Start MindAR camera system on explicit user click
+      // Start MindAR camera system on user gesture click
       try {
-        const startARSystem = () => {
-          const arSystem = arScene.systems['mindar-image-system'];
+        const startARSystem = async () => {
+          const arSystem = arScene.systems && arScene.systems['mindar-image-system'];
           if (arSystem) {
-            arSystem.start();
+            console.log("Invoking mindar-image-system.start()...");
+            await arSystem.start();
+            console.log("MindAR system started successfully.");
+          } else {
+            console.warn("arSystem not ready on scene, waiting for renderstart...");
+            arScene.addEventListener('renderstart', async () => {
+              const sys = arScene.systems['mindar-image-system'];
+              if (sys) await sys.start();
+            }, { once: true });
           }
         };
 
         if (arScene.hasLoaded) {
-          startARSystem();
+          await startARSystem();
         } else {
           arScene.addEventListener('loaded', startARSystem, { once: true });
         }
