@@ -48,7 +48,7 @@
   </header>
 
   <!-- Camera Reticle & Translucent QR Target Overlay -->
-  <div id="scanning-reticle">
+  <div id="scanning-reticle" class="hidden">
     <div class="reticle-corner reticle-top-left"></div>
     <div class="reticle-corner reticle-top-right"></div>
     <div class="reticle-corner reticle-bottom-left"></div>
@@ -68,7 +68,7 @@
   <!-- Main WebAR Scene Container -->
   <a-scene
     id="ar-scene"
-    mindar-image="imageTargetSrc: ./assets/targets.mind; autoStart: true; uiScanning: no; uiLoading: no;"
+    mindar-image="imageTargetSrc: ./assets/targets.mind; autoStart: false; uiScanning: no; uiLoading: no;"
     color-space="sRGB"
     renderer="colorManagement: true, physicallyCorrectLights: true, exposure: 1.2"
     vr-mode-ui="enabled: false"

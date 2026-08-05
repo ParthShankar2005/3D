@@ -305,15 +305,35 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Modal actions
+  // Modal actions - Trigger camera start on user click
   const btnStartAr = document.getElementById('btn-start-ar');
   const modalOverlay = document.getElementById('permission-modal');
   if (btnStartAr && modalOverlay) {
-    btnStartAr.addEventListener('click', () => {
+    btnStartAr.addEventListener('click', async () => {
       playSound('click');
       modalOverlay.classList.add('hidden');
-      if (audioCtx.state === 'suspended') {
+      if (reticle) reticle.classList.remove('hidden');
+      
+      if (audioCtx && audioCtx.state === 'suspended') {
         audioCtx.resume();
+      }
+
+      // Start MindAR camera system on explicit user click
+      try {
+        const startARSystem = () => {
+          const arSystem = arScene.systems['mindar-image-system'];
+          if (arSystem) {
+            arSystem.start();
+          }
+        };
+
+        if (arScene.hasLoaded) {
+          startARSystem();
+        } else {
+          arScene.addEventListener('loaded', startARSystem, { once: true });
+        }
+      } catch (err) {
+        console.error("Camera start error:", err);
       }
     });
   }
