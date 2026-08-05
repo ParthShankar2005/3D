@@ -41,8 +41,8 @@
   <!-- Top Glassmorphic Navigation & Status Bar -->
   <header id="app-header" class="glass-panel">
     <div class="brand-badge">
-      <i class="fas fa-cube"></i>
-      <span>ShivamAI 3D</span>
+      <i class="fas fa-gem" style="color: #38bdf8;"></i>
+      <span>Shivam Jewels</span>
     </div>
     <div id="status-pill" class="status-pill searching">
       <div class="status-dot"></div>
@@ -89,18 +89,43 @@
     <!-- Target 0: QR Target tracking anchor -->
     <a-entity id="ar-target" mindar-image-target="targetIndex: 0">
       
-      <!-- Lighting -->
-      <a-entity light="type: ambient; color: #ffffff; intensity: 1.2"></a-entity>
-      <a-entity light="type: directional; color: #38bdf8; intensity: 2" position="2 4 3"></a-entity>
+      <!-- Ambient & Specular Gem Lighting -->
+      <a-entity light="type: ambient; color: #ffffff; intensity: 1.6"></a-entity>
+      <a-entity light="type: directional; color: #38bdf8; intensity: 2.5" position="2 4 3"></a-entity>
+      <a-entity light="type: directional; color: #f59e0b; intensity: 1.5" position="-2 -2 2"></a-entity>
 
-      <!-- 3D GLTF Model entity -->
+      <!-- Floating & Rotating 3D Diamond Model -->
       <a-gltf-model
         id="3d-model-entity"
         src="#glbModel"
-        position="0 0 0"
+        position="0 0.15 0"
         rotation="0 0 0"
-        scale="0.6 0.6 0.6">
+        scale="0.75 0.75 0.75"
+        animation="property: rotation; to: 0 360 0; loop: true; dur: 6000; easing: linear"
+        animation__float="property: position; from: 0 0.1 0; to: 0 0.35 0; dir: alternate; loop: true; dur: 1800; easing: easeInOutSine">
       </a-gltf-model>
+
+      <!-- Floating 3D Text Badge: SHIVAM JEWELS -->
+      <a-entity position="0 1.1 0" animation="property: position; from: 0 1.0 0; to: 0 1.25 0; dir: alternate; loop: true; dur: 1800; easing: easeInOutSine">
+        <!-- Gold Shivam Jewels Branding -->
+        <a-text
+          value="SHIVAM JEWELS"
+          align="center"
+          color="#f59e0b"
+          width="4.5"
+          wrap-count="14"
+          side="double">
+        </a-text>
+        <a-text
+          value="DIAMOND COLLECTION"
+          position="0 -0.22 0"
+          align="center"
+          color="#38bdf8"
+          width="2.5"
+          wrap-count="20"
+          side="double">
+        </a-text>
+      </a-entity>
     </a-entity>
   </a-scene>
 
@@ -137,11 +162,11 @@
   <div id="permission-modal" class="modal-overlay">
     <div class="modal-card glass-panel">
       <div class="modal-icon">
-        <i class="fas fa-camera"></i>
+        <i class="fas fa-gem"></i>
       </div>
-      <h2 class="modal-title">WebAR Camera Access</h2>
+      <h2 class="modal-title">Shivam Jewels WebAR</h2>
       <p class="modal-desc">
-        Point your phone camera at the QR target code to display the interactive 3D model in Augmented Reality.
+        Point your phone camera at the QR target code to reveal the floating 3D diamond experience in Augmented Reality.
       </p>
       <div class="modal-actions">
         <button id="btn-start-ar" class="btn-pill btn-primary-lg">
