@@ -52,10 +52,11 @@ html, body {
   color: var(--text-main);
 }
 
-/* Top Header Bar */
+/* Bottom Floating Navigation & Status Bar */
 #app-header {
   position: absolute;
-  top: 16px;
+  bottom: 50px;
+  top: auto;
   left: 50%;
   transform: translateX(-50%);
   z-index: 100;

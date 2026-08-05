@@ -1,9 +1,9 @@
 """
-Diamond Dial / Carousel Scene - Pure Python GLTF/GLB Exporter
-===============================================================
-Generates a 3D Diamond Carousel GLTF & GLB model for WebAR without needing Blender/bpy.
-Creates faceted gemstone geometry for Round, Princess, Cushion, Oval, Emerald, Asscher,
-Marquise, Trillion, Heart, and Pear diamond cuts.
+Shivam Jewels Diamond Dial / Carousel Ring Scene Exporter
+=========================================================
+Generates a 3D Diamond Carousel Ring Scene GLTF & GLB model for WebAR natively in pure Python.
+Features a circular ring of 12 multi-cut gemstones (Round, Princess, Cushion, Oval, Emerald,
+Asscher, Marquise, Trillion, Heart, Pear) set in a metallic bezel ring.
 """
 
 import json
@@ -11,17 +11,16 @@ import struct
 import math
 import base64
 import os
-import random
 
 # ----------------------------------------------------------------------
-# 0. GEM SHAPE OUTLINES (2D girdle profiles, one function per cut)
+# 0. 2D SHAPE OUTLINES
 # ----------------------------------------------------------------------
 def center_outline(pts):
     cx = sum(p[0] for p in pts) / len(pts)
     cy = sum(p[1] for p in pts) / len(pts)
     return [(x - cx, y - cy) for x, y in pts]
 
-def normalize_outline(pts, target=0.5):
+def normalize_outline(pts, target=0.18):
     maxd = max(math.hypot(x, y) for x, y in pts)
     if maxd == 0:
         return pts
@@ -31,20 +30,20 @@ def normalize_outline(pts, target=0.5):
 def finalize(pts):
     return normalize_outline(center_outline(pts))
 
-def outline_round(seg=28):
+def outline_round(seg=20):
     return [(math.cos(2*math.pi*i/seg), math.sin(2*math.pi*i/seg)) for i in range(seg)]
 
 def outline_square():
     return [(-1,-1),(1,-1),(1,1),(-1,1)]
 
-def outline_octagon_rect(w=1.3, h=0.9, cut=0.35):
+def outline_octagon_rect(w=1.2, h=0.85, cut=0.35):
     return [(-w+cut,-h),(w-cut,-h),(w,-h+cut),(w,h-cut),
             (w-cut,h),(-w+cut,h),(-w,h-cut),(-w,-h+cut)]
 
-def outline_oval(seg=28):
-    return [(1.25*math.cos(2*math.pi*i/seg), 0.9*math.sin(2*math.pi*i/seg)) for i in range(seg)]
+def outline_oval(seg=20):
+    return [(1.2*math.cos(2*math.pi*i/seg), 0.85*math.sin(2*math.pi*i/seg)) for i in range(seg)]
 
-def outline_cushion(n_exp=4, seg=28):
+def outline_cushion(n_exp=4, seg=20):
     pts = []
     for i in range(seg):
         t = 2 * math.pi * i / seg
@@ -54,20 +53,20 @@ def outline_cushion(n_exp=4, seg=28):
         pts.append((x, y))
     return pts
 
-def outline_marquise(seg=28):
+def outline_marquise(seg=20):
     pts = []
     for i in range(seg):
         t = 2 * math.pi * i / seg
         c = math.cos(t)
-        x = (1 if c >= 0 else -1) * (abs(c) ** 0.5) * 1.5
-        y = math.sin(t) * 0.65
+        x = (1 if c >= 0 else -1) * (abs(c) ** 0.5) * 1.4
+        y = math.sin(t) * 0.6
         pts.append((x, y))
     return pts
 
 def outline_trillion():
-    return [(0, 1.15), (1.0, -0.6), (-1.0, -0.6)]
+    return [(0, 1.1), (0.95, -0.55), (-0.95, -0.55)]
 
-def outline_heart(seg=40):
+def outline_heart(seg=24):
     pts = []
     for i in range(seg):
         t = 2 * math.pi * i / seg
@@ -76,7 +75,7 @@ def outline_heart(seg=40):
         pts.append((x, -y))
     return pts
 
-def outline_pear(seg=32):
+def outline_pear(seg=24):
     pts = []
     for i in range(seg):
         t = 2 * math.pi * i / seg
@@ -87,87 +86,125 @@ def outline_pear(seg=32):
     ymin, ymax = min(ys), max(ys)
     for p in pts:
         f = (p[1] - ymax) / (ymin - ymax)
-        taper = 1 - 0.82 * (f ** 3)
+        taper = 1 - 0.8 * (f ** 3)
         p[0] *= taper
     return [tuple(p) for p in pts]
 
-SHAPES = {
-    "Round":    finalize(outline_round()),
-    "Princess": finalize(outline_square()),
-    "Cushion":  finalize(outline_cushion()),
-    "Oval":     finalize(outline_oval()),
-    "Emerald":  finalize(outline_octagon_rect(1.35, 0.9, 0.35)),
-    "Asscher":  finalize(outline_octagon_rect(1.1, 1.1, 0.4)),
-    "Marquise": finalize(outline_marquise()),
-    "Trillion": finalize(outline_trillion()),
-    "Heart":    finalize(outline_heart()),
-    "Pear":     finalize(outline_pear()),
-}
-SHAPE_NAMES = list(SHAPES.keys())
+SHAPES = [
+    finalize(outline_round()),
+    finalize(outline_square()),
+    finalize(outline_cushion()),
+    finalize(outline_oval()),
+    finalize(outline_octagon_rect(1.2, 0.85, 0.35)),
+    finalize(outline_marquise()),
+    finalize(outline_trillion()),
+    finalize(outline_heart()),
+    finalize(outline_pear()),
+]
 
 # ----------------------------------------------------------------------
-# 1. FACETED GEM MESH BUILDER
+# 1. GENERATE MESH GEOMETRIES
 # ----------------------------------------------------------------------
-def build_gem_facets(outline, table_scale=0.55, crown_height=0.22, pavilion_depth=0.48):
-    n = len(outline)
-    table_center = (0.0, crown_height, 0.0)
-    apex = (0.0, -pavilion_depth, 0.0)
-
-    girdle = [(x, 0.0, y) for x, y in outline]
-    table = [(x * table_scale, crown_height, y * table_scale) for x, y in outline]
-
-    raw_faces = []
-
-    # Table Top Fan Facets
-    for i in range(n):
-        nxt = (i + 1) % n
-        raw_faces.append((table_center, table[i], table[nxt]))
-
-    # Crown Bezel Side Facets
-    for i in range(n):
-        nxt = (i + 1) % n
-        raw_faces.append((table[i], girdle[i], table[nxt]))
-        raw_faces.append((table[nxt], girdle[i], girdle[nxt]))
-
-    # Pavilion Bottom Facets
-    for i in range(n):
-        nxt = (i + 1) % n
-        raw_faces.append((girdle[i], apex, girdle[nxt]))
-
+def build_diamond_carousel_model(output_gltf="assets/model.gltf", output_glb="assets/model.glb"):
     unique_vertices = []
     unique_normals = []
     unique_uvs = []
     indices = []
 
-    for tri in raw_faces:
-        p1, p2, p3 = tri
-        v1 = (p2[0]-p1[0], p2[1]-p1[1], p2[2]-p1[2])
-        v2 = (p3[0]-p1[0], p3[1]-p1[1], p3[2]-p1[2])
-        nx = v1[1]*v2[2] - v1[2]*v2[1]
-        ny = v1[2]*v2[0] - v1[0]*v2[2]
-        nz = v1[0]*v2[1] - v1[1]*v2[0]
-        len_n = math.sqrt(nx*nx + ny*ny + nz*nz) or 1.0
-        norm = (nx/len_n, ny/len_n, nz/len_n)
+    # 1. Build Bezel Ring (Outer Torus Ring)
+    ring_radius = 0.68
+    ring_tube = 0.032
+    r_segs = 32
+    t_segs = 12
 
-        base_idx = len(unique_vertices)
-        for p in (p1, p2, p3):
-            unique_vertices.append(p)
-            unique_normals.append(norm)
-            u = 0.5 + p[0] * 0.5
-            v = 0.5 + p[2] * 0.5
-            unique_uvs.append((u, v))
+    for i in range(r_segs):
+        a1 = 2 * math.pi * i / r_segs
+        a2 = 2 * math.pi * (i + 1) / r_segs
+        c1, s1 = math.cos(a1), math.sin(a1)
+        c2, s2 = math.cos(a2), math.sin(a2)
 
-        indices.extend([base_idx, base_idx + 1, base_idx + 2])
+        for j in range(t_segs):
+            b1 = 2 * math.pi * j / t_segs
+            b2 = 2 * math.pi * (j + 1) / t_segs
+            cb1, sb1 = math.cos(b1), math.sin(b1)
+            cb2, sb2 = math.cos(b2), math.sin(b2)
 
-    return unique_vertices, unique_normals, unique_uvs, indices
+            p1 = ((ring_radius + ring_tube * cb1) * c1, ring_tube * sb1, (ring_radius + ring_tube * cb1) * s1)
+            p2 = ((ring_radius + ring_tube * cb1) * c2, ring_tube * sb1, (ring_radius + ring_tube * cb1) * s2)
+            p3 = ((ring_radius + ring_tube * cb2) * c2, ring_tube * sb2, (ring_radius + ring_tube * cb2) * s2)
+            p4 = ((ring_radius + ring_tube * cb2) * c1, ring_tube * sb2, (ring_radius + ring_tube * cb2) * s1)
 
-# ----------------------------------------------------------------------
-# 2. EXPORT TO GLTF & GLB BINARY
-# ----------------------------------------------------------------------
-def build_diamond_model(output_gltf="assets/model.gltf", output_glb="assets/model.glb"):
-    outline = SHAPES["Round"]
-    unique_vertices, unique_normals, unique_uvs, indices = build_gem_facets(outline)
+            # Normal calculation for torus
+            n1 = (cb1 * c1, sb1, cb1 * s1)
+            n2 = (cb1 * c2, sb1, cb1 * s2)
+            n3 = (cb2 * c2, sb2, cb2 * s2)
+            n4 = (cb2 * c1, sb2, cb2 * s1)
 
+            base_idx = len(unique_vertices)
+            unique_vertices.extend([p1, p2, p3, p4])
+            unique_normals.extend([n1, n2, n3, n4])
+            unique_uvs.extend([(0, 0), (1, 0), (1, 1), (0, 1)])
+            indices.extend([base_idx, base_idx + 1, base_idx + 2, base_idx, base_idx + 2, base_idx + 3])
+
+    # 2. Build 12 Gemstones in a Circular Ring
+    num_gems = 12
+    table_scale = 0.55
+    crown_h = 0.10
+    pavilion_d = 0.22
+
+    for k in range(num_gems):
+        g_angle = 2 * math.pi * k / num_gems
+        gx = ring_radius * math.cos(g_angle)
+        gz = ring_radius * math.sin(g_angle)
+        gy = 0.03
+
+        outline = SHAPES[k % len(SHAPES)]
+        n = len(outline)
+
+        # Rotate gem to face outward along ring radius
+        rot = g_angle
+
+        def transform(x, y, z):
+            # Rotate in XZ plane around gem center
+            rx = x * math.cos(rot) - z * math.sin(rot)
+            rz = x * math.sin(rot) + z * math.cos(rot)
+            return (gx + rx, gy + y, gz + rz)
+
+        table_center = transform(0.0, crown_h, 0.0)
+        apex = transform(0.0, -pavilion_d, 0.0)
+
+        girdle = [transform(x, 0.0, z) for x, z in outline]
+        table = [transform(x * table_scale, crown_h, z * table_scale) for x, z in outline]
+
+        raw_faces = []
+        for i in range(n):
+            nxt = (i + 1) % n
+            raw_faces.append((table_center, table[i], table[nxt]))
+            raw_faces.append((table[i], girdle[i], table[nxt]))
+            raw_faces.append((table[nxt], girdle[i], girdle[nxt]))
+            raw_faces.append((girdle[i], apex, girdle[nxt]))
+
+        for tri in raw_faces:
+            p1, p2, p3 = tri
+            v1 = (p2[0]-p1[0], p2[1]-p1[1], p2[2]-p1[2])
+            v2 = (p3[0]-p1[0], p3[1]-p1[1], p3[2]-p1[2])
+            nx = v1[1]*v2[2] - v1[2]*v2[1]
+            ny = v1[2]*v2[0] - v1[0]*v2[2]
+            nz = v1[0]*v2[1] - v1[1]*v2[0]
+            len_n = math.sqrt(nx*nx + ny*ny + nz*nz) or 1.0
+            norm = (nx/len_n, ny/len_n, nz/len_n)
+
+            base_idx = len(unique_vertices)
+            for p in (p1, p2, p3):
+                unique_vertices.append(p)
+                unique_normals.append(norm)
+                u = 0.5 + p[0] * 0.5
+                v = 0.5 + p[2] * 0.5
+                unique_uvs.append((u, v))
+
+            indices.extend([base_idx, base_idx + 1, base_idx + 2])
+
+    # Pack Binary Buffers
     pos_buffer = bytearray()
     norm_buffer = bytearray()
     uv_buffer = bytearray()
@@ -211,13 +248,13 @@ def build_diamond_model(output_gltf="assets/model.gltf", output_glb="assets/mode
     b64_bin = base64.b64encode(bin_buffer).decode('ascii')
     data_uri = f"data:application/octet-stream;base64,{b64_bin}"
 
-    # Pure Crystal Diamond PBR Material Specification
+    # GLTF JSON Structure
     gltf_dict = {
-        "asset": {"version": "2.0", "generator": "ShivamJewelsPurePythonDiamondGenerator"},
+        "asset": {"version": "2.0", "generator": "ShivamJewelsDiamondDialCarouselGenerator"},
         "scenes": [{"nodes": [0]}],
-        "nodes": [{"mesh": 0, "name": "DiamondNode"}],
+        "nodes": [{"mesh": 0, "name": "DiamondDialNode"}],
         "meshes": [{
-            "name": "DiamondMesh",
+            "name": "DiamondDialMesh",
             "primitives": [{
                 "indices": 0,
                 "attributes": {
@@ -232,7 +269,7 @@ def build_diamond_model(output_gltf="assets/model.gltf", output_glb="assets/mode
             "name": "PureCrystalDiamondMaterial",
             "pbrMetallicRoughness": {
                 "baseColorFactor": [0.92, 0.97, 1.0, 0.95],
-                "metallicFactor": 0.15,
+                "metallicFactor": 0.25,
                 "roughnessFactor": 0.01
             },
             "doubleSided": True
@@ -306,7 +343,7 @@ def build_diamond_model(output_gltf="assets/model.gltf", output_glb="assets/mode
     os.makedirs(os.path.dirname(output_gltf), exist_ok=True)
     with open(output_gltf, 'w', encoding='utf-8') as f:
         json.dump(gltf_dict, f, indent=2)
-    print(f"Generated Diamond GLTF at {output_gltf}")
+    print(f"Generated Diamond Dial Carousel GLTF at {output_gltf}")
 
     json_bytes = json.dumps(gltf_dict, separators=(',', ':')).encode('utf-8')
     json_pad = (4 - (len(json_bytes) % 4)) % 4
@@ -329,7 +366,7 @@ def build_diamond_model(output_gltf="assets/model.gltf", output_glb="assets/mode
 
     with open(output_glb, 'wb') as f:
         f.write(glb_bytes)
-    print(f"Generated Diamond GLB at {output_glb}")
+    print(f"Generated Diamond Dial Carousel GLB at {output_glb}")
 
 if __name__ == "__main__":
-    build_diamond_model()
+    build_diamond_carousel_model()

@@ -133,11 +133,16 @@
         if (reticle) reticle.classList.add('hidden');
         playSound('found');
 
-        // Ensure 3D diamond model & target entities are explicitly visible
+        // Ensure 3D diamond dial, logo plane & target entities are explicitly visible
         const gltfModel = document.getElementById('3d-model-entity');
+        const logoPlane = document.getElementById('logo-plane');
         if (gltfModel) {
           gltfModel.setAttribute('visible', 'true');
           if (gltfModel.object3D) gltfModel.object3D.visible = true;
+        }
+        if (logoPlane) {
+          logoPlane.setAttribute('visible', 'true');
+          if (logoPlane.object3D) logoPlane.object3D.visible = true;
         }
         if (targetEntity.object3D) targetEntity.object3D.visible = true;
       });

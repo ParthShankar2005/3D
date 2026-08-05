@@ -94,7 +94,7 @@
       <a-entity light="type: directional; color: #38bdf8; intensity: 2.5" position="2 4 3"></a-entity>
       <a-entity light="type: directional; color: #f59e0b; intensity: 1.5" position="-2 -2 2"></a-entity>
 
-      <!-- 1. Shivam Jewels Thank You Poster Banner Overlapping QR Code Target (Perfect 1:1 QR Aspect) -->
+      <!-- 1. Shivam Jewels Thank You Poster Banner Overlapping QR Target (Perfect 1:1 QR Aspect) -->
       <a-plane
         id="banner-plane"
         src="#shivamBanner"
@@ -105,28 +105,26 @@
         material="transparent: true; side: double; shader: flat;">
       </a-plane>
 
-      <!-- 2. Hyper-Realistic Floating & Rotating 3D Diamond Model on the Upside of the Picture -->
+      <!-- 2. Static Shivam Jewels Official Logo Plane (Top Margin - Solid & Non-Flickering) -->
+      <a-plane
+        id="logo-plane"
+        src="#shivamLogo"
+        position="0 0.85 0.12"
+        rotation="0 0 0"
+        width="1.35"
+        height="0.38"
+        material="transparent: true; side: double; shader: flat;">
+      </a-plane>
+
+      <!-- 3. Rotating 3D Diamond Dial / Carousel Ring Scene Model (Centered between Banner & Logo) -->
       <a-gltf-model
         id="3d-model-entity"
         src="#glbModel"
-        position="0 0.75 0.2"
-        rotation="0 0 0"
-        scale="0.38 0.38 0.38"
-        animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear"
-        animation__float="property: position; from: 0 0.70 0.2; to: 0 0.82 0.2; dir: alternate; loop: true; dur: 1600; easing: easeInOutSine">
+        position="0 0.2 0.2"
+        rotation="45 0 0"
+        scale="0.65 0.65 0.65"
+        animation="property: rotation; to: 45 360 0; loop: true; dur: 8000; easing: linear">
       </a-gltf-model>
-
-      <!-- 3. Floating 3D Logo Badge: Shivam Jewels Official Logo Image Plane -->
-      <a-entity position="0 1.25 0.35" animation="property: position; from: 0 1.20 0.35; to: 0 1.32 0.35; dir: alternate; loop: true; dur: 1600; easing: easeInOutSine">
-        <a-plane
-          src="#shivamLogo"
-          position="0 0 0"
-          rotation="0 0 0"
-          width="1.4"
-          height="0.4"
-          material="transparent: true; side: double; shader: flat;">
-        </a-plane>
-      </a-entity>
     </a-entity>
   </a-scene>
 
