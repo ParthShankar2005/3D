@@ -3,77 +3,139 @@ import struct
 import math
 import base64
 import os
+import random
 
-def build_user_pro_brilliant_diamond(output_gltf="assets/model.gltf", output_glb="assets/model.glb"):
-    # User's exact 57-Facet Pro-Grade Round Brilliant Diamond Cut Geometry
-    segments = 16
-    ang = (2 * math.pi) / segments
+# ==============================================================================
+# 0. GEM SHAPE OUTLINES (Multi-Cut Gemstone Geometry Generators)
+# ==============================================================================
+def center_outline(pts):
+    cx = sum(p[0] for p in pts) / len(pts)
+    cy = sum(p[1] for p in pts) / len(pts)
+    return [(x - cx, y - cy) for x, y in pts]
 
-    raw_verts = [
-        (0.0, 0.0, -0.85),  # 0: Culet (Bottom Point)
-    ]
+def normalize_outline(pts, target=0.5):
+    maxd = max(math.hypot(x, y) for x, y in pts)
+    if maxd == 0:
+        return pts
+    f = target / maxd
+    return [(x * f, y * f) for x, y in pts]
 
-    # Lower Pavilion, Pavilion, Girdle Lower, Girdle Upper, Crown, Table
-    for i in range(segments): raw_verts.append((0.35 * math.cos(i * ang), 0.35 * math.sin(i * ang), -0.5))
-    for i in range(segments): raw_verts.append((0.75 * math.cos((i + 0.5) * ang), 0.75 * math.sin((i + 0.5) * ang), -0.2))
-    for i in range(segments): raw_verts.append((1.0 * math.cos(i * ang), 1.0 * math.sin(i * ang), -0.02))
-    for i in range(segments): raw_verts.append((1.0 * math.cos(i * ang), 1.0 * math.sin(i * ang), 0.02))
-    for i in range(segments): raw_verts.append((0.70 * math.cos((i + 0.5) * ang), 0.70 * math.sin((i + 0.5) * ang), 0.28))
-    for i in range(segments): raw_verts.append((0.50 * math.cos(i * ang), 0.50 * math.sin(i * ang), 0.42))
+def finalize(pts):
+    return normalize_outline(center_outline(pts))
+
+def outline_round(seg=28):
+    return [(math.cos(2*math.pi*i/seg), math.sin(2*math.pi*i/seg)) for i in range(seg)]
+
+def outline_square():
+    return [(-1,-1),(1,-1),(1,1),(-1,1)]
+
+def outline_cushion(n_exp=4, seg=28):
+    pts = []
+    for i in range(seg):
+        t = 2 * math.pi * i / seg
+        c, s = math.cos(t), math.sin(t)
+        x = (1 if c >= 0 else -1) * (abs(c)) ** (2 / n_exp)
+        y = (1 if s >= 0 else -1) * (abs(s)) ** (2 / n_exp)
+        pts.append((x, y))
+    return pts
+
+def outline_oval(seg=28):
+    return [(1.25*math.cos(2*math.pi*i/seg), 0.9*math.sin(2*math.pi*i/seg)) for i in range(seg)]
+
+def outline_marquise(seg=28):
+    pts = []
+    for i in range(seg):
+        t = 2 * math.pi * i / seg
+        c = math.cos(t)
+        x = (1 if c >= 0 else -1) * (abs(c) ** 0.5) * 1.5
+        y = math.sin(t) * 0.65
+        pts.append((x, y))
+    return pts
+
+def outline_pear(seg=32):
+    pts = []
+    for i in range(seg):
+        t = 2 * math.pi * i / seg
+        x = math.sin(t)
+        y = -math.cos(t)
+        pts.append([x, y])
+    ys = [p[1] for p in pts]
+    ymin, ymax = min(ys), max(ys)
+    for p in pts:
+        f = (p[1] - ymax) / (ymin - ymax)
+        taper = 1 - 0.82 * (f ** 3)
+        p[0] *= taper
+    return [tuple(p) for p in pts]
+
+SHAPES = {
+    "Round":    finalize(outline_round()),
+    "Princess": finalize(outline_square()),
+    "Cushion":  finalize(outline_cushion()),
+    "Oval":     finalize(outline_oval()),
+    "Marquise": finalize(outline_marquise()),
+    "Pear":     finalize(outline_pear()),
+}
+
+# ==============================================================================
+# 1. PROCEDURAL FACETED GLTF BUILDER
+# ==============================================================================
+def build_faceted_gem(outline, table_scale=0.55, crown_height=0.24, pavilion_depth=0.55):
+    n = len(outline)
+    table_center = (0.0, crown_height, 0.0)
+    apex = (0.0, -pavilion_depth, 0.0)
+
+    girdle = [(x, 0.0, y) for x, y in outline]
+    table = [(x * table_scale, crown_height, y * table_scale) for x, y in outline]
 
     raw_faces = []
-    for i in range(segments):
-        nxt = (i + 1) % segments
-        raw_faces.append([0, nxt + 1, i + 1])
-        raw_faces.append([i + 1, nxt + 1, nxt + 17])
-        raw_faces.append([i + 1, nxt + 17, i + 17])
-        raw_faces.append([i + 17, nxt + 17, nxt + 33])
-        raw_faces.append([i + 17, nxt + 33, i + 33])
-        raw_faces.append([i + 33, nxt + 33, nxt + 49])
-        raw_faces.append([i + 33, nxt + 49, i + 49])
-        raw_faces.append([i + 49, nxt + 49, nxt + 65])
-        raw_faces.append([i + 49, nxt + 65, i + 65])
-        raw_faces.append([i + 65, nxt + 65, i + 81])
-        raw_faces.append([nxt + 65, nxt + 81, i + 81])
 
-    # Table N-gon face (16-sided top table) -> Triangulate as fan around table center
-    table_center_idx = len(raw_verts)
-    raw_verts.append((0.0, 0.0, 0.42))  # Table center vertex
-    for i in range(segments):
-        nxt = (i + 1) % segments
-        raw_faces.append([table_center_idx, i + 81, nxt + 81])
+    # Table Top Fan Facets
+    for i in range(n):
+        nxt = (i + 1) % n
+        raw_faces.append((table_center, table[i], table[nxt]))
 
-    # Process into sharp flat-faceted vertices, normals, and UVs for GLTF
+    # Crown Bezel Side Facets
+    for i in range(n):
+        nxt = (i + 1) % n
+        raw_faces.append((table[i], girdle[i], table[nxt]))
+        raw_faces.append((table[nxt], girdle[i], girdle[nxt]))
+
+    # Pavilion Bottom Facets
+    for i in range(n):
+        nxt = (i + 1) % n
+        raw_faces.append((girdle[i], apex, girdle[nxt]))
+
     unique_vertices = []
     unique_normals = []
     unique_uvs = []
     indices = []
 
-    for face in raw_faces:
-        p1 = raw_verts[face[0]]
-        p2 = raw_verts[face[1]]
-        p3 = raw_verts[face[2]]
-
-        # Compute exact face normal for brilliant gem facet reflections
+    for tri in raw_faces:
+        p1, p2, p3 = tri
         v1 = (p2[0]-p1[0], p2[1]-p1[1], p2[2]-p1[2])
         v2 = (p3[0]-p1[0], p3[1]-p1[1], p3[2]-p1[2])
         nx = v1[1]*v2[2] - v1[2]*v2[1]
         ny = v1[2]*v2[0] - v1[0]*v2[2]
         nz = v1[0]*v2[1] - v1[1]*v2[0]
         len_n = math.sqrt(nx*nx + ny*ny + nz*nz) or 1.0
-        n = (nx/len_n, ny/len_n, nz/len_n)
+        norm = (nx/len_n, ny/len_n, nz/len_n)
 
         base_idx = len(unique_vertices)
         for p in (p1, p2, p3):
             unique_vertices.append(p)
-            unique_normals.append(n)
+            unique_normals.append(norm)
             u = 0.5 + p[0] * 0.5
-            v = 0.5 + p[1] * 0.5
+            v = 0.5 + p[2] * 0.5
             unique_uvs.append((u, v))
 
         indices.extend([base_idx, base_idx + 1, base_idx + 2])
 
-    # Pack Binary Buffers
+    return unique_vertices, unique_normals, unique_uvs, indices
+
+def build_diamond_model(output_gltf="assets/model.gltf", output_glb="assets/model.glb"):
+    outline = SHAPES["Round"]
+    unique_vertices, unique_normals, unique_uvs, indices = build_faceted_gem(outline)
+
     pos_buffer = bytearray()
     norm_buffer = bytearray()
     uv_buffer = bytearray()
@@ -119,7 +181,7 @@ def build_user_pro_brilliant_diamond(output_gltf="assets/model.gltf", output_glb
 
     # Pure Crystal Diamond PBR Material Specification
     gltf_dict = {
-        "asset": {"version": "2.0", "generator": "ShivamJewelsUserBrilliantDiamondGenerator"},
+        "asset": {"version": "2.0", "generator": "ShivamJewelsDiamondCarouselGenerator"},
         "scenes": [{"nodes": [0]}],
         "nodes": [{"mesh": 0, "name": "DiamondNode"}],
         "meshes": [{
@@ -212,7 +274,7 @@ def build_user_pro_brilliant_diamond(output_gltf="assets/model.gltf", output_glb
     os.makedirs(os.path.dirname(output_gltf), exist_ok=True)
     with open(output_gltf, 'w', encoding='utf-8') as f:
         json.dump(gltf_dict, f, indent=2)
-    print(f"Generated User Pro-Grade Diamond GLTF at {output_gltf}")
+    print(f"Generated Diamond GLTF at {output_gltf}")
 
     json_bytes = json.dumps(gltf_dict, separators=(',', ':')).encode('utf-8')
     json_pad = (4 - (len(json_bytes) % 4)) % 4
@@ -235,7 +297,7 @@ def build_user_pro_brilliant_diamond(output_gltf="assets/model.gltf", output_glb
 
     with open(output_glb, 'wb') as f:
         f.write(glb_bytes)
-    print(f"Generated User Pro-Grade Diamond GLB at {output_glb}")
+    print(f"Generated Diamond GLB at {output_glb}")
 
 if __name__ == "__main__":
-    build_user_pro_brilliant_diamond()
+    build_diamond_model()
