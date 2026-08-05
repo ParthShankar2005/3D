@@ -335,8 +335,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const val = code.data.toLowerCase().trim();
             console.log("QR Code decoded from camera:", val);
             
-            // Match website link or target domain
-            if (val.includes('sjar.vercel.app') || val.includes('shivamai') || val.includes('http') || val.length > 0) {
+            // Match website link or target domain strictly
+            const isMatchingUrl = val.includes('sjar.vercel.app') || val.includes('sjar') || val.includes('shivamai') || val.includes('3d.shivamai.studio');
+            if (isMatchingUrl) {
               lastQrMatchTime = Date.now();
 
               if (!isTracking) {
