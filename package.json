@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "generate-diamond": "python scripts/generate_diamond_glb.py",
+    "generate-target": "python scripts/generate_qr_target.py"
   },
   "keywords": [
     "webar",
