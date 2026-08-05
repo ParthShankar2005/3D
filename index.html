@@ -105,26 +105,27 @@
         material="transparent: true; side: double; shader: flat;">
       </a-plane>
 
-      <!-- 2. Static Shivam Jewels Official Logo Plane (Top Margin - Solid & Non-Flickering) -->
+      <!-- 2. User Exact 57-Facet 3D Diamond Model (Floating On Top Upside of Banner Card) -->
+      <a-gltf-model
+        id="3d-model-entity"
+        src="#glbModel"
+        position="0 1.1 0.25"
+        rotation="0 0 0"
+        scale="0.55 0.55 0.55"
+        animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear"
+        animation__float="property: position; from: 0 1.0 0.25; to: 0 1.22 0.25; dir: alternate; loop: true; dur: 1600; easing: easeInOutSine">
+      </a-gltf-model>
+
+      <!-- 3. Shivam Jewels Official Logo Plane (Floating Above the Diamond) -->
       <a-plane
         id="logo-plane"
         src="#shivamLogo"
-        position="0 0.85 0.12"
+        position="0 1.85 0.25"
         rotation="0 0 0"
         width="1.35"
         height="0.38"
         material="transparent: true; side: double; shader: flat;">
       </a-plane>
-
-      <!-- 3. Rotating 3D Diamond Dial / Carousel Ring Scene Model (Centered between Banner & Logo) -->
-      <a-gltf-model
-        id="3d-model-entity"
-        src="#glbModel"
-        position="0 0.2 0.2"
-        rotation="45 0 0"
-        scale="0.65 0.65 0.65"
-        animation="property: rotation; to: 45 360 0; loop: true; dur: 8000; easing: linear">
-      </a-gltf-model>
     </a-entity>
   </a-scene>
 
