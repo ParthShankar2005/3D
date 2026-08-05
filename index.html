@@ -67,7 +67,7 @@
   <!-- Main WebAR Scene Container -->
   <a-scene
     id="ar-scene"
-    mindar-image="imageTargetSrc: ./assets/targets.mind; autoStart: false; uiScanning: no; uiLoading: no;"
+    mindar-image="imageTargetSrc: ./assets/targets.mind; autoStart: false; uiScanning: no; uiLoading: no; filterMinCF: 0.0001; filterBeta: 0.001; missTolerance: 8;"
     color-space="sRGB"
     renderer="colorManagement: true, physicallyCorrectLights: true, exposure: 1.2"
     vr-mode-ui="enabled: false"
@@ -94,33 +94,33 @@
       <a-entity light="type: directional; color: #38bdf8; intensity: 2.5" position="2 4 3"></a-entity>
       <a-entity light="type: directional; color: #f59e0b; intensity: 1.5" position="-2 -2 2"></a-entity>
 
-      <!-- 1. Shivam Jewels Thank You Poster Banner Overlapping QR Target (Perfect 1:1 QR Aspect) -->
+      <!-- 1. Shivam Jewels Thank You Poster Banner Overlapping QR Target (Z-offset prevents Z-fighting flicker) -->
       <a-plane
         id="banner-plane"
         src="#shivamBanner"
-        position="0 0 0"
+        position="0 0 0.01"
         rotation="0 0 0"
         width="1.0"
         height="1.25"
         material="transparent: true; side: double; shader: flat;">
       </a-plane>
 
-      <!-- 2. User Exact 57-Facet 3D Diamond Model (Floating On Top Upside of Banner Card) -->
+      <!-- 2. User Exact 57-Facet 3D Diamond Model (Floating gracefully in front of Banner Card) -->
       <a-gltf-model
         id="3d-model-entity"
         src="#glbModel"
-        position="0 0.84 0.25"
+        position="0 0.35 0.30"
         rotation="0 0 0"
-        scale="0.55 0.55 0.55"
+        scale="0.50 0.50 0.50"
         animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear"
-        animation__float="property: position; from: 0 0.78 0.25; to: 0 0.90 0.25; dir: alternate; loop: true; dur: 1600; easing: easeInOutSine">
+        animation__float="property: position; from: 0 0.28 0.30; to: 0 0.42 0.30; dir: alternate; loop: true; dur: 1600; easing: easeInOutSine">
       </a-gltf-model>
 
-      <!-- 3. Shivam Jewels Official Logo Plane (Floating Above the Diamond) -->
+      <!-- 3. Shivam Jewels Official Logo Plane (Positioned exactly 10% of banner height above banner top) -->
       <a-plane
         id="logo-plane"
         src="#shivamLogo"
-        position="0 1.22 0.25"
+        position="0 0.94 0.03"
         rotation="0 0 0"
         width="1.35"
         height="0.38"
