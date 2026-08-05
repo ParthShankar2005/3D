@@ -297,12 +297,80 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         btnMode.innerHTML = '<i class="fas fa-cube"></i> <span>3D Preview</span>';
         statusPill.className = isTracking ? 'status-pill tracking' : 'status-pill searching';
-        statusText.textContent = isTracking ? 'Target Tracked!' : 'Scanning Target...';
-        if (reticle && !isTracking) reticle.classList.remove('hidden');
-        if (arScene) arScene.style.display = 'block';
         orbitContainer.classList.remove('active');
       }
     });
+  }
+  // Real-time Camera QR Code Scanner using jsQR
+  let qrScanInterval = null;
+  const offscreenCanvas = document.createElement('canvas');
+  const offscreenCtx = offscreenCanvas.getContext('2d');
+  let lastQrMatchTime = 0;
+
+  function startQRScanningLoop() {
+    if (qrScanInterval) return;
+    console.log("Starting real-time camera QR scanner loop...");
+
+    qrScanInterval = setInterval(() => {
+      if (isOrbitMode) return;
+
+      const video = document.querySelector('video');
+      if (!video || video.readyState < 2) return;
+
+      if (offscreenCanvas.width !== video.videoWidth || offscreenCanvas.height !== video.videoHeight) {
+        offscreenCanvas.width = video.videoWidth || 640;
+        offscreenCanvas.height = video.videoHeight || 480;
+      }
+
+      try {
+        offscreenCtx.drawImage(video, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
+        const imageData = offscreenCtx.getImageData(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+
+        if (window.jsQR) {
+          const code = window.jsQR(imageData.data, imageData.width, imageData.height, {
+            inversionAttempts: "dontInvert",
+          });
+
+          if (code && code.data && code.data.trim().length > 0) {
+            const val = code.data.toLowerCase().trim();
+            console.log("QR Code decoded from camera:", val);
+            
+            // Match website link or target domain
+            if (val.includes('sjar.vercel.app') || val.includes('shivamai') || val.includes('http') || val.length > 0) {
+              lastQrMatchTime = Date.now();
+
+              if (!isTracking) {
+                isTracking = true;
+                statusPill.className = 'status-pill tracking';
+                statusText.textContent = 'QR Code Scanned!';
+                if (reticle) reticle.classList.add('hidden');
+                playSound('found');
+
+                if (gltfModel) {
+                  gltfModel.setAttribute('visible', 'true');
+                }
+                if (targetEntity) {
+                  targetEntity.object3D.visible = true;
+                }
+              }
+            }
+          } else {
+            // Clear tracking status if QR is no longer visible and MindAR anchor isn't tracking
+            if (isTracking && (Date.now() - lastQrMatchTime > 3000)) {
+              const isMindARTracking = targetEntity && targetEntity.object3D && targetEntity.object3D.visible;
+              if (!isMindARTracking) {
+                isTracking = false;
+                statusPill.className = 'status-pill searching';
+                statusText.textContent = 'Scanning Target...';
+                if (reticle) reticle.classList.remove('hidden');
+              }
+            }
+          }
+        }
+      } catch (err) {
+        // Ignore cross-origin canvas error if any
+      }
+    }, 150);
   }
 
   // Modal actions - Trigger camera start on user click
@@ -323,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.warn("Audio chime ignored:", audioErr);
       }
 
-      // Start MindAR camera system on user gesture click
+      // Start MindAR camera system & real-time QR scanner loop on user gesture click
       try {
         const startARSystem = async () => {
           const arSystem = arScene.systems && arScene.systems['mindar-image-system'];
@@ -331,11 +399,13 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("Invoking mindar-image-system.start()...");
             await arSystem.start();
             console.log("MindAR camera system started successfully.");
+            startQRScanningLoop();
           } else {
             console.warn("arSystem not ready on scene, waiting for renderstart...");
             arScene.addEventListener('renderstart', async () => {
               const sys = arScene.systems['mindar-image-system'];
               if (sys) await sys.start();
+              startQRScanningLoop();
             }, { once: true });
           }
         };
@@ -343,7 +413,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (arScene.hasLoaded) {
           await startARSystem();
         } else {
-          arScene.addEventListener('loaded', startARSystem, { once: true });
+          arScene.addEventListener('loaded', async () => {
+            await startARSystem();
+          }, { once: true });
         }
       } catch (err) {
         console.error("Camera start error:", err);
