@@ -53,7 +53,7 @@ const EDGE_PATH = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge
 
   console.log(`Exported MindAR target data: ${mindBufferArray.length} bytes`);
   const buffer = Buffer.from(mindBufferArray);
-  const outputPath = path.resolve(__dirname, 'assets', 'targets.mind');
+  const outputPath = path.resolve(__dirname, '..', 'assets', 'targets.mind');
   fs.writeFileSync(outputPath, buffer);
   console.log(`Successfully compiled and saved ${outputPath}!`);
 
