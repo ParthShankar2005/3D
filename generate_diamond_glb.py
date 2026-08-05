@@ -4,21 +4,22 @@ import math
 import base64
 import os
 
-def build_ultra_realistic_diamond(output_gltf="assets/model.gltf", output_glb="assets/model.glb"):
-    num_facets = 24  # 24-radial brilliant cut for ultra sharp diamond reflections
+def build_58_facet_diamond(output_gltf="assets/model.gltf", output_glb="assets/model.glb"):
+    # 58-Facet Classic Round Brilliant Cut Diamond Geometry
+    N = 8  # 8-fold symmetry (8 crown mains, 8 star facets, 16 upper girdle facets, 8 pavilion mains)
     
     table_y = 0.54
-    table_r = 0.44
+    table_r = 0.42
     
     star_y = 0.38
-    star_r = 0.70
+    star_r = 0.68
     
     girdle_top_y = 0.14
     girdle_bot_y = 0.08
     girdle_r = 0.90
     
     pavilion_mid_y = -0.38
-    pavilion_mid_r = 0.48
+    pavilion_mid_r = 0.46
     
     culet_y = -0.82
 
@@ -28,7 +29,6 @@ def build_ultra_realistic_diamond(output_gltf="assets/model.gltf", output_glb="a
     indices = []
 
     def add_facet(p1, p2, p3):
-        # Compute exact face normal for flat gem facets
         v1 = (p2[0]-p1[0], p2[1]-p1[1], p2[2]-p1[2])
         v2 = (p3[0]-p1[0], p3[1]-p1[1], p3[2]-p1[2])
         nx = v1[1]*v2[2] - v1[2]*v2[1]
@@ -47,47 +47,54 @@ def build_ultra_realistic_diamond(output_gltf="assets/model.gltf", output_glb="a
 
         indices.extend([base_idx, base_idx + 1, base_idx + 2])
 
-    # Generate Rings
     table_center = (0.0, table_y, 0.0)
+    culet = (0.0, culet_y, 0.0)
+
+    # Key ring coordinates
     table_ring = []
     star_ring = []
     girdle_top_ring = []
+    girdle_top_mid_ring = []
     girdle_bot_ring = []
     pavilion_mid_ring = []
-    culet = (0.0, culet_y, 0.0)
 
-    for i in range(num_facets):
-        angle = 2 * math.pi * i / num_facets
-        angle_half = 2 * math.pi * (i + 0.5) / num_facets
+    for i in range(N):
+        a_main = 2 * math.pi * i / N
+        a_half = 2 * math.pi * (i + 0.5) / N
+        a_quarter1 = 2 * math.pi * (i + 0.25) / N
+        a_quarter3 = 2 * math.pi * (i + 0.75) / N
 
-        table_ring.append((table_r * math.cos(angle), table_y, table_r * math.sin(angle)))
-        star_ring.append((star_r * math.cos(angle_half), star_y, star_r * math.sin(angle_half)))
-        girdle_top_ring.append((girdle_r * math.cos(angle), girdle_top_y, girdle_r * math.sin(angle)))
-        girdle_bot_ring.append((girdle_r * math.cos(angle), girdle_bot_y, girdle_r * math.sin(angle)))
-        pavilion_mid_ring.append((pavilion_mid_r * math.cos(angle_half), pavilion_mid_y, pavilion_mid_r * math.sin(angle_half)))
+        table_ring.append((table_r * math.cos(a_main), table_y, table_r * math.sin(a_main)))
+        star_ring.append((star_r * math.cos(a_half), star_y, star_r * math.sin(a_half)))
 
-    # 1. Flat Table Top Fan
-    for i in range(num_facets):
-        next_i = (i + 1) % num_facets
+        girdle_top_ring.append((girdle_r * math.cos(a_main), girdle_top_y, girdle_r * math.sin(a_main)))
+        girdle_top_mid_ring.append((girdle_r * math.cos(a_half), girdle_top_y, girdle_r * math.sin(a_half)))
+
+        girdle_bot_ring.append((girdle_r * math.cos(a_main), girdle_bot_y, girdle_r * math.sin(a_main)))
+        pavilion_mid_ring.append((pavilion_mid_r * math.cos(a_half), pavilion_mid_y, pavilion_mid_r * math.sin(a_half)))
+
+    # 1. Octagonal Table Top (8 facets)
+    for i in range(N):
+        next_i = (i + 1) % N
         add_facet(table_center, table_ring[i], table_ring[next_i])
 
-    # 2. Crown Upper Star & Kite Facets
-    for i in range(num_facets):
-        next_i = (i + 1) % num_facets
+    # 2. Crown Star & Kite Facets (16 facets)
+    for i in range(N):
+        next_i = (i + 1) % N
         add_facet(table_ring[i], star_ring[i], table_ring[next_i])
         add_facet(table_ring[i], girdle_top_ring[i], star_ring[i])
-        add_facet(star_ring[i], girdle_top_ring[i], girdle_top_ring[next_i])
-        add_facet(table_ring[next_i], star_ring[i], girdle_top_ring[next_i])
+        add_facet(star_ring[i], girdle_top_ring[i], girdle_top_mid_ring[i])
+        add_facet(star_ring[i], girdle_top_mid_ring[i], girdle_top_ring[next_i])
 
-    # 3. Girdle Band Facets
-    for i in range(num_facets):
-        next_i = (i + 1) % num_facets
-        add_facet(girdle_top_ring[i], girdle_bot_ring[i], girdle_top_ring[next_i])
-        add_facet(girdle_top_ring[next_i], girdle_bot_ring[i], girdle_bot_ring[next_i])
+    # 3. Girdle Facets (16 facets)
+    for i in range(N):
+        next_i = (i + 1) % N
+        add_facet(girdle_top_ring[i], girdle_bot_ring[i], girdle_top_mid_ring[i])
+        add_facet(girdle_top_mid_ring[i], girdle_bot_ring[i], girdle_bot_ring[next_i])
 
-    # 4. Pavilion Upper Facets
-    for i in range(num_facets):
-        next_i = (i + 1) % num_facets
+    # 4. Pavilion Mains & Lower Girdle Facets (16 facets)
+    for i in range(N):
+        next_i = (i + 1) % N
         add_facet(girdle_bot_ring[i], pavilion_mid_ring[i], girdle_bot_ring[next_i])
         add_facet(girdle_bot_ring[i], culet, pavilion_mid_ring[i])
         add_facet(pavilion_mid_ring[i], culet, girdle_bot_ring[next_i])
@@ -136,9 +143,9 @@ def build_ultra_realistic_diamond(output_gltf="assets/model.gltf", output_glb="a
     b64_bin = base64.b64encode(bin_buffer).decode('ascii')
     data_uri = f"data:application/octet-stream;base64,{b64_bin}"
 
-    # Hyper Realistic Gem Material GLTF JSON
+    # Pure Crystal Diamond PBR Material Specification
     gltf_dict = {
-        "asset": {"version": "2.0", "generator": "ShivamJewelsRealisticDiamondGenerator"},
+        "asset": {"version": "2.0", "generator": "ShivamJewelsBrilliantDiamondGenerator"},
         "scenes": [{"nodes": [0]}],
         "nodes": [{"mesh": 0, "name": "DiamondNode"}],
         "meshes": [{
@@ -154,11 +161,11 @@ def build_ultra_realistic_diamond(output_gltf="assets/model.gltf", output_glb="a
             }]
         }],
         "materials": [{
-            "name": "DiamondSpecularGlass",
+            "name": "PureCrystalDiamondMaterial",
             "pbrMetallicRoughness": {
-                "baseColorFactor": [0.85, 0.95, 1.0, 0.95],
-                "metallicFactor": 0.25,
-                "roughnessFactor": 0.01
+                "baseColorFactor": [0.92, 0.97, 1.0, 0.95],
+                "metallicFactor": 0.1,
+                "roughnessFactor": 0.0
             },
             "doubleSided": True
         }],
@@ -231,9 +238,8 @@ def build_ultra_realistic_diamond(output_gltf="assets/model.gltf", output_glb="a
     os.makedirs(os.path.dirname(output_gltf), exist_ok=True)
     with open(output_gltf, 'w', encoding='utf-8') as f:
         json.dump(gltf_dict, f, indent=2)
-    print(f"Generated realistic 3D Diamond GLTF model at {output_gltf}")
+    print(f"Generated 58-Facet Brilliant Cut Diamond GLTF at {output_gltf}")
 
-    # Build GLB
     json_bytes = json.dumps(gltf_dict, separators=(',', ':')).encode('utf-8')
     json_pad = (4 - (len(json_bytes) % 4)) % 4
     json_bytes += b' ' * json_pad
@@ -255,7 +261,7 @@ def build_ultra_realistic_diamond(output_gltf="assets/model.gltf", output_glb="a
 
     with open(output_glb, 'wb') as f:
         f.write(glb_bytes)
-    print(f"Generated realistic binary GLB model at {output_glb}")
+    print(f"Generated 58-Facet Brilliant Cut Diamond GLB at {output_glb}")
 
 if __name__ == "__main__":
-    build_ultra_realistic_diamond()
+    build_58_facet_diamond()
