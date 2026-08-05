@@ -1,0 +1,23 @@
+{
+  "name": "webar-mindar-experience",
+  "version": "1.0.0",
+  "description": "100% free app-less WebAR experience powered by MindAR.js and A-Frame",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "webar",
+    "mindar",
+    "aframe",
+    "threejs",
+    "augmented-reality",
+    "3d"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.22.2"
+  }
+}
