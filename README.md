@@ -97,8 +97,8 @@ f:\SJ 3D
 3. **`assets/targets.mind` → `<a-scene>`**:
    - `<a-scene mindar-image="imageTargetSrc: ./assets/targets.mind">` feeds feature descriptors into MindAR to track camera position relative to `target.png`.
 
-4. **`assets/model.gltf` & `assets/shivam_logo.png` → `<a-entity id="ar-target">`**:
-   - `<a-gltf-model src="./assets/model.gltf">` renders the 57-facet brilliant 3D diamond.
+4. **`assets/model.glb` & `assets/shivam_logo.png` → `<a-entity id="ar-target">`**:
+   - `<a-gltf-model src="#glbModel">` renders the 57-facet brilliant 3D diamond from `./assets/model.glb`.
    - `<a-plane src="./assets/shivam_logo.png">` renders the official Shivam Jewels logo floating above the diamond.
 
 ---
