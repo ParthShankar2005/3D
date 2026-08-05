@@ -120,7 +120,7 @@ def build_user_exact_diamond(output_gltf="assets/model.gltf", output_glb="assets
     b64_bin = base64.b64encode(bin_buffer).decode('ascii')
     data_uri = f"data:application/octet-stream;base64,{b64_bin}"
 
-    # Base GLTF structure
+    # Base GLTF structure with vivid high-reflection diamond material
     base_gltf_dict = {
         "asset": {"version": "2.0", "generator": "ShivamJewelsUserExactDiamondGenerator"},
         "scenes": [{"nodes": [0]}],
@@ -140,10 +140,11 @@ def build_user_exact_diamond(output_gltf="assets/model.gltf", output_glb="assets
         "materials": [{
             "name": "PureCrystalDiamondMaterial",
             "pbrMetallicRoughness": {
-                "baseColorFactor": [0.85, 0.95, 1.0, 1.0],
-                "metallicFactor": 0.2,
+                "baseColorFactor": [1.0, 1.0, 1.0, 1.0],
+                "metallicFactor": 0.1,
                 "roughnessFactor": 0.05
             },
+            "emissiveFactor": [0.15, 0.25, 0.35],
             "doubleSided": True
         }],
         "accessors": [

@@ -37,14 +37,19 @@
       "name": "PureCrystalDiamondMaterial",
       "pbrMetallicRoughness": {
         "baseColorFactor": [
-          0.85,
-          0.95,
+          1.0,
+          1.0,
           1.0,
           1.0
         ],
-        "metallicFactor": 0.2,
+        "metallicFactor": 0.1,
         "roughnessFactor": 0.05
       },
+      "emissiveFactor": [
+        0.15,
+        0.25,
+        0.35
+      ],
       "doubleSided": true
     }
   ],
