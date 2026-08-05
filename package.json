@@ -7,7 +7,8 @@
     "start": "node server.js",
     "dev": "node server.js",
     "build-diamond": "python scripts/build_diamond.py",
-    "build-qr": "python scripts/build_qr.py"
+    "build-qr": "python scripts/build_qr.py",
+    "convert-blend": "python scripts/convert_blend.py"
   },
   "keywords": [
     "webar",
