@@ -2,7 +2,7 @@ import os
 import qrcode
 from PIL import Image
 
-def create_simple_clean_qr(url="https://3d.shivamai.studio", output_path="assets/target.png"):
+def create_simple_clean_qr(url="https://sjar.vercel.app", output_path="assets/target.png"):
     # Generate high quality clean QR code
     qr = qrcode.QRCode(
         version=4,
