@@ -120,7 +120,8 @@ def build_user_exact_diamond(output_gltf="assets/model.gltf", output_glb="assets
     b64_bin = base64.b64encode(bin_buffer).decode('ascii')
     data_uri = f"data:application/octet-stream;base64,{b64_bin}"
 
-    gltf_dict = {
+    # Base GLTF structure
+    base_gltf_dict = {
         "asset": {"version": "2.0", "generator": "ShivamJewelsUserExactDiamondGenerator"},
         "scenes": [{"nodes": [0]}],
         "nodes": [{"mesh": 0, "name": "DiamondNode"}],
@@ -139,9 +140,9 @@ def build_user_exact_diamond(output_gltf="assets/model.gltf", output_glb="assets
         "materials": [{
             "name": "PureCrystalDiamondMaterial",
             "pbrMetallicRoughness": {
-                "baseColorFactor": [0.92, 0.97, 1.0, 0.95],
-                "metallicFactor": 0.15,
-                "roughnessFactor": 0.01
+                "baseColorFactor": [0.85, 0.95, 1.0, 1.0],
+                "metallicFactor": 0.2,
+                "roughnessFactor": 0.05
             },
             "doubleSided": True
         }],
@@ -204,40 +205,51 @@ def build_user_exact_diamond(output_gltf="assets/model.gltf", output_glb="assets
                 "byteLength": len(uv_buffer),
                 "target": 34962
             }
-        ],
-        "buffers": [{
-            "uri": data_uri,
-            "byteLength": total_bin_len
-        }]
+        ]
     }
+
+    # 1. Output GLTF file with inline base64 data URI buffer
+    gltf_dict = json.loads(json.dumps(base_gltf_dict))
+    gltf_dict["buffers"] = [{
+        "uri": data_uri,
+        "byteLength": total_bin_len
+    }]
 
     os.makedirs(os.path.dirname(output_gltf), exist_ok=True)
     with open(output_gltf, 'w', encoding='utf-8') as f:
         json.dump(gltf_dict, f, indent=2)
     print(f"Generated User Exact Diamond GLTF at {output_gltf}")
 
-    json_bytes = json.dumps(gltf_dict, separators=(',', ':')).encode('utf-8')
+    # 2. Output GLB file (spec requires NO uri in buffers[0] for internal BIN chunk)
+    glb_gltf_dict = json.loads(json.dumps(base_gltf_dict))
+    glb_gltf_dict["buffers"] = [{
+        "byteLength": total_bin_len
+    }]
+
+    json_bytes = json.dumps(glb_gltf_dict, separators=(',', ':')).encode('utf-8')
     json_pad = (4 - (len(json_bytes) % 4)) % 4
     json_bytes += b' ' * json_pad
 
     total_glb_size = 12 + 8 + len(json_bytes) + 8 + len(bin_buffer)
 
     glb_bytes = bytearray()
-    glb_bytes.extend(struct.pack('<I', 0x46544C67))
-    glb_bytes.extend(struct.pack('<I', 2))
+    glb_bytes.extend(struct.pack('<I', 0x46544C67))  # magic "glTF"
+    glb_bytes.extend(struct.pack('<I', 2))           # version 2
     glb_bytes.extend(struct.pack('<I', total_glb_size))
 
+    # Chunk 0: JSON
     glb_bytes.extend(struct.pack('<I', len(json_bytes)))
     glb_bytes.extend(struct.pack('<I', 0x4E4F534A))
     glb_bytes.extend(json_bytes)
 
+    # Chunk 1: BIN
     glb_bytes.extend(struct.pack('<I', len(bin_buffer)))
     glb_bytes.extend(struct.pack('<I', 0x004E4942))
     glb_bytes.extend(bin_buffer)
 
     with open(output_glb, 'wb') as f:
         f.write(glb_bytes)
-    print(f"Generated User Exact Diamond GLB at {output_glb}")
+    print(f"Generated Spec-Compliant Diamond GLB at {output_glb}")
 
 if __name__ == "__main__":
     build_user_exact_diamond()
