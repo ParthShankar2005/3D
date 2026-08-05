@@ -7,13 +7,11 @@ const PORT = 3333;
 const EDGE_PATH = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
 
 (async () => {
-  // 1. Start local express server
   const app = express();
   app.use(express.static(__dirname));
   const server = app.listen(PORT);
   console.log(`Local compiler server started on http://localhost:${PORT}`);
 
-  // 2. Launch headless Edge browser
   console.log('Launching headless Edge browser...');
   const browser = await puppeteer.launch({
     executablePath: EDGE_PATH,
@@ -27,7 +25,6 @@ const EDGE_PATH = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge
   console.log('Navigating to http://localhost:3333/compiler.html');
   await page.goto(`http://localhost:${PORT}/compiler.html`, { waitUntil: 'networkidle0' });
 
-  // Wait for MindAR script to initialize on page
   await page.waitForFunction(() => window.MINDAR && window.MINDAR.IMAGE && window.MINDAR.IMAGE.Compiler, { timeout: 15000 });
 
   console.log('Starting MindAR feature target compilation...');
@@ -42,13 +39,13 @@ const EDGE_PATH = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge
       img.onerror = (e) => reject(new Error('Failed to load /assets/target.png'));
     });
 
-    console.log(`Target image loaded in browser context: ${img.width}x${img.height}`);
+    console.log(`Target image loaded: ${img.width}x${img.height}`);
 
-    const dataList = await compiler.compileImageTargets([img], (progress) => {
+    await compiler.compileImageTargets([img], (progress) => {
       console.log(`Progress: ${Math.round(progress)}%`);
     });
 
-    console.log(`Feature extraction complete! Extracted points: ${dataList[0].trackingFeaturePoints.length}`);
+    console.log(`Feature extraction complete! Exporting binary buffer...`);
 
     const buffer = await compiler.exportData();
     return Array.from(new Uint8Array(buffer));
@@ -58,7 +55,7 @@ const EDGE_PATH = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge
   const buffer = Buffer.from(mindBufferArray);
   const outputPath = path.resolve(__dirname, 'assets', 'targets.mind');
   fs.writeFileSync(outputPath, buffer);
-  console.log(`✅ Successfully compiled and saved ${outputPath}!`);
+  console.log(`Successfully compiled and saved ${outputPath}!`);
 
   await browser.close();
   server.close();
