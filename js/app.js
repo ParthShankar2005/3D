@@ -1,9 +1,14 @@
-// WebAR MindAR.js & A-Frame Application Logic for Shivam Jewels WebAR
+/**
+ * WebAR MindAR.js & A-Frame Controller for Shivam Jewels
+ * 
+ * Handles camera permission, real-time QR code decoding,
+ * MindAR target tracking, and camera-to-target distance calculation.
+ */
 (function() {
   let isTracking = false;
   let qrScanInterval = null;
 
-  // Synthesized Web Audio API Synthesizer
+  // Synthesized Web Audio API Synthesizer for feedback chimes
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   
   function playSound(type) {
@@ -37,23 +42,22 @@
         osc.stop(now + 0.06);
       }
     } catch (e) {
-      console.warn("Web Audio API error:", e);
+      console.warn("Audio chime error:", e);
     }
   }
 
-  // Global direct click handler for Allow Camera & Start WebAR button
+  // Global click handler for Allow Camera & Start WebAR button
   window.handleStartARClick = function(e) {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
-    console.log("handleStartARClick triggered on user gesture!");
 
     const modalOverlay = document.getElementById('permission-modal');
     const reticle = document.getElementById('scanning-reticle');
     const arScene = document.getElementById('ar-scene');
 
-    // Instantly hide modal card overlay and display scanning reticle
+    // Hide permission modal and reveal scanning reticle
     if (modalOverlay) {
       modalOverlay.style.display = 'none';
       modalOverlay.classList.add('hidden');
@@ -65,12 +69,11 @@
 
     try { playSound('click'); } catch (err) {}
 
-    // Function to launch MindAR & QR scanning engine
+    // Launch MindAR camera system & QR scanner loop
     const launchAR = () => {
       if (!arScene) return;
       const arSystem = arScene.systems && arScene.systems['mindar-image-system'];
       if (arSystem) {
-        console.log("Starting MindAR System...");
         arSystem.start();
         startQRScanningLoop();
       } else {
@@ -86,13 +89,11 @@
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
         .then((tempStream) => {
-          console.log("Camera permission granted!");
           tempStream.getTracks().forEach(track => track.stop());
           launchAR();
         })
         .catch((err) => {
           console.error("Camera permission error:", err);
-          // Launch AR fallback anyway
           launchAR();
         });
     } else {
@@ -101,14 +102,12 @@
   };
 
   function initApp() {
-    console.log("Initializing Shivam Jewels WebAR App...");
     const statusPill = document.getElementById('status-pill');
     const statusText = document.getElementById('status-text');
     const reticle = document.getElementById('scanning-reticle');
     const targetEntity = document.getElementById('ar-target');
-    const gltfModel = document.getElementById('3d-model-entity');
 
-    // Continuous background camera-to-target distance calculator
+    // Real-time camera-to-target distance calculator
     function updateDistanceTracking() {
       if (!isTracking) return;
       const camera = document.querySelector('a-camera');
@@ -125,7 +124,7 @@
 
     setInterval(updateDistanceTracking, 200);
 
-    // MindAR Target Tracking listeners
+    // Target tracking event listeners
     if (targetEntity) {
       targetEntity.addEventListener('targetFound', () => {
         isTracking = true;
@@ -143,7 +142,6 @@
       });
     }
 
-    // Attach event listener fallback for button
     const btnStartAr = document.getElementById('btn-start-ar');
     if (btnStartAr) {
       btnStartAr.onclick = window.handleStartARClick;
@@ -157,7 +155,6 @@
 
   function startQRScanningLoop() {
     if (qrScanInterval) return;
-    console.log("Starting real-time camera QR scanner loop...");
     qrScanInterval = setInterval(() => {
       const video = document.querySelector('video');
       const gltfModel = document.getElementById('3d-model-entity');
@@ -217,7 +214,6 @@
     }, 150);
   }
 
-  // Double fallback for document readyState
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initApp);
   } else {
