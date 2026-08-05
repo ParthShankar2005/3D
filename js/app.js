@@ -250,52 +250,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 150);
   }
 
-  // Modal actions - Trigger camera start on user click
+  // Modal actions - Trigger instant camera permission request on user click gesture
   const btnStartAr = document.getElementById('btn-start-ar');
   const modalOverlay = document.getElementById('permission-modal');
   if (btnStartAr && modalOverlay) {
-    btnStartAr.addEventListener('click', async (e) => {
-      if (e) e.stopPropagation();
-      console.log("Allow Camera button clicked by user.");
-
-      // Immediately hide permission modal and reveal scanning reticle
-      modalOverlay.classList.add('hidden');
-      if (reticle) reticle.classList.remove('hidden');
+    btnStartAr.addEventListener('click', function(e) {
+      if (e) e.preventDefault();
+      console.log("Allow Camera button tapped by user.");
 
       try {
         playSound('click');
-      } catch (audioErr) {
-        console.warn("Audio chime ignored:", audioErr);
-      }
+      } catch (aErr) {}
 
-      // Start MindAR camera system & real-time QR scanner loop on user gesture click
-      try {
-        const startARSystem = async () => {
-          const arSystem = arScene.systems && arScene.systems['mindar-image-system'];
-          if (arSystem) {
-            console.log("Invoking mindar-image-system.start()...");
-            await arSystem.start();
-            console.log("MindAR camera system started successfully.");
-            startQRScanningLoop();
-          } else {
-            console.warn("arSystem not ready on scene, waiting for renderstart...");
-            arScene.addEventListener('renderstart', async () => {
-              const sys = arScene.systems['mindar-image-system'];
-              if (sys) await sys.start();
+      // Synchronously request camera permission on user gesture (iOS Safari & Android Chrome standard)
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+          .then((tempStream) => {
+            console.log("Camera permission granted on first tap!");
+            tempStream.getTracks().forEach(track => track.stop());
+
+            modalOverlay.classList.add('hidden');
+            if (reticle) reticle.classList.remove('hidden');
+
+            const arSystem = arScene.systems && arScene.systems['mindar-image-system'];
+            if (arSystem) {
+              arSystem.start();
               startQRScanningLoop();
-            }, { once: true });
-          }
-        };
-
-        if (arScene.hasLoaded) {
-          await startARSystem();
-        } else {
-          arScene.addEventListener('loaded', async () => {
-            await startARSystem();
-          }, { once: true });
+            } else {
+              arScene.addEventListener('renderstart', () => {
+                const sys = arScene.systems['mindar-image-system'];
+                if (sys) sys.start();
+                startQRScanningLoop();
+              }, { once: true });
+            }
+          })
+          .catch((err) => {
+            console.error("Camera permission denied:", err);
+            alert("Camera permission is required for WebAR. Please allow camera access in your mobile browser settings.");
+          });
+      } else {
+        modalOverlay.classList.add('hidden');
+        if (reticle) reticle.classList.remove('hidden');
+        const arSystem = arScene.systems && arScene.systems['mindar-image-system'];
+        if (arSystem) {
+          arSystem.start();
+          startQRScanningLoop();
         }
-      } catch (err) {
-        console.error("Camera start error:", err);
       }
     });
   }
