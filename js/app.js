@@ -48,6 +48,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Continuous background camera-to-target distance calculator
+  function updateDistanceTracking() {
+    if (!isTracking) return;
+    const camera = document.querySelector('a-camera');
+    if (camera && targetEntity && targetEntity.object3D) {
+      const camPos = camera.object3D.position;
+      const targetPos = targetEntity.object3D.position;
+      const dist = camPos.distanceTo(targetPos);
+
+      if (dist > 0.01) {
+        statusText.textContent = `Shivam Jewels QR Matched (${dist.toFixed(2)}m)`;
+      }
+    }
+  }
+
+  setInterval(updateDistanceTracking, 200);
+
   // Set up MindAR Target Event Listeners
   if (targetEntity) {
     targetEntity.addEventListener('targetFound', () => {
