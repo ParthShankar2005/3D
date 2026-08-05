@@ -105,17 +105,16 @@
         material="transparent: true; side: double; shader: flat;">
       </a-plane>
 
-      <!-- 2. User Exact 57-Facet 3D Diamond Model (Guaranteed Instant 3D WebGL Rendering) -->
-      <a-entity
+      <!-- 2. User Exact 57-Facet 3D Diamond Model (Floating gracefully in front of Poster Card) -->
+      <a-gltf-model
         id="3d-model-entity"
-        diamond-mesh
-        gltf-model="src: ./assets/model.glb"
+        src="./assets/model.glb"
         position="0 0.10 0.35"
         rotation="0 0 0"
         scale="0.80 0.80 0.80"
         animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear"
         animation__float="property: position; from: 0 0.05 0.35; to: 0 0.18 0.35; dir: alternate; loop: true; dur: 1800; easing: easeInOutSine">
-      </a-entity>
+      </a-gltf-model>
 
       <!-- 3. Shivam Jewels Official Logo Plane (Seamlessly attached right on top of Banner header) -->
       <a-plane
