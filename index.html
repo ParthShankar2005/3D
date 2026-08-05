@@ -71,7 +71,7 @@
   <!-- Main WebAR Scene Container -->
   <a-scene
     id="ar-scene"
-    mindar-image="imageTargetSrc: ./assets/targets.mind; autoStart: false; uiScanning: no; uiLoading: no;"
+    mindar-image="imageTargetSrc: ./assets/targets.mind; autoStart: false; uiScanning: no; uiLoading: no; filterMinCF: 0.0001; filterBeta: 0.001;"
     color-space="sRGB"
     renderer="colorManagement: true, physicallyCorrectLights: true, exposure: 1.2"
     vr-mode-ui="enabled: false"
@@ -83,6 +83,8 @@
       <a-asset-item id="glbModel" src="./assets/model.gltf"></a-asset-item>
       <!-- Load Shivam Jewels Thank You Banner Image asset -->
       <img id="shivamBanner" src="./assets/shivam_banner.png" />
+      <!-- Load Official Shivam Jewels Logo Image asset -->
+      <img id="shivamLogoImg" src="./assets/shivam_logo_clean.png" />
     </a-assets>
 
     <!-- Camera setup -->
@@ -118,26 +120,26 @@
         animation__float="property: position; from: 0 0.70 0.2; to: 0 0.82 0.2; dir: alternate; loop: true; dur: 1600; easing: easeInOutSine">
       </a-gltf-model>
 
-      <!-- 3. Floating 3D Text Badge: SHIVAM / JEWELS PVT. LTD. Above & In Front of Diamond -->
-      <a-entity position="0 1.25 0.35" animation="property: position; from: 0 1.20 0.35; to: 0 1.32 0.35; dir: alternate; loop: true; dur: 1600; easing: easeInOutSine">
-        <a-text
-          value="SHIVAM"
-          align="center"
-          color="#f59e0b"
-          width="2.6"
-          wrap-count="10"
-          side="double">
-        </a-text>
-        <a-text
-          value="JEWELS PVT. LTD."
-          position="0 -0.22 0"
-          align="center"
-          color="#38bdf8"
-          width="2.2"
-          wrap-count="18"
-          side="double">
-        </a-text>
+      <!-- 3. Rotating Specular Light Shine Effect for 58-Facet Diamond -->
+      <a-entity
+        position="0 0.75 0.2"
+        animation="property: rotation; to: 0 360 360; loop: true; dur: 3500; easing: linear">
+        <a-entity light="type: point; color: #ffffff; intensity: 3.5; distance: 3.0" position="0.8 0.6 0.8"></a-entity>
+        <a-entity light="type: point; color: #38bdf8; intensity: 2.5; distance: 3.0" position="-0.8 -0.6 0.8"></a-entity>
       </a-entity>
+
+      <!-- 4. Official Shivam Jewels Logo Badge with Gleaming Shine Effect -->
+      <a-plane
+        id="shivam-logo-badge"
+        src="#shivamLogoImg"
+        position="0 1.35 0.3"
+        rotation="0 0 0"
+        width="0.75"
+        height="1.66"
+        material="transparent: true; side: double; shader: flat; alphaTest: 0.2"
+        animation="property: position; from: 0 1.30 0.3; to: 0 1.42 0.3; dir: alternate; loop: true; dur: 1600; easing: easeInOutSine"
+        animation__shine="property: material.opacity; from: 0.85; to: 1.0; dir: alternate; loop: true; dur: 1000; easing: easeInOutQuad">
+      </a-plane>
     </a-entity>
   </a-scene>
 
