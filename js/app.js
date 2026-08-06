@@ -152,22 +152,33 @@
         if (targetEntity.object3D) targetEntity.object3D.visible = true;
       });
 
-      // Listen for 3D GLB model loading and enhance specular materials
+      // Listen for 3D GLB model loading and enhance specular materials for 54-gem showcase ring
       const gltfModel = document.getElementById('3d-model-entity');
       if (gltfModel) {
         gltfModel.addEventListener('model-loaded', () => {
           const meshObj = gltfModel.getObject3D('mesh');
           if (meshObj && window.THREE) {
             meshObj.traverse((child) => {
-              if (child.isMesh) {
-                child.material = new THREE.MeshStandardMaterial({
-                  color: 0xffffff,
-                  emissive: 0x182c48,
-                  roughness: 0.08,
-                  metalness: 0.25,
-                  side: THREE.DoubleSide
+              if (child.isMesh && child.material) {
+                const materials = Array.isArray(child.material) ? child.material : [child.material];
+                materials.forEach((mat) => {
+                  if (mat.name.includes("Diamond")) {
+                    mat.color = new THREE.Color(0xffffff);
+                    mat.emissive = new THREE.Color(0x182c48);
+                    mat.roughness = 0.05;
+                    mat.metalness = 0.2;
+                  } else if (mat.name.includes("Platinum")) {
+                    mat.color = new THREE.Color(0xdce2ea);
+                    mat.roughness = 0.15;
+                    mat.metalness = 0.9;
+                  } else if (mat.name.includes("Black")) {
+                    mat.color = new THREE.Color(0x0a0a0e);
+                    mat.roughness = 0.4;
+                    mat.metalness = 0.1;
+                  }
+                  mat.side = THREE.DoubleSide;
+                  mat.needsUpdate = true;
                 });
-                child.material.needsUpdate = true;
               }
             });
           }
