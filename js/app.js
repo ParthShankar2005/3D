@@ -133,12 +133,17 @@
         if (reticle) reticle.classList.add('hidden');
         playSound('found');
 
-        // Ensure 3D diamond dial, logo plane & target entities are explicitly visible
+        // Ensure 3D diamond entity, logo plane & target entities are explicitly visible
         const gltfModel = document.getElementById('3d-model-entity');
+        const modelContainer = document.getElementById('3d-model-container');
         const logoPlane = document.getElementById('logo-plane');
         if (gltfModel) {
           gltfModel.setAttribute('visible', 'true');
           if (gltfModel.object3D) gltfModel.object3D.visible = true;
+        }
+        if (modelContainer) {
+          modelContainer.setAttribute('visible', 'true');
+          if (modelContainer.object3D) modelContainer.object3D.visible = true;
         }
         if (logoPlane) {
           logoPlane.setAttribute('visible', 'true');
@@ -146,6 +151,28 @@
         }
         if (targetEntity.object3D) targetEntity.object3D.visible = true;
       });
+
+      // Listen for 3D GLB model loading and enhance specular materials
+      const gltfModel = document.getElementById('3d-model-entity');
+      if (gltfModel) {
+        gltfModel.addEventListener('model-loaded', () => {
+          const meshObj = gltfModel.getObject3D('mesh');
+          if (meshObj && window.THREE) {
+            meshObj.traverse((child) => {
+              if (child.isMesh) {
+                child.material = new THREE.MeshStandardMaterial({
+                  color: 0xffffff,
+                  emissive: 0x182c48,
+                  roughness: 0.08,
+                  metalness: 0.25,
+                  side: THREE.DoubleSide
+                });
+                child.material.needsUpdate = true;
+              }
+            });
+          }
+        });
+      }
 
       targetEntity.addEventListener('targetLost', () => {
         isTracking = false;

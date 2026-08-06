@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>3D WebAR Experience | sjar.vercel.app</title>
-  <meta name="description" content="100% free app-less WebAR experience powered by MindAR.js and A-Frame on sjar.vercel.app" />
+  <meta name="description"
+    content="100% free app-less WebAR experience powered by MindAR.js and A-Frame on sjar.vercel.app" />
 
   <!-- OpenGraph -->
   <meta property="og:title" content="3D WebAR Experience | sjar.vercel.app" />
-  <meta property="og:description" content="Scan the tracking target to launch interactive 3D WebAR directly in your mobile browser." />
+  <meta property="og:description"
+    content="Scan the tracking target to launch interactive 3D WebAR directly in your mobile browser." />
   <meta property="og:url" content="https://sjar.vercel.app" />
 
   <!-- Fonts & Icons -->
@@ -32,6 +35,7 @@
   <!-- Application Script -->
   <script src="./js/app.js" defer></script>
 </head>
+
 <body>
 
   <!-- Top Glassmorphic Navigation & Status Bar -->
@@ -52,12 +56,12 @@
     <div class="reticle-corner reticle-top-right"></div>
     <div class="reticle-corner reticle-bottom-left"></div>
     <div class="reticle-corner reticle-bottom-right"></div>
-    
+
     <!-- Transparent QR Target Guide Image -->
     <div class="qr-target-preview-wrapper">
       <img src="./assets/target.png" alt="QR Target Preview" class="qr-target-preview-img" />
     </div>
-    
+
     <div class="reticle-line"></div>
     <div class="scanning-label">
       <i class="fas fa-qrcode"></i> Point Camera at QR Target
@@ -65,14 +69,10 @@
   </div>
 
   <!-- Main WebAR Scene Container -->
-  <a-scene
-    id="ar-scene"
+  <a-scene id="ar-scene"
     mindar-image="imageTargetSrc: ./assets/targets.mind; autoStart: false; uiScanning: no; uiLoading: no; filterMinCF: 0.0001; filterBeta: 0.001; missTolerance: 8;"
-    color-space="sRGB"
-    renderer="colorManagement: true, physicallyCorrectLights: true, exposure: 1.2"
-    vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: false"
-    embedded>
+    color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights: true, exposure: 1.2"
+    vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false" embedded>
 
     <a-assets>
       <!-- Load 3D GLB Gem Model asset -->
@@ -88,7 +88,7 @@
 
     <!-- Target 0: QR Target tracking anchor -->
     <a-entity id="ar-target" mindar-image-target="targetIndex: 0">
-      
+
       <!-- Multi-Angle Lighting for Maximum Gem Reflection & Visibility -->
       <a-entity light="type: ambient; color: #ffffff; intensity: 2.8"></a-entity>
       <a-entity light="type: directional; color: #ffffff; intensity: 3.5" position="1 3 4"></a-entity>
@@ -96,37 +96,23 @@
       <a-entity light="type: point; color: #ffffff; intensity: 3.0; distance: 5" position="0 0.5 1"></a-entity>
 
       <!-- 1. Shivam Jewels Poster Banner (Flat alignment over QR target) -->
-      <a-plane
-        id="banner-plane"
-        src="#shivamBanner"
-        position="0 0 0.005"
-        rotation="0 0 0"
-        width="1.0"
-        height="1.0"
+      <a-plane id="banner-plane" src="#shivamBanner" position="0 0 0" rotation="0 0 0" width="1.0" height="1.0"
         material="transparent: true; side: double; shader: flat; depthTest: true;">
       </a-plane>
 
       <!-- 2. Shivam Jewels Official Logo (Flat alignment positioned at top of banner) -->
-      <a-plane
-        id="logo-plane"
-        src="#shivamLogo"
-        position="0 0.65 0.01"
-        rotation="0 0 0"
-        width="1.2"
-        height="0.32"
+      <a-plane id="logo-plane" src="#shivamLogo" position="0 0 0" rotation="0 0 0" width="1.2" height="0.32"
         material="transparent: true; side: double; shader: flat; depthTest: true;">
       </a-plane>
 
       <!-- 3. Authentic 3D Diamond Model (Positioned between camera & banner, facing camera, with slow left-to-right rotation) -->
-      <a-gltf-model
-        id="3d-model-entity"
-        src="#glbModel"
-        position="0 0.15 0.35"
-        rotation="70 0 0"
-        scale="0.60 0.60 0.60"
-        animation="property: rotation; from: 70 0 0; to: 70 360 0; loop: true; dur: 10000; easing: linear"
-        animation__float="property: position; from: 0 0.08 0.35; to: 0 0.22 0.35; dir: alternate; loop: true; dur: 3200; easing: easeInOutSine">
-      </a-gltf-model>
+      <a-entity id="3d-model-container" position="0 0.15 0.35" rotation="70 0 0"
+        animation="property: rotation; to: 70 360 0; loop: true; dur: 9000; easing: linear"
+        animation__float="property: position; from: 0 0.08 0.35; to: 0 0.22 0.35; dir: alternate; loop: true; dur: 3000; easing: easeInOutSine">
+
+        <a-gltf-model id="3d-model-entity" src="./assets/model.glb" scale="0.65 0.65 0.65" position="0 0 0">
+        </a-gltf-model>
+      </a-entity>
 
     </a-entity>
   </a-scene>
@@ -150,4 +136,5 @@
   </div>
 
 </body>
+
 </html>

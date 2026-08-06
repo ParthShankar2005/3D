@@ -247,11 +247,11 @@ def generate_diamond_gltf_glb(cut_style="round", output_gltf="assets/model.gltf"
         "materials": [{
             "name": "AuthenticDiamondMaterial",
             "pbrMetallicRoughness": {
-                "baseColorFactor": [0.95, 0.98, 1.0, 1.0],
-                "metallicFactor": 0.15,
-                "roughnessFactor": 0.02
+                "baseColorFactor": [0.85, 0.92, 1.0, 1.0],
+                "metallicFactor": 0.3,
+                "roughnessFactor": 0.15
             },
-            "emissiveFactor": [0.2, 0.35, 0.5],
+            "emissiveFactor": [0.15, 0.25, 0.4],
             "doubleSided": True
         }],
         "accessors": [
