@@ -101,13 +101,13 @@
       </a-plane>
 
       <!-- 2. Shivam Jewels Official Logo (Flat alignment positioned at top of banner) -->
-      <a-plane id="logo-plane" src="#shivamLogo" position="0 0.65 0" rotation="0 0 0" width="1.2" height="0.32"
+      <a-plane id="logo-plane" src="#shivamLogo" position="0 0.75 0" rotation="0 0 0" width="1.2" height="0.32"
         material="transparent: true; side: double; shader: flat; depthTest: true;">
       </a-plane>
 
       <!-- 3. Authentic 3D Diamond Model (Positioned between camera & banner, facing camera, with slow left-to-right rotation) -->
-      <a-entity id="3d-model-container" position="0 0.15 0.35" rotation="70 0 0"
-        animation="property: rotation; to: 70 360 0; loop: true; dur: 9000; easing: linear"
+      <a-entity id="3d-model-container" position="0 0 0" rotation="0 0 0"
+        animation="property: rotation; to: 0 360 0; loop: true; dur: 9000; easing: linear"
         animation__float="property: position; from: 0 0.08 0.35; to: 0 0.22 0.35; dir: alternate; loop: true; dur: 3000; easing: easeInOutSine">
 
         <a-gltf-model id="3d-model-entity" src="./assets/model.glb" scale="0.65 0.65 0.65" position="0 0 0">
