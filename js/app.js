@@ -1,27 +1,19 @@
 /**
- * WebAR 3-Condition Continuous Verification & Anti-Bypass Controller
+ * WebAR Diagnostic Experiment Controller
  * Client: Shivam Jewels (sjar.vercel.app)
  * 
- * STRICT URL MATCHING & ANTI-BYPASS MANDATE:
+ * SPECIAL DIAGNOSTIC TEST MODE:
  * -------------------------------------------------------------------
- * Condition 1: Card Shape Identification        -> Shape >= 75%  (CARD_SHAPE_OK)
- * Condition 2: targets.mind Feature Dots Sync   -> Target >= 75% (DESIGN_TARGET_OK)
- * Condition 3: QR Code Payload Match            -> MUST match "sjar.vercel.app" (QR_OK)
+ * Temporarily remove QR requirement to isolate card tracking & feature dots sync.
+ * IF Card Shape & targets.mind Feature Dots are matched -> SHOW 3D MODEL!
  * -------------------------------------------------------------------
- * ANTI-BYPASS GUARANTEE:
- * Generic QR codes (containing 'http' or other URLs) are STRICTLY REJECTED.
- * ONLY QR codes containing "sjar.vercel.app" pass Condition 3.
- * 
- * MASTER PASS EQUATION:
- * PASS = CARD_SHAPE_OK && DESIGN_TARGET_OK && QR_OK && !isOnlyQrInFrame
  */
 (function () {
   'use strict';
 
-  // Fixed Backend Domain Website Target
   const EXPECTED_BACKEND_URL = "sjar.vercel.app";
 
-  // Three Continuous Independent Signal States (75% Accuracy Requirement)
+  // Diagnostic Signal States
   const signals = {
     // Condition 1: Card Shape (>= 75% Accuracy)
     cardShapeDetected: false,
@@ -33,17 +25,13 @@
     designTargetAccuracy: 0,
     DESIGN_TARGET_OK: false,
 
-    // Condition 3: QR Code + Backend URL Match (MUST match sjar.vercel.app)
+    // Condition 3: QR Code (Log only for diagnostic mode)
     qrDetected: false,
     qrData: "",
     qrValueMatchesBackendURL: false,
     QR_OK: false,
 
-    // Glitch Protection: True if ONLY QR code is scanned (zoomed in)
-    isOnlyQrInFrame: false,
-    qrScreenRatio: 0,
-
-    // Master Pass Flag
+    // Master Pass Flag (Diagnostic Mode: Card Shape & Target Mapping Only)
     ALL_3_CONDITIONS_VALID: false
   };
 
@@ -85,7 +73,7 @@
     }
   }
 
-  // MASTER CONTINUOUS EVALUATOR
+  // MASTER CONTINUOUS EVALUATOR (DIAGNOSTIC MODE)
   function evaluateContinuous3Conditions() {
     // 1. Evaluate Condition 1: Card Shape Accuracy >= 75%
     signals.CARD_SHAPE_OK = (signals.cardShapeDetected === true) && (signals.cardShapeAccuracy >= 75);
@@ -93,21 +81,13 @@
     // 2. Evaluate Condition 2: targets.mind Feature Dots Mapping Accuracy >= 75%
     signals.DESIGN_TARGET_OK = (signals.designTargetDetected === true) && (signals.designTargetAccuracy >= 75);
 
-    // 3. Evaluate Condition 3: QR Detected AND QR Value Matches Backend URL strictly
+    // 3. Evaluate Condition 3: QR (Diagnostic logging)
     signals.QR_OK = (signals.qrDetected === true) && (signals.qrValueMatchesBackendURL === true);
 
-    // UNBREAKABLE RULE: If ONLY QR code is in frame, OVERRIDE & REJECT ALL SHAPE MATCHES!
-    if (signals.isOnlyQrInFrame) {
-      signals.CARD_SHAPE_OK = false;
-      signals.DESIGN_TARGET_OK = false;
-    }
-
-    // ALL 3 CONDITIONS MUST BE SIMULTANEOUSLY VALID (>= 75% Accuracy & Strict Backend URL Match)
+    // DIAGNOSTIC EXPERIMENT MANDATE: Show 3D model as soon as Card Shape & Target are matched!
     signals.ALL_3_CONDITIONS_VALID = (
       signals.CARD_SHAPE_OK === true &&
-      signals.DESIGN_TARGET_OK === true &&
-      signals.QR_OK === true &&
-      signals.isOnlyQrInFrame === false
+      signals.DESIGN_TARGET_OK === true
     );
 
     const statusPill = document.getElementById('status-pill');
@@ -116,9 +96,9 @@
     const arWrapper = document.getElementById('ar-content-wrapper');
 
     if (signals.ALL_3_CONDITIONS_VALID) {
-      // ✅ PASS CONDITION: Show 3D Model!
+      // ✅ DIAGNOSTIC PASS: Show 3D Model when Card is Matched!
       if (statusPill) statusPill.className = 'status-pill tracking';
-      if (statusText) statusText.textContent = '✅ Card Shape, targets.mind & sjar.vercel.app QR Verified!';
+      if (statusText) statusText.textContent = `✅ Card Matched! 3D Model Enabled (QR Log: ${signals.QR_OK ? 'Found' : 'Searching'})`;
       if (reticle) reticle.classList.add('hidden');
       playChime('success');
 
@@ -127,7 +107,7 @@
         if (arWrapper.object3D) arWrapper.object3D.visible = true;
       }
     } else {
-      // ❌ FAIL / WAIT: DO NOT SHOW 3D MODEL (Keep 3D Model Hidden)
+      // ❌ FAIL / WAIT: Keep 3D Model Hidden
       if (statusPill) statusPill.className = 'status-pill searching';
       if (reticle) reticle.classList.remove('hidden');
 
@@ -136,16 +116,8 @@
         if (arWrapper.object3D) arWrapper.object3D.visible = false;
       }
 
-      // Live status display addressing QR scanning status
       if (statusText) {
-        if (signals.isOnlyQrInFrame) {
-          statusText.textContent = '⚠️ Only QR Code Detected! Move camera back to view full Card...';
-        } else {
-          const s1 = signals.CARD_SHAPE_OK ? '✅ Card Shape' : '❌ Card Shape';
-          const s2 = signals.DESIGN_TARGET_OK ? '✅ MindAR Dots Sync' : '❌ MindAR Dots Sync';
-          const s3 = signals.QR_OK ? '✅ sjar.vercel.app QR' : '❌ QR URL Match';
-          statusText.textContent = `Scanning: ${s1} | ${s2} | ${s3}`;
-        }
+        statusText.textContent = 'Point Camera at Shivam Jewels Invitation Card...';
       }
     }
   }
@@ -157,14 +129,11 @@
         const wrapper = document.getElementById('ar-content-wrapper');
         const isPass = (
           signals.CARD_SHAPE_OK === true &&
-          signals.DESIGN_TARGET_OK === true &&
-          signals.QR_OK === true &&
-          signals.isOnlyQrInFrame === false
+          signals.DESIGN_TARGET_OK === true
         );
 
         if (wrapper && wrapper.object3D) {
           if (!isPass) {
-            // Force 3D model to stay completely hidden on every frame tick when isPass is false
             wrapper.object3D.visible = false;
           }
         }
@@ -231,13 +200,10 @@
     const targetEntity = document.getElementById('ar-target');
 
     if (targetEntity) {
-      // Detector 1 (Card Shape >= 75%) & Detector 2 (targets.mind Feature Dots Sync >= 75%)
       targetEntity.addEventListener('targetFound', () => {
-        // Condition 1: Card Shape Accuracy (78% >= 75%)
         signals.cardShapeDetected = true;
         signals.cardShapeAccuracy = 78;
 
-        // Condition 2: targets.mind Feature Dots Mapping Sync (78% >= 75%)
         signals.designTargetDetected = true;
         signals.designTargetAccuracy = 78;
 
@@ -290,7 +256,7 @@
     }
   }
 
-  // Real-Time Camera QR Scanner with Anti-Bypass Domain Validation
+  // Real-Time Camera QR Scanner (Diagnostic Logging Only)
   const offscreenCanvas = document.createElement('canvas');
   const offscreenCtx = offscreenCanvas.getContext('2d');
 
@@ -316,34 +282,16 @@
 
           if (code && code.data && code.data.trim().length > 0) {
             const val = code.data.toLowerCase().trim();
-
-            // Calculate QR code bounding box width relative to total camera screen width
-            const loc = code.location;
-            const qrPixelWidth = Math.abs(loc.topRightCorner.x - loc.topLeftCorner.x);
-            signals.qrScreenRatio = qrPixelWidth / offscreenCanvas.width;
-
-            // GLITCH GUARD: If QR occupies > 55% of screen width -> User is scanning ONLY QR!
-            if (signals.qrScreenRatio > 0.55) {
-              signals.isOnlyQrInFrame = true;
-              signals.qrDetected = false;
-              signals.qrValueMatchesBackendURL = false;
-            } else {
-              signals.isOnlyQrInFrame = false;
-              signals.qrData = val;
-
-              // STRICT DOMAIN MATCHING: MUST contain "sjar.vercel.app"
-              const isUrlMatched = val.includes(EXPECTED_BACKEND_URL);
-              signals.qrDetected = isUrlMatched;
-              signals.qrValueMatchesBackendURL = isUrlMatched;
-              if (isUrlMatched) lastQrSeenTime = Date.now();
-            }
+            const isUrlMatched = val.includes(EXPECTED_BACKEND_URL);
+            signals.qrDetected = isUrlMatched;
+            signals.qrValueMatchesBackendURL = isUrlMatched;
+            if (isUrlMatched) lastQrSeenTime = Date.now();
 
             evaluateContinuous3Conditions();
           } else {
             if (signals.qrDetected && (Date.now() - lastQrSeenTime > 1200)) {
               signals.qrDetected = false;
               signals.qrValueMatchesBackendURL = false;
-              signals.isOnlyQrInFrame = false;
               evaluateContinuous3Conditions();
             }
           }
