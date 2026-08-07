@@ -67,8 +67,8 @@
 
   <!-- Main WebAR Scene Container -->
   <a-scene id="ar-scene"
-    mindar-image="imageTargetSrc: ./assets/targets.mind; autoStart: false; uiScanning: no; uiLoading: no; filterMinCF: 0.0001; filterBeta: 0.001; missTolerance: 8;"
-    color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights: true, exposure: 1.2"
+    mindar-image="imageTargetSrc: ./assets/targets.mind; autoStart: false; uiScanning: no; uiLoading: no; filterMinCF: 0.0001; filterBeta: 0.001; missTolerance: 12;"
+    color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights: true, exposure: 1.25"
     vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false" embedded>
 
     <a-assets>
@@ -91,32 +91,32 @@
     <a-entity id="ar-target" mindar-image-target="targetIndex: 0">
 
       <!-- Multi-Angle Lighting for Maximum Gem Reflection & Visibility -->
-      <a-entity light="type: ambient; color: #ffffff; intensity: 2.8"></a-entity>
-      <a-entity light="type: directional; color: #ffffff; intensity: 3.5" position="1 3 4"></a-entity>
-      <a-entity light="type: directional; color: #38bdf8; intensity: 2.0" position="-2 1 3"></a-entity>
-      <a-entity light="type: point; color: #ffffff; intensity: 3.0; distance: 5" position="0 0.5 1"></a-entity>
+      <a-entity light="type: ambient; color: #ffffff; intensity: 3.0"></a-entity>
+      <a-entity light="type: directional; color: #ffffff; intensity: 3.8" position="1 3 4"></a-entity>
+      <a-entity light="type: directional; color: #38bdf8; intensity: 2.2" position="-2 1 3"></a-entity>
+      <a-entity light="type: point; color: #ffffff; intensity: 3.5; distance: 6" position="0 0.5 1"></a-entity>
 
       <!-- Wrapped 3D Experience Content -->
       <a-entity id="ar-content-wrapper" visible="false">
-        <!-- 1. Shivam Jewels Card Back (Facing camera continuously at center position matching full card size) -->
-        <a-plane id="card-back-plane" src="#cardBack" position="0 0 0" rotation="0 0 0" width="1.0" height="1.39"
-          material="transparent: true; side: double; shader: flat; depthTest: true;">
+        <!-- 1. Shivam Jewels Card Back (Positioned at center z=0.01 to prevent Z-fighting) -->
+        <a-plane id="card-back-plane" src="#cardBack" position="0 0 0.01" rotation="0 0 0" width="1.0" height="1.39"
+          material="transparent: true; alphaTest: 0.2; side: double; shader: flat; depthTest: true;">
         </a-plane>
 
-        <!-- 2. Shivam Jewels Banner (Positioned on RIGHT side of card back x=1.05, tilted -20 deg facing camera) -->
-        <a-plane id="banner-plane" src="#shivamBanner" position="1.05 0 0" rotation="0 -20 0" width="1.0" height="1.39"
-          material="transparent: true; side: double; shader: flat; depthTest: true;">
+        <!-- 2. Shivam Jewels Banner (Positioned on RIGHT side of card back x=1.05, z=0.02, tilted -20 deg) -->
+        <a-plane id="banner-plane" src="#shivamBanner" position="1.05 0 0.02" rotation="0 -20 0" width="1.0" height="1.39"
+          material="transparent: true; alphaTest: 0.2; side: double; shader: flat; depthTest: true;">
         </a-plane>
 
-        <!-- 3. Shivam Jewels Official Logo (Positioned above card top header & scaled 2.1x) -->
-        <a-plane id="logo-plane" src="#shivamLogo" position="0 0.92 0.02" rotation="0 0 0" width="1.80" height="0.48"
-          material="transparent: true; side: double; shader: flat; depthTest: true;">
+        <!-- 3. Shivam Jewels Official Logo (Positioned above top card header x=0, y=0.92, z=0.04) -->
+        <a-plane id="logo-plane" src="#shivamLogo" position="0 0.92 0.04" rotation="0 0 0" width="1.80" height="0.48"
+          material="transparent: true; alphaTest: 0.2; side: double; shader: flat; depthTest: true;">
         </a-plane>
 
-        <!-- 4. Authentic 3D Diamond Ring Showcase (Scaled for full card size, rotating continuously) -->
+        <!-- 4. Authentic 3D Diamond Ring Showcase (Positioned z=0.25 floating in front, smooth 360 rotation) -->
         <a-entity id="3d-model-container" position="0 0 0.25" rotation="0 0 0"
-          animation="property: rotation; from: 0 0 0; to: 0 0 -360; loop: true; dur: 15000; easing: linear">
-          <a-gltf-model id="3d-model-entity" src="./assets/model.glb" scale="0.65 0.65 0.65" position="0 0 0" rotation="0 0 0">
+          animation="property: rotation; from: 0 0 0; to: 0 -360 0; loop: true; dur: 14000; easing: linear">
+          <a-gltf-model id="3d-model-entity" src="#glbModel" scale="0.65 0.65 0.65" position="0 0 0" rotation="0 0 0">
           </a-gltf-model>
         </a-entity>
       </a-entity>
