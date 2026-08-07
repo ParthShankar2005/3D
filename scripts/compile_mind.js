@@ -29,19 +29,19 @@ const EDGE_PATH = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge
 
   await page.waitForFunction(() => window.MINDAR && window.MINDAR.IMAGE && window.MINDAR.IMAGE.Compiler, { timeout: 15000 });
 
-  console.log('Starting MindAR feature target compilation for Shivam_Jewels_Invitation_Card.png...');
+  console.log('Starting MindAR feature target compilation for Shivam_Jewels_Card_Shape.png (Card Shape ONLY, NO QR code)...');
 
   const mindBufferArray = await page.evaluate(async () => {
     const compiler = new window.MINDAR.IMAGE.Compiler();
 
     const img = new Image();
-    img.src = '/assets/Shivam_Jewels_Invitation_Card.png';
+    img.src = '/assets/Shivam_Jewels_Card_Shape.png';
     await new Promise((resolve, reject) => {
       img.onload = resolve;
-      img.onerror = (e) => reject(new Error('Failed to load /assets/Shivam_Jewels_Invitation_Card.png'));
+      img.onerror = (e) => reject(new Error('Failed to load /assets/Shivam_Jewels_Card_Shape.png'));
     });
 
-    console.log(`Target invitation card image loaded: ${img.width}x${img.height}`);
+    console.log(`Target Card Shape image loaded: ${img.width}x${img.height}`);
 
     await compiler.compileImageTargets([img], (progress) => {
       console.log(`Feature Extraction Progress: ${Math.round(progress)}%`);

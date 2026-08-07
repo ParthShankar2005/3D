@@ -1,23 +1,16 @@
 import os
 from PIL import Image, ImageDraw, ImageFont
 
-def generate_invitation_card(
+def generate_invitation_cards(
     border_path="assets/Border of card.png",
     logo_path="assets/shivam_logo.png",
     qr_path="assets/target.png",
-    output_path="assets/invitation_card.png"
+    output_card="assets/Shivam_Jewels_Invitation_Card.png",
+    output_shape="assets/Shivam_Jewels_Card_Shape.png"
 ):
-    print("Generating Shivam Jewels Invitation Card using Python...")
+    print("Generating High-Definition Shivam Jewels Target Reference Cards...")
 
-    # Load border image to determine dimensions
-    if os.path.exists(border_path):
-        border_img = Image.open(border_path).convert("RGBA")
-        width, height = border_img.size
-    else:
-        width, height = 1080, 1500
-        border_img = None
-
-    print(f"Canvas resolution: {width}x{height}")
+    width, height = 1080, 1500
 
     # 1. Create luxury dark navy background canvas (#0a1124)
     canvas = Image.new("RGBA", (width, height), (10, 17, 36, 255))
@@ -37,9 +30,11 @@ def generate_invitation_card(
     canvas = Image.alpha_composite(canvas, overlay)
     draw = ImageDraw.Draw(canvas)
 
-    # 2. Paste Border of card.png
-    if border_img:
-        canvas = Image.alpha_composite(canvas, border_img)
+    # 2. Resize and paste Border of card.png
+    if os.path.exists(border_path):
+        border_img = Image.open(border_path).convert("RGBA")
+        border_resized = border_img.resize((width, height), Image.Resampling.LANCZOS)
+        canvas = Image.alpha_composite(canvas, border_resized)
         draw = ImageDraw.Draw(canvas)
 
     # 3. Load & Process Shivam Logo (Convert dark text to bright white/silver)
@@ -60,40 +55,12 @@ def generate_invitation_card(
         logo_h = int(logo_w * aspect)
         logo_resized = logo_img.resize((logo_w, logo_h), Image.Resampling.LANCZOS)
 
-        # Paste logo at top upside section
+        # Paste logo at top section
         logo_x = (width - logo_w) // 2
         logo_y = int(height * 0.08)
         canvas.paste(logo_resized, (logo_x, logo_y), logo_resized)
 
-    # 4. Load & Process QR target code
-    if os.path.exists(qr_path):
-        qr_img = Image.open(qr_path).convert("RGBA")
-
-        # Create a sleek rounded white card backing container for the QR code
-        qr_size = int(width * 0.44)
-        qr_x = (width - qr_size) // 2
-        qr_y = int(height * 0.38)
-
-        pad = int(width * 0.035)
-        bg_box = [qr_x - pad, qr_y - pad, qr_x + qr_size + pad, qr_y + qr_size + pad]
-        
-        # Outer glow border
-        draw.rounded_rectangle(
-            [bg_box[0]-4, bg_box[1]-4, bg_box[2]+4, bg_box[3]+4],
-            radius=20,
-            fill=(56, 189, 248, 140)
-        )
-        # Inner solid white card
-        draw.rounded_rectangle(
-            bg_box,
-            radius=16,
-            fill=(255, 255, 255, 255)
-        )
-
-        qr_resized = qr_img.resize((qr_size, qr_size), Image.Resampling.LANCZOS)
-        canvas.paste(qr_resized, (qr_x, qr_y), qr_resized)
-
-    # 5. Add Typography & Text Annotations
+    # 4. Add Typography & Text Annotations
     try:
         font_sub = ImageFont.truetype("arial.ttf", int(height * 0.020))
         font_title = ImageFont.truetype("arial.ttf", int(height * 0.026))
@@ -102,7 +69,6 @@ def generate_invitation_card(
     except Exception:
         font_sub = font_title = font_bold = font_small = ImageFont.load_default()
 
-    # Header invitation text below logo
     header_text = "YOU ARE CORDIALLY INVITED TO"
     bbox = draw.textbbox((0, 0), header_text, font=font_small)
     tw = bbox[2] - bbox[0]
@@ -113,8 +79,7 @@ def generate_invitation_card(
     tw = bbox[2] - bbox[0]
     draw.text(((width - tw) // 2, int(height * 0.30)), title_text, fill=(255, 255, 255, 255), font=font_title)
 
-    # Instruction below QR Code
-    scan_instruction = "SCAN QR CODE WITH CAMERA"
+    scan_instruction = "SCAN CARD WITH CAMERA"
     bbox = draw.textbbox((0, 0), scan_instruction, font=font_bold)
     tw = bbox[2] - bbox[0]
     draw.text(((width - tw) // 2, int(height * 0.74)), scan_instruction, fill=(56, 189, 248, 255), font=font_bold)
@@ -129,17 +94,49 @@ def generate_invitation_card(
     tw = bbox[2] - bbox[0]
     draw.text(((width - tw) // 2, int(height * 0.88)), footer_text, fill=(148, 163, 184, 255), font=font_small)
 
-    # 6. Save final high-res PNG image
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    canvas_rgb = Image.new("RGB", canvas.size, (10, 17, 36))
-    canvas_rgb.paste(canvas, mask=canvas.split()[3])
-    canvas_rgb.save(output_path, "PNG", quality=100)
-    
-    # Save second copy as Shivam_Jewels_Invitation_Card.png
-    alt_output = os.path.join(os.path.dirname(output_path), "Shivam_Jewels_Invitation_Card.png")
-    canvas_rgb.save(alt_output, "PNG", quality=100)
+    # -------------------------------------------------------------------
+    # SAVE IMAGE 1: SHAPE-ONLY CARD REFERENCE (WITHOUT QR CODE BOX)
+    # Used for compiling targets.mind so MindAR feature points are extracted
+    # ONLY from logo, border & line art (NEVER from QR code box)!
+    # -------------------------------------------------------------------
+    os.makedirs(os.path.dirname(output_shape), exist_ok=True)
+    canvas_shape_rgb = Image.new("RGB", canvas.size, (10, 17, 36))
+    canvas_shape_rgb.paste(canvas, mask=canvas.split()[3])
+    canvas_shape_rgb.save(output_shape, "PNG", quality=100)
+    print(f"Successfully generated Card Shape Target at: {output_shape}")
 
-    print(f"Successfully generated invitation card at:\n- {output_path}\n- {alt_output}")
+    # -------------------------------------------------------------------
+    # SAVE IMAGE 2: FULL INVITATION CARD (WITH QR CODE BOX)
+    # Printed invitation card image containing the QR code matrix
+    # -------------------------------------------------------------------
+    if os.path.exists(qr_path):
+        qr_img = Image.open(qr_path).convert("RGBA")
+
+        qr_size = int(width * 0.46)
+        qr_x = (width - qr_size) // 2
+        qr_y = int(height * 0.38)
+
+        pad = int(width * 0.035)
+        bg_box = [qr_x - pad, qr_y - pad, qr_x + qr_size + pad, qr_y + qr_size + pad]
+        
+        draw.rounded_rectangle(
+            [bg_box[0]-6, bg_box[1]-6, bg_box[2]+6, bg_box[3]+6],
+            radius=24,
+            fill=(56, 189, 248, 160)
+        )
+        draw.rounded_rectangle(
+            bg_box,
+            radius=20,
+            fill=(255, 255, 255, 255)
+        )
+
+        qr_resized = qr_img.resize((qr_size, qr_size), Image.Resampling.LANCZOS)
+        canvas.paste(qr_resized, (qr_x, qr_y), qr_resized)
+
+    canvas_full_rgb = Image.new("RGB", canvas.size, (10, 17, 36))
+    canvas_full_rgb.paste(canvas, mask=canvas.split()[3])
+    canvas_full_rgb.save(output_card, "PNG", quality=100)
+    print(f"Successfully generated Full Invitation Card at: {output_card}")
 
 if __name__ == "__main__":
-    generate_invitation_card()
+    generate_invitation_cards()
