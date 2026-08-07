@@ -133,22 +133,19 @@
         if (reticle) reticle.classList.add('hidden');
         playSound('found');
 
-        // Ensure 3D diamond entity, logo plane & target entities are explicitly visible
+        // Ensure 3D diamond entity, card back plane, banner plane & logo plane are explicitly visible
         const gltfModel = document.getElementById('3d-model-entity');
         const modelContainer = document.getElementById('3d-model-container');
+        const cardBackPlane = document.getElementById('card-back-plane');
+        const bannerPlane = document.getElementById('banner-plane');
         const logoPlane = document.getElementById('logo-plane');
-        if (gltfModel) {
-          gltfModel.setAttribute('visible', 'true');
-          if (gltfModel.object3D) gltfModel.object3D.visible = true;
-        }
-        if (modelContainer) {
-          modelContainer.setAttribute('visible', 'true');
-          if (modelContainer.object3D) modelContainer.object3D.visible = true;
-        }
-        if (logoPlane) {
-          logoPlane.setAttribute('visible', 'true');
-          if (logoPlane.object3D) logoPlane.object3D.visible = true;
-        }
+        
+        [gltfModel, modelContainer, cardBackPlane, bannerPlane, logoPlane].forEach(el => {
+          if (el) {
+            el.setAttribute('visible', 'true');
+            if (el.object3D) el.object3D.visible = true;
+          }
+        });
         if (targetEntity.object3D) targetEntity.object3D.visible = true;
       });
 

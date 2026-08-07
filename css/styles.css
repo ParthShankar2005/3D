@@ -133,8 +133,8 @@ html, body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 270px;
-  height: 270px;
+  width: 230px;
+  height: 330px;
   pointer-events: none;
   z-index: 50;
   display: flex;
@@ -163,19 +163,19 @@ html, body {
 .reticle-bottom-left { bottom: 0; left: 0; border-right: none; border-top: none; border-radius: 0 0 0 12px; }
 .reticle-bottom-right { bottom: 0; right: 0; border-left: none; border-top: none; border-radius: 0 0 12px 0; }
 
-/* Translucent QR Target Preview Overlay inside scanning frame */
+/* Translucent Card Border Target Preview Overlay inside scanning frame */
 .qr-target-preview-wrapper {
-  width: 210px;
-  height: 210px;
-  border-radius: 12px;
+  width: 195px;
+  height: 290px;
+  border-radius: 16px;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(15, 23, 42, 0.45);
   backdrop-filter: blur(4px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  border: 1px dashed rgba(2, 132, 199, 0.6);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  border: 1px dashed rgba(56, 189, 248, 0.7);
   animation: pulse-qr 2.5s infinite alternate ease-in-out;
 }
 
