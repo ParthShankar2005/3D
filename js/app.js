@@ -1,36 +1,35 @@
 /**
  * WebAR 2-Step Verification Controller for Shivam Jewels
  * 
- * 2-STEP VERIFICATION SEQUENCE:
- * - STEP 1: QR Code Found -> Decodes & verifies QR value matches stored URL (sjar.vercel.app)
- * - STEP 2: Card Shape Identified -> Identifies full card shape & pattern using targets.mind
+ * 2-STEP VERIFICATION MANDATE:
+ * - STEP 1: QR Code Value Match (jsQR decodes camera feed & matches stored URL)
+ * - STEP 2: Card Shape & Pattern Match (MindAR identifies full card shape from targets.mind)
  * 
- * ONLY when BOTH Step 1 (QR Value Match) and Step 2 (Card Shape Identification) pass
- * does the 3D Model technology & Invitation Card render!
+ * CRITICAL RULE: If ONLY the QR code is scanned without Step 2, OR if ONLY the card shape is seen without Step 1,
+ * the 3D model technology STAYS COMPLETELY HIDDEN (FALSE CONDITION).
+ * 
+ * ONLY when (Step 1 AND Step 2) ARE BOTH TRUE does the 3D model tech activate!
  */
 (function() {
-  let isStep1_QrMatched = false;      // STEP 1: QR Code decoded & value matched
-  let isStep2_CardShapeMatched = false; // STEP 2: Card shape & pattern identified via targets.mind
+  let isStep1_QrMatched = false;        // Step 1: QR Code Value Matched
+  let isStep2_CardShapeMatched = false; // Step 2: Card Shape & Target Pattern Matched
   let is2StepVerified = false;
   let lastQrMatchTime = 0;
   let qrScanInterval = null;
 
-  // Synthesized Web Audio API Synthesizer for feedback chimes
+  // Web Audio API Chime Synthesizer
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   
   function playSound(type) {
     if (!audioCtx) return;
     try {
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.connect(gain);
       gain.connect(audioCtx.destination);
       
       const now = audioCtx.currentTime;
-      
       if (type === 'found') {
         osc.type = 'sine';
         osc.frequency.setValueAtTime(523.25, now);
@@ -53,22 +52,18 @@
     }
   }
 
-  // 2-Step Verification Evaluator Function
+  // Master 2-Step Gatekeeper Evaluator
   function evaluate2StepVerification() {
     const statusPill = document.getElementById('status-pill');
     const statusText = document.getElementById('status-text');
     const reticle = document.getElementById('scanning-reticle');
-    const targetEntity = document.getElementById('ar-target');
+    const arContentWrapper = document.getElementById('ar-content-wrapper');
 
-    const gltfModel = document.getElementById('3d-model-entity');
-    const modelContainer = document.getElementById('3d-model-container');
-    const cardBackPlane = document.getElementById('card-back-plane');
-    const bannerPlane = document.getElementById('banner-plane');
-    const logoPlane = document.getElementById('logo-plane');
+    // BOTH CONDITIONS MUST BE TRUE SIMULTANEOUSLY!
+    const isBothVerified = (isStep1_QrMatched === true) && (isStep2_CardShapeMatched === true);
 
-    // 2-STEP VERIFICATION CONDITION:
-    // Step 1 (QR Value Matched) AND Step 2 (Card Shape Identified via targets.mind)
-    if (isStep1_QrMatched && isStep2_CardShapeMatched) {
+    if (isBothVerified) {
+      // ✅ TRUE CONDITION: Both QR Code & Card Shape Verified
       if (!is2StepVerified) {
         is2StepVerified = true;
         if (statusPill) statusPill.className = 'status-pill tracking';
@@ -76,36 +71,29 @@
         if (reticle) reticle.classList.add('hidden');
         playSound('found');
 
-        // Reveal 3D invitation card & 3D model technology
-        [gltfModel, modelContainer, cardBackPlane, bannerPlane, logoPlane].forEach(el => {
-          if (el) {
-            el.setAttribute('visible', 'true');
-            if (el.object3D) el.object3D.visible = true;
-          }
-        });
-        if (targetEntity && targetEntity.object3D) targetEntity.object3D.visible = true;
+        // Reveal the 3D content wrapper
+        if (arContentWrapper) {
+          arContentWrapper.setAttribute('visible', 'true');
+          if (arContentWrapper.object3D) arContentWrapper.object3D.visible = true;
+        }
       }
     } else {
-      if (is2StepVerified) {
-        is2StepVerified = false;
-        if (statusPill) statusPill.className = 'status-pill searching';
-        if (reticle) reticle.classList.remove('hidden');
+      // ❌ FALSE CONDITION: Only QR scanned OR Only Card Shape seen -> HIDE ALL 3D MODEL TECH!
+      is2StepVerified = false;
+      if (statusPill) statusPill.className = 'status-pill searching';
+      if (reticle) reticle.classList.remove('hidden');
 
-        // Hide 3D invitation card & 3D model technology
-        [gltfModel, modelContainer, cardBackPlane, bannerPlane, logoPlane].forEach(el => {
-          if (el) {
-            el.setAttribute('visible', 'false');
-            if (el.object3D) el.object3D.visible = false;
-          }
-        });
+      if (arContentWrapper) {
+        arContentWrapper.setAttribute('visible', 'false');
+        if (arContentWrapper.object3D) arContentWrapper.object3D.visible = false;
       }
 
-      // Display live 2-step verification progress message for user
-      if (statusText && !is2StepVerified) {
+      // Display clear progress status message to the user
+      if (statusText) {
         if (isStep1_QrMatched && !isStep2_CardShapeMatched) {
-          statusText.textContent = 'Step 1/2 Done: QR Value Matched ➔ Step 2: Align Card Shape...';
+          statusText.textContent = 'Step 1/2: QR Code Scanned ➔ Align Full Card Shape...';
         } else if (!isStep1_QrMatched && isStep2_CardShapeMatched) {
-          statusText.textContent = 'Step 2/2 Done: Card Shape Found ➔ Step 1: Scan QR Code Value...';
+          statusText.textContent = 'Step 2/2: Card Shape Found ➔ Scanning QR Code Value...';
         } else {
           statusText.textContent = 'Scanning Target (Step 1: QR & Step 2: Card Shape)...';
         }
@@ -113,7 +101,22 @@
     }
   }
 
-  // Camera permission & start AR handler
+  // Register A-Frame Component Guard to enforce strict visibility on every frame render
+  if (window.AFRAME) {
+    window.AFRAME.registerComponent('dual-verify-guard', {
+      tick: function() {
+        const wrapper = document.getElementById('ar-content-wrapper');
+        const isBothVerified = (isStep1_QrMatched === true) && (isStep2_CardShapeMatched === true);
+        if (wrapper && wrapper.object3D) {
+          if (!isBothVerified) {
+            wrapper.object3D.visible = false;
+          }
+        }
+      }
+    });
+  }
+
+  // Camera Permission & Start WebAR Click Handler
   window.handleStartARClick = function(e) {
     if (e) {
       e.preventDefault();
@@ -137,6 +140,10 @@
 
     const launchAR = () => {
       if (!arScene) return;
+      
+      // Attach dual-verify-guard component to scene
+      arScene.setAttribute('dual-verify-guard', '');
+
       const arSystem = arScene.systems && arScene.systems['mindar-image-system'];
       if (arSystem) {
         arSystem.start();
@@ -216,7 +223,7 @@
     }
   }
 
-  // STEP 1: Real-time Camera QR Code Value Scanner (jsQR)
+  // STEP 1: Real-Time Camera QR Code Value Scanner (jsQR)
   const offscreenCanvas = document.createElement('canvas');
   const offscreenCtx = offscreenCanvas.getContext('2d');
 
@@ -254,6 +261,7 @@
               }
             }
           } else {
+            // Reset Step 1 if QR code is no longer detected in camera stream for 2.5 seconds
             if (isStep1_QrMatched && (Date.now() - lastQrMatchTime > 2500)) {
               isStep1_QrMatched = false;
               evaluate2StepVerification();
