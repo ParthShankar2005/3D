@@ -1,0 +1,382 @@
+/* Transparent White Glassmorphism WebAR Design System */
+:root {
+  --bg-main: #0f172a;
+  --glass-bg: rgba(255, 255, 255, 0.88);
+  --glass-border: rgba(255, 255, 255, 0.95);
+  --glass-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.18), 0 2px 8px 0 rgba(255, 255, 255, 0.4) inset;
+  --primary: #0284c7;
+  --primary-hover: #0369a1;
+  --accent: #2563eb;
+  --success: #16a34a;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --text-main: #0f172a;
+  --text-muted: #334155;
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+html, body, #root {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  font-family: var(--font-family);
+  background: var(--bg-main);
+  color: var(--text-main);
+}
+
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: var(--radius-lg);
+}
+
+.ar-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Header & Status Bar */
+#app-header {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px;
+  width: min(94%, 600px);
+  justify-content: space-between;
+}
+
+.brand-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+}
+
+.status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--warning);
+  box-shadow: 0 0 8px var(--warning);
+  animation: pulse-dot 1.5s infinite alternate;
+}
+
+.status-pill.tracking .status-dot {
+  background: var(--success);
+  box-shadow: 0 0 12px var(--success);
+}
+
+@keyframes pulse-dot {
+  0% { opacity: 0.4; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1.2); }
+}
+
+/* Viewport & Video Stream */
+.viewport-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.camera-video-feed {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.three-canvas-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Framing Reticle Overlay */
+#scanning-reticle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 230px;
+  height: 330px;
+  pointer-events: none;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.reticle-corner {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border: 4px solid var(--primary);
+}
+
+.reticle-top-left { top: 0; left: 0; border-right: none; border-bottom: none; border-radius: 12px 0 0 0; }
+.reticle-top-right { top: 0; right: 0; border-left: none; border-bottom: none; border-radius: 0 12px 0 0; }
+.reticle-bottom-left { bottom: 0; left: 0; border-right: none; border-top: none; border-radius: 0 0 0 12px; }
+.reticle-bottom-right { bottom: 0; right: 0; border-left: none; border-top: none; border-radius: 0 0 12px 0; }
+
+.qr-target-preview-wrapper {
+  width: 195px;
+  height: 285px;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  border: 1px dashed rgba(56, 189, 248, 0.7);
+}
+
+.qr-target-preview-img {
+  width: 92%;
+  height: 92%;
+  object-fit: contain;
+  opacity: 0.85;
+}
+
+.reticle-line {
+  position: absolute;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  animation: scan-line 2.2s infinite ease-in-out;
+}
+
+@keyframes scan-line {
+  0% { top: 10px; opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { top: 310px; opacity: 0; }
+}
+
+.scanning-label {
+  position: absolute;
+  bottom: -45px;
+  background: rgba(15, 23, 42, 0.75);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+}
+
+/* Debug Overlay */
+.debug-overlay {
+  position: absolute;
+  bottom: 25px;
+  left: 20px;
+  z-index: 90;
+  padding: 14px 18px;
+  width: min(340px, 90vw);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.debug-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  margin-bottom: 10px;
+  color: var(--primary);
+}
+
+.metric-row {
+  margin-bottom: 8px;
+}
+
+.metric-label {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.status-pass { color: var(--success); font-weight: 700; }
+.status-fail { color: var(--danger); font-weight: 700; }
+
+.progress-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: rgba(15, 23, 42, 0.15);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.fill-pass { background: var(--success); }
+.fill-fail { background: var(--danger); }
+
+.qr-value-box {
+  background: rgba(15, 23, 42, 0.08);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 0.75rem;
+  word-break: break-all;
+  margin-top: 2px;
+}
+
+.debug-divider {
+  border: none;
+  border-top: 1px solid rgba(15, 23, 42, 0.15);
+  margin: 10px 0;
+}
+
+.master-gate-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.gate-title {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.gate-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+
+.badge-pass { background: rgba(22, 163, 74, 0.15); color: var(--success); }
+.badge-wait { background: rgba(217, 119, 6, 0.15); color: var(--warning); }
+.badge-hidden { background: rgba(220, 38, 38, 0.15); color: var(--danger); }
+
+/* Buttons */
+.btn-pill {
+  border: none;
+  outline: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  border-radius: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-primary-lg {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: white;
+  padding: 14px 28px;
+  font-size: 1rem;
+  box-shadow: 0 8px 25px rgba(2, 132, 199, 0.35);
+}
+
+.btn-primary-lg:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(2, 132, 199, 0.45);
+}
+
+.btn-secondary-sm {
+  background: rgba(15, 23, 42, 0.08);
+  color: var(--text-main);
+  padding: 8px 12px;
+  font-size: 0.85rem;
+}
+
+/* Permission Modal */
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(12px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-card {
+  width: min(90%, 420px);
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.modal-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  margin: 0 auto 16px auto;
+}
+
+.modal-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.modal-desc {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+}

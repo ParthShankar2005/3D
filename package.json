@@ -1,27 +1,23 @@
 {
-  "name": "webar-mindar-experience",
+  "name": "shivam-jewels-webar",
+  "private": true,
   "version": "1.0.0",
-  "description": "100% free app-less WebAR experience powered by MindAR.js and A-Frame",
-  "main": "server.js",
+  "type": "module",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js",
-    "build-diamond": "python scripts/build_diamond.py",
-    "build-qr": "python scripts/build_qr.py",
-    "convert-blend": "python scripts/convert_blend.py"
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview"
   },
-  "keywords": [
-    "webar",
-    "mindar",
-    "aframe",
-    "threejs",
-    "augmented-reality",
-    "3d"
-  ],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
-    "express": "^4.22.2",
-    "puppeteer-core": "^25.5.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "three": "^0.160.0",
+    "jsqr": "^1.4.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.0.8"
   }
 }

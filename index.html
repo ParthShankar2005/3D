@@ -1,147 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>3D WebAR Experience | sjar.vercel.app</title>
-  <meta name="description"
-    content="100% free app-less WebAR experience powered by MindAR.js and A-Frame on sjar.vercel.app" />
-
-  <!-- OpenGraph -->
-  <meta property="og:title" content="3D WebAR Experience | sjar.vercel.app" />
-  <meta property="og:description"
-    content="Scan the tracking target to launch interactive 3D WebAR directly in your mobile browser." />
-  <meta property="og:url" content="https://sjar.vercel.app" />
-
-  <!-- Fonts & Icons -->
+  <title>Shivam Jewels | 3-Condition WebAR Experience</title>
+  <meta name="description" content="AR Vision + QR + Card Recognition WebAR for Shivam Jewels Pvt. Ltd." />
+  
+  <!-- Google Fonts & Font Awesome Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
-  <!-- Stylesheet -->
-  <link rel="stylesheet" href="./css/styles.css" />
-
-  <!-- A-Frame Library (v1.5.0) -->
-  <script src="./js/aframe.min.js"></script>
-
-  <!-- MindAR Image Library for A-Frame (v1.2.5) -->
-  <script src="./js/mindar-image-aframe.prod.js"></script>
-
-  <!-- Application Controller Script -->
-  <script src="./js/app.js" defer></script>
 </head>
-
 <body>
-
-  <!-- Top Glassmorphic Navigation & Status Bar -->
-  <header id="app-header" class="glass-panel">
-    <div class="brand-badge">
-      <i class="fas fa-gem" style="color: #38bdf8;"></i>
-      <span>Shivam Jewels</span>
-    </div>
-    <div id="status-pill" class="status-pill searching">
-      <div class="status-dot"></div>
-      <span id="status-text">Scanning Target...</span>
-    </div>
-  </header>
-
-  <!-- Camera Reticle & Translucent Target Overlay -->
-  <div id="scanning-reticle" class="hidden">
-    <div class="reticle-corner reticle-top-left"></div>
-    <div class="reticle-corner reticle-top-right"></div>
-    <div class="reticle-corner reticle-bottom-left"></div>
-    <div class="reticle-corner reticle-bottom-right"></div>
-
-    <!-- Transparent Shivam Jewels Card Shape Target Preview -->
-    <div class="qr-target-preview-wrapper">
-      <img src="./assets/Shivam_Jewels_Card_Shape.png" alt="Shivam Jewels Card Shape Target Preview" class="qr-target-preview-img" />
-    </div>
-
-    <div class="reticle-line"></div>
-    <div class="scanning-label">
-      <i class="fas fa-camera"></i> Point Camera at Shivam Jewels Card Target
-    </div>
-  </div>
-
-  <!-- Main WebAR Scene Container -->
-  <a-scene id="ar-scene"
-    mindar-image="imageTargetSrc: ./assets/targets.mind; autoStart: false; uiScanning: no; uiLoading: no; filterMinCF: 0.0001; filterBeta: 0.001; missTolerance: 8;"
-    color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights: true, exposure: 1.2"
-    vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false" embedded>
-
-    <a-assets>
-      <!-- Load 3D GLB Gem Model asset -->
-      <a-asset-item id="glbModel" src="./assets/model.glb"></a-asset-item>
-      <!-- Load Shivam Jewels Thank You Banner Image asset -->
-      <img id="shivamBanner" src="./assets/shivam_banner.png" />
-      <!-- Load Shivam Jewels Official Logo Image asset -->
-      <img id="shivamLogo" src="./assets/shivam_logo.png" />
-      <!-- Load Shivam Jewels Card Back Image asset -->
-      <img id="cardBack" src="./assets/Shivam_Jewels_Card_Back.png" />
-      <!-- Load Card Border Frame Image asset -->
-      <img id="cardBorder" src="./assets/Border of card.png" />
-    </a-assets>
-
-    <!-- Camera setup -->
-    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
-    <!-- Target 0: Image Target tracking anchor -->
-    <a-entity id="ar-target" mindar-image-target="targetIndex: 0">
-
-      <!-- Multi-Angle Lighting for Maximum Gem Reflection & Visibility -->
-      <a-entity light="type: ambient; color: #ffffff; intensity: 2.8"></a-entity>
-      <a-entity light="type: directional; color: #ffffff; intensity: 3.5" position="1 3 4"></a-entity>
-      <a-entity light="type: directional; color: #38bdf8; intensity: 2.0" position="-2 1 3"></a-entity>
-      <a-entity light="type: point; color: #ffffff; intensity: 3.0; distance: 5" position="0 0.5 1"></a-entity>
-
-      <!-- Wrapped 3D Experience Content -->
-      <a-entity id="ar-content-wrapper" visible="false">
-        <!-- 1. Shivam Jewels Card Back (Facing camera continuously at center position matching full card size) -->
-        <a-plane id="card-back-plane" src="#cardBack" position="0 0 0" rotation="0 0 0" width="1.0" height="1.39"
-          material="transparent: true; side: double; shader: flat; depthTest: true;">
-        </a-plane>
-
-        <!-- 2. Shivam Jewels Banner (Positioned on RIGHT side of card back x=1.05, tilted -20 deg facing camera) -->
-        <a-plane id="banner-plane" src="#shivamBanner" position="1.05 0 0" rotation="0 -20 0" width="1.0" height="1.39"
-          material="transparent: true; side: double; shader: flat; depthTest: true;">
-        </a-plane>
-
-        <!-- 3. Shivam Jewels Official Logo (Positioned above card top header & scaled 2.1x) -->
-        <a-plane id="logo-plane" src="#shivamLogo" position="0 0.92 0.02" rotation="0 0 0" width="1.80" height="0.48"
-          material="transparent: true; side: double; shader: flat; depthTest: true;">
-        </a-plane>
-
-        <!-- 4. Authentic 3D Diamond Ring Showcase (Scaled for full card size, rotating continuously) -->
-        <a-entity id="3d-model-container" position="0 0 0.25" rotation="0 0 0"
-          animation="property: rotation; from: 0 0 0; to: 0 0 -360; loop: true; dur: 15000; easing: linear">
-          <a-gltf-model id="3d-model-entity" src="./assets/model.glb" scale="0.65 0.65 0.65" position="0 0 0" rotation="0 0 0">
-          </a-gltf-model>
-        </a-entity>
-      </a-entity>
-
-    </a-entity>
-  </a-scene>
-
-  <!-- Camera Permission Modal -->
-  <div id="permission-modal" class="modal-overlay">
-    <div class="modal-card glass-panel">
-      <div class="modal-icon">
-        <i class="fas fa-gem"></i>
-      </div>
-      <h2 class="modal-title">Shivam Jewels WebAR</h2>
-      <p class="modal-desc">
-        Point your phone camera at the Shivam Jewels Card Shape target to reveal the floating 3D diamond experience in Augmented Reality.
-      </p>
-      <div class="modal-actions">
-        <button id="btn-start-ar" class="btn-pill btn-primary-lg" onclick="handleStartARClick(event)">
-          <i class="fas fa-video"></i> Allow Camera & Start WebAR
-        </button>
-      </div>
-    </div>
-  </div>
-
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
 </body>
-
 </html>
