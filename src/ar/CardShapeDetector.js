@@ -1,7 +1,8 @@
 /**
  * Condition 1 — Card Shape Detector
  * Analyzes video frame canvas data to detect rectangular card contours,
- * edge contrast, and aspect ratio matching Shivam Jewels card dimensions (~1:1.39).
+ * edge contrast, aspect ratio matching Shivam Jewels card dimensions (~1:1.39),
+ * and top-header feature distribution to prevent standalone QR square false positives.
  * 
  * Target Threshold: Card Shape Confidence >= 50% (0.50)
  */
@@ -24,8 +25,12 @@ export class CardShapeDetector {
       return { confidence: 0, valid: false, details: { reason: 'Video stream not ready' } };
     }
 
-    const width = sourceElement.videoWidth || sourceElement.width || 320;
-    const height = sourceElement.videoHeight || sourceElement.height || 240;
+    const rawWidth = sourceElement.videoWidth || sourceElement.width || 320;
+    const rawHeight = sourceElement.videoHeight || sourceElement.height || 240;
+
+    // Normalize orientation for iOS Safari WebKit stream rotation
+    const width = Math.min(rawWidth, rawHeight);
+    const height = Math.max(rawWidth, rawHeight);
 
     // Downscale for real-time processing performance
     const sampleWidth = 160;
@@ -41,7 +46,10 @@ export class CardShapeDetector {
     // 1. Edge & Contrast Analysis (Luminance Gradient)
     let totalGradient = 0;
     let edgePixelCount = 0;
-    const threshold = 30; // Gradient threshold
+    let topHalfEdgeCount = 0;
+    let bottomHalfEdgeCount = 0;
+    const threshold = 28; // Luminance gradient threshold
+    const midY = Math.floor(sampleHeight / 2);
 
     for (let y = 1; y < sampleHeight - 1; y += 2) {
       for (let x = 1; x < sampleWidth - 1; x += 2) {
@@ -59,25 +67,40 @@ export class CardShapeDetector {
         totalGradient += mag;
         if (mag > threshold) {
           edgePixelCount++;
+          if (y < midY) {
+            topHalfEdgeCount++;
+          } else {
+            bottomHalfEdgeCount++;
+          }
         }
       }
     }
 
     const totalSampledPixels = (sampleWidth / 2) * (sampleHeight / 2);
     const edgeDensity = edgePixelCount / totalSampledPixels;
+    const topEdgeDensity = topHalfEdgeCount / (totalSampledPixels / 2);
 
-    // 2. Aspect Ratio & Card Bounding Region Analysis
-    // Evaluate frame aspect ratio symmetry and center-weighted distribution
+    // 2. Aspect Ratio Filter (Rejecting 1:1 Square QR Codes)
     const frameAspectRatio = sampleHeight / sampleWidth;
     const aspectDiff = Math.abs(frameAspectRatio - this.targetAspectRatio);
     const aspectMatchScore = Math.max(0, 1 - (aspectDiff / this.aspectTolerance));
 
-    // Combine structural edge density score (0.4) and frame aspect ratio score (0.6)
-    // Scale edge density (typical range 0.15 - 0.45)
+    // Anti-QR-Square Penalty: If the frame ratio is ~1.0 (square), heavily penalize
+    let squarePenalty = 1.0;
+    if (frameAspectRatio < 1.18) {
+      squarePenalty = 0.2; // Square region (QR only), not card rectangle!
+    }
+
+    // Top Header Verification: Ensure top half (Shivam Jewels Logo & header) has feature contrast
+    let headerBonus = 1.0;
+    if (topEdgeDensity < 0.04) {
+      headerBonus = 0.3; // No top card header visible -> Likely scanning isolated QR box!
+    }
+
     const edgeScore = Math.min(1.0, edgeDensity * 2.8);
     
     // Weighted Confidence Calculation (0.0 to 1.0)
-    let confidence = (edgeScore * 0.45) + (aspectMatchScore * 0.55);
+    let confidence = ((edgeScore * 0.45) + (aspectMatchScore * 0.55)) * squarePenalty * headerBonus;
     
     // Clamp to 0..1 range
     confidence = Math.min(1.0, Math.max(0, confidence));
@@ -89,7 +112,10 @@ export class CardShapeDetector {
       valid,
       details: {
         edgeDensity: Math.round(edgeDensity * 100),
+        topEdgeDensity: Math.round(topEdgeDensity * 100),
         aspectMatchScore: Math.round(aspectMatchScore * 100),
+        squarePenalty,
+        headerBonus,
         rawConfidence: confidence
       }
     };
