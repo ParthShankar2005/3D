@@ -180,11 +180,12 @@ html, body {
 }
 
 .qr-target-preview-img {
-  width: 90%;
-  height: 90%;
+  width: 92%;
+  height: 92%;
   object-fit: contain;
-  opacity: 0.65;
-  filter: contrast(120%);
+  opacity: 0.85;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+  border-radius: 8px;
 }
 
 @keyframes pulse-qr {

@@ -8,7 +8,9 @@ const EDGE_PATH = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge
 
 (async () => {
   const app = express();
-  app.use(express.static(__dirname));
+  // Serve the workspace root so /assets/ and /js/ paths work cleanly
+  const rootDir = path.resolve(__dirname, '..');
+  app.use(express.static(rootDir));
   const server = app.listen(PORT);
   console.log(`Local compiler server started on http://localhost:${PORT}`);
 
@@ -22,27 +24,27 @@ const EDGE_PATH = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge
   const page = await browser.newPage();
   page.on('console', msg => console.log('PAGE LOG:', msg.text()));
 
-  console.log('Navigating to http://localhost:3333/compiler.html');
-  await page.goto(`http://localhost:${PORT}/compiler.html`, { waitUntil: 'networkidle0' });
+  console.log(`Navigating to http://localhost:${PORT}/scripts/compiler.html`);
+  await page.goto(`http://localhost:${PORT}/scripts/compiler.html`, { waitUntil: 'networkidle0' });
 
   await page.waitForFunction(() => window.MINDAR && window.MINDAR.IMAGE && window.MINDAR.IMAGE.Compiler, { timeout: 15000 });
 
-  console.log('Starting MindAR feature target compilation...');
+  console.log('Starting MindAR feature target compilation for Shivam_Jewels_Invitation_Card.png...');
 
   const mindBufferArray = await page.evaluate(async () => {
     const compiler = new window.MINDAR.IMAGE.Compiler();
 
     const img = new Image();
-    img.src = '/assets/target.png';
+    img.src = '/assets/Shivam_Jewels_Invitation_Card.png';
     await new Promise((resolve, reject) => {
       img.onload = resolve;
-      img.onerror = (e) => reject(new Error('Failed to load /assets/target.png'));
+      img.onerror = (e) => reject(new Error('Failed to load /assets/Shivam_Jewels_Invitation_Card.png'));
     });
 
-    console.log(`Target image loaded: ${img.width}x${img.height}`);
+    console.log(`Target invitation card image loaded: ${img.width}x${img.height}`);
 
     await compiler.compileImageTargets([img], (progress) => {
-      console.log(`Progress: ${Math.round(progress)}%`);
+      console.log(`Feature Extraction Progress: ${Math.round(progress)}%`);
     });
 
     console.log(`Feature extraction complete! Exporting binary buffer...`);
@@ -53,7 +55,7 @@ const EDGE_PATH = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge
 
   console.log(`Exported MindAR target data: ${mindBufferArray.length} bytes`);
   const buffer = Buffer.from(mindBufferArray);
-  const outputPath = path.resolve(__dirname, '..', 'assets', 'targets.mind');
+  const outputPath = path.resolve(rootDir, 'assets', 'targets.mind');
   fs.writeFileSync(outputPath, buffer);
   console.log(`Successfully compiled and saved ${outputPath}!`);
 
