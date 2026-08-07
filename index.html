@@ -29,9 +29,6 @@
   <!-- MindAR Image Library for A-Frame (v1.2.5) -->
   <script src="./js/mindar-image-aframe.prod.js"></script>
 
-  <!-- Real-Time Camera QR Code Reader Library -->
-  <script src="./js/jsQR.js"></script>
-
   <!-- Application Controller Script -->
   <script src="./js/app.js" defer></script>
 </head>
@@ -50,21 +47,21 @@
     </div>
   </header>
 
-  <!-- Camera Reticle & Translucent QR Target Overlay -->
+  <!-- Camera Reticle & Translucent Target Overlay -->
   <div id="scanning-reticle" class="hidden">
     <div class="reticle-corner reticle-top-left"></div>
     <div class="reticle-corner reticle-top-right"></div>
     <div class="reticle-corner reticle-bottom-left"></div>
     <div class="reticle-corner reticle-bottom-right"></div>
 
-    <!-- Transparent Invitation Card Target Guide Image -->
+    <!-- Transparent Shivam Jewels Card Shape Target Preview -->
     <div class="qr-target-preview-wrapper">
-      <img src="./assets/Shivam_Jewels_Invitation_Card.png" alt="Shivam Jewels Invitation Card Target Preview" class="qr-target-preview-img" />
+      <img src="./assets/Shivam_Jewels_Card_Shape.png" alt="Shivam Jewels Card Shape Target Preview" class="qr-target-preview-img" />
     </div>
 
     <div class="reticle-line"></div>
     <div class="scanning-label">
-      <i class="fas fa-qrcode"></i> Point Camera at Card Border Target
+      <i class="fas fa-camera"></i> Point Camera at Shivam Jewels Card Target
     </div>
   </div>
 
@@ -90,7 +87,7 @@
     <!-- Camera setup -->
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-    <!-- Target 0: QR Target tracking anchor -->
+    <!-- Target 0: Image Target tracking anchor -->
     <a-entity id="ar-target" mindar-image-target="targetIndex: 0">
 
       <!-- Multi-Angle Lighting for Maximum Gem Reflection & Visibility -->
@@ -99,7 +96,7 @@
       <a-entity light="type: directional; color: #38bdf8; intensity: 2.0" position="-2 1 3"></a-entity>
       <a-entity light="type: point; color: #ffffff; intensity: 3.0; distance: 5" position="0 0.5 1"></a-entity>
 
-      <!-- Wrapped 3D Experience Content (Controlled strictly by 2-Step Verification) -->
+      <!-- Wrapped 3D Experience Content -->
       <a-entity id="ar-content-wrapper" visible="false">
         <!-- 1. Shivam Jewels Card Back (Facing camera continuously at center position matching full card size) -->
         <a-plane id="card-back-plane" src="#cardBack" position="0 0 0" rotation="0 0 0" width="1.0" height="1.39"
@@ -135,7 +132,7 @@
       </div>
       <h2 class="modal-title">Shivam Jewels WebAR</h2>
       <p class="modal-desc">
-        Point your phone camera at the QR target code to reveal the floating 3D diamond experience in Augmented Reality.
+        Point your phone camera at the Shivam Jewels Card Shape target to reveal the floating 3D diamond experience in Augmented Reality.
       </p>
       <div class="modal-actions">
         <button id="btn-start-ar" class="btn-pill btn-primary-lg" onclick="handleStartARClick(event)">
