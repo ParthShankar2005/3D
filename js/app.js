@@ -2,7 +2,7 @@
  * WebAR 3-Condition Continuous Verification & Anti-QR-Only Controller
  * Client: Shivam Jewels (sjar.vercel.app)
  * 
- * CONTINUOUS 3-CONDITION GATEKEEPER (ACCURACY >= 75%):
+ * CONTINUOUS 3-CONDITION GATEKEEPER (ACCURACY >= 75% FOR ALL CONDITIONS):
  * -------------------------------------------------------------------
  * Condition 1: Card Shape Accuracy >= 75%          (CARD_SHAPE_OK)
  * Condition 2: Design / Target Mapping >= 75%      (DESIGN_TARGET_OK)
@@ -13,7 +13,7 @@
  * 3D Model is STRICTLY HIDDEN (visible = false).
  * 
  * MASTER PASS EQUATION:
- * PASS = CARD_SHAPE_OK && DESIGN_TARGET_OK && QR_OK && !isOnlyQrInFrame
+ * PASS = CARD_SHAPE_OK (>= 75%) && DESIGN_TARGET_OK (>= 75%) && QR_OK && !isOnlyQrInFrame
  */
 (function () {
   'use strict';
@@ -117,7 +117,7 @@
     if (signals.ALL_3_CONDITIONS_VALID) {
       // ✅ PASS CONDITION: Show 3D Model!
       if (statusPill) statusPill.className = 'status-pill tracking';
-      if (statusText) statusText.textContent = '✅ PASS: Full Card Shape (78%), Target (78%) & QR Verified!';
+      if (statusText) statusText.textContent = '✅ PASS: Card Shape (≥75%), Target (≥75%) & QR Verified!';
       if (reticle) reticle.classList.add('hidden');
       playChime('success');
 
@@ -140,8 +140,8 @@
         if (signals.isOnlyQrInFrame) {
           statusText.textContent = '⚠️ Only QR Code Detected! Move camera back to view full Card...';
         } else {
-          const s1 = signals.CARD_SHAPE_OK ? '✅ Shape (78%)' : '❌ Shape (<75%)';
-          const s2 = signals.DESIGN_TARGET_OK ? '✅ Design (78%)' : '❌ Design (<75%)';
+          const s1 = signals.CARD_SHAPE_OK ? '✅ Shape (≥75%)' : '❌ Shape (<75%)';
+          const s2 = signals.DESIGN_TARGET_OK ? '✅ Design (≥75%)' : '❌ Design (<75%)';
           const s3 = signals.QR_OK ? '✅ QR URL' : '❌ QR URL';
           statusText.textContent = `Scanning: ${s1} | ${s2} | ${s3}`;
         }
