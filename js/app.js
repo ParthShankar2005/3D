@@ -1,19 +1,24 @@
 /**
- * WebAR 3-Condition Continuous Verification & Anti-QR-Only Controller
+ * WebAR 3-Condition Continuous Verification & Anti-Bypass Controller
  * Client: Shivam Jewels (sjar.vercel.app)
  * 
- * CONTINUOUS 3-CONDITION GATEKEEPER & MINDAR FEATURE DOT SYNCHRONIZATION:
+ * STRICT URL MATCHING & ANTI-BYPASS MANDATE:
  * -------------------------------------------------------------------
- * 1. Card Shape Identification        -> Shape >= 75%  (CARD_SHAPE_OK)
- * 2. targets.mind Feature Dots Sync   -> Target >= 75% (DESIGN_TARGET_OK)
- * 3. QR Code + Backend URL Match      -> Payload Match (QR_OK)
+ * Condition 1: Card Shape Identification        -> Shape >= 75%  (CARD_SHAPE_OK)
+ * Condition 2: targets.mind Feature Dots Sync   -> Target >= 75% (DESIGN_TARGET_OK)
+ * Condition 3: QR Code Payload Match            -> MUST match "sjar.vercel.app" (QR_OK)
  * -------------------------------------------------------------------
+ * ANTI-BYPASS GUARANTEE:
+ * Generic QR codes (containing 'http' or other URLs) are STRICTLY REJECTED.
+ * ONLY QR codes containing "sjar.vercel.app" pass Condition 3.
+ * 
  * MASTER PASS EQUATION:
  * PASS = CARD_SHAPE_OK && DESIGN_TARGET_OK && QR_OK && !isOnlyQrInFrame
  */
 (function () {
   'use strict';
 
+  // Fixed Backend Domain Website Target
   const EXPECTED_BACKEND_URL = "sjar.vercel.app";
 
   // Three Continuous Independent Signal States (75% Accuracy Requirement)
@@ -28,7 +33,7 @@
     designTargetAccuracy: 0,
     DESIGN_TARGET_OK: false,
 
-    // Condition 3: QR Code + Backend URL Match
+    // Condition 3: QR Code + Backend URL Match (MUST match sjar.vercel.app)
     qrDetected: false,
     qrData: "",
     qrValueMatchesBackendURL: false,
@@ -88,7 +93,7 @@
     // 2. Evaluate Condition 2: targets.mind Feature Dots Mapping Accuracy >= 75%
     signals.DESIGN_TARGET_OK = (signals.designTargetDetected === true) && (signals.designTargetAccuracy >= 75);
 
-    // 3. Evaluate Condition 3: QR Detected AND QR Value Matches Backend URL
+    // 3. Evaluate Condition 3: QR Detected AND QR Value Matches Backend URL strictly
     signals.QR_OK = (signals.qrDetected === true) && (signals.qrValueMatchesBackendURL === true);
 
     // UNBREAKABLE RULE: If ONLY QR code is in frame, OVERRIDE & REJECT ALL SHAPE MATCHES!
@@ -97,7 +102,7 @@
       signals.DESIGN_TARGET_OK = false;
     }
 
-    // ALL 3 CONDITIONS MUST BE SIMULTANEOUSLY VALID (>= 75% Accuracy & Feature Dots Synced)
+    // ALL 3 CONDITIONS MUST BE SIMULTANEOUSLY VALID (>= 75% Accuracy & Strict Backend URL Match)
     signals.ALL_3_CONDITIONS_VALID = (
       signals.CARD_SHAPE_OK === true &&
       signals.DESIGN_TARGET_OK === true &&
@@ -113,7 +118,7 @@
     if (signals.ALL_3_CONDITIONS_VALID) {
       // ✅ PASS CONDITION: Show 3D Model!
       if (statusPill) statusPill.className = 'status-pill tracking';
-      if (statusText) statusText.textContent = '✅ Card Shape & targets.mind Feature Dots Synchronized!';
+      if (statusText) statusText.textContent = '✅ Card Shape, targets.mind & sjar.vercel.app QR Verified!';
       if (reticle) reticle.classList.add('hidden');
       playChime('success');
 
@@ -131,14 +136,14 @@
         if (arWrapper.object3D) arWrapper.object3D.visible = false;
       }
 
-      // Live status display addressing QR-only scanning attempt
+      // Live status display addressing QR scanning status
       if (statusText) {
         if (signals.isOnlyQrInFrame) {
           statusText.textContent = '⚠️ Only QR Code Detected! Move camera back to view full Card...';
         } else {
           const s1 = signals.CARD_SHAPE_OK ? '✅ Card Shape' : '❌ Card Shape';
-          const s2 = signals.DESIGN_TARGET_OK ? '✅ targets.mind Dots Sync' : '❌ MindAR Dots Sync';
-          const s3 = signals.QR_OK ? '✅ QR URL' : '❌ QR URL';
+          const s2 = signals.DESIGN_TARGET_OK ? '✅ MindAR Dots Sync' : '❌ MindAR Dots Sync';
+          const s3 = signals.QR_OK ? '✅ sjar.vercel.app QR' : '❌ QR URL Match';
           statusText.textContent = `Scanning: ${s1} | ${s2} | ${s3}`;
         }
       }
@@ -285,7 +290,7 @@
     }
   }
 
-  // Real-Time Camera QR Scanner with Glitch Protection (Detects QR-Only Frame)
+  // Real-Time Camera QR Scanner with Anti-Bypass Domain Validation
   const offscreenCanvas = document.createElement('canvas');
   const offscreenCtx = offscreenCanvas.getContext('2d');
 
@@ -324,11 +329,11 @@
               signals.qrValueMatchesBackendURL = false;
             } else {
               signals.isOnlyQrInFrame = false;
-              signals.qrDetected = true;
               signals.qrData = val;
 
-              // Check payload against EXPECTED_BACKEND_URL ("sjar.vercel.app")
-              const isUrlMatched = val.includes(EXPECTED_BACKEND_URL) || val.includes('sjar') || val.includes('shivamai') || val.includes('3d') || val.includes('http');
+              // STRICT DOMAIN MATCHING: MUST contain "sjar.vercel.app"
+              const isUrlMatched = val.includes(EXPECTED_BACKEND_URL);
+              signals.qrDetected = isUrlMatched;
               signals.qrValueMatchesBackendURL = isUrlMatched;
               if (isUrlMatched) lastQrSeenTime = Date.now();
             }
