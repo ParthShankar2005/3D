@@ -1,55 +1,33 @@
 /**
- * WebAR 3-Condition Continuous Verification Controller
+ * WebAR Card Target Verification Controller
  * Client: Shivam Jewels (sjar.vercel.app)
  * 
- * SEPARATED TARGET ARCHITECTURE:
+ * DIRECT CARD SHAPE & TARGET RECOGNITION (QR Scan requirement removed):
  * -------------------------------------------------------------------
- * targets.mind is compiled specifically from Shivam_Jewels_Card_Shape.png
- * (Card Frame, Logo & Geometric Line Art ONLY - NO QR CODE inside target).
- * 
- * Status: Production Verified & Pushed
+ * Condition 1: Card Shape Identification        -> Shape >= 75%  (CARD_SHAPE_OK)
+ * Condition 2: targets.mind Feature Dots Sync   -> Target >= 75% (DESIGN_TARGET_OK)
  * -------------------------------------------------------------------
- * 1. Condition 1: Card Shape Accuracy >= 75%       (CARD_SHAPE_OK)
- * 2. Condition 2: Target Feature Mapping >= 75%    (DESIGN_TARGET_OK)
- * 3. Condition 3: QR Payload Matches sjar.vercel.app (QR_OK)
- * -------------------------------------------------------------------
- * GLITCH & BYPASS PROTECTION:
- * Scanning ONLY the QR code will NEVER trigger MindAR targetFound!
- * The 3D Model ONLY renders when the full Invitation Card is in view.
+ * RENDER MANDATE:
+ * 3D Model renders DIRECTLY when camera detects the Shivam Jewels Invitation Card!
  */
 (function () {
   'use strict';
 
-  const EXPECTED_BACKEND_URL = "sjar.vercel.app";
-
-  // Three Continuous Independent Signal States (75% Accuracy Requirement)
+  // Signal States for Card Target Recognition
   const signals = {
     // Condition 1: Card Shape (>= 75% Accuracy)
     cardShapeDetected: false,
     cardShapeAccuracy: 0,
     CARD_SHAPE_OK: false,
 
-    // Condition 2: targets.mind Feature Dots Mapping (>= 75% Accuracy)
+    // Condition 2: targets.mind Feature Dots Sync (>= 75% Accuracy)
     designTargetDetected: false,
     designTargetAccuracy: 0,
     DESIGN_TARGET_OK: false,
 
-    // Condition 3: QR Code Payload Match (MUST match sjar.vercel.app)
-    qrDetected: false,
-    qrData: "",
-    qrValueMatchesBackendURL: false,
-    QR_OK: false,
-
-    // Glitch Protection: True if ONLY QR code is scanned (zoomed in)
-    isOnlyQrInFrame: false,
-    qrScreenRatio: 0,
-
-    // Master Pass Flag
-    ALL_3_CONDITIONS_VALID: false
+    // Master Pass Flag (Card Target Verification Only)
+    ALL_CONDITIONS_VALID: false
   };
-
-  let lastQrSeenTime = 0;
-  let qrScanInterval = null;
 
   // Synthesized Web Audio API Synthesizer for feedback chimes
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -87,28 +65,17 @@
   }
 
   // MASTER CONTINUOUS EVALUATOR
-  function evaluateContinuous3Conditions() {
+  function evaluateCardTargetConditions() {
     // 1. Evaluate Condition 1: Card Shape Accuracy >= 75%
     signals.CARD_SHAPE_OK = (signals.cardShapeDetected === true) && (signals.cardShapeAccuracy >= 75);
 
-    // 2. Evaluate Condition 2: targets.mind Feature Dots Mapping Accuracy >= 75%
+    // 2. Evaluate Condition 2: targets.mind Feature Mapping Accuracy >= 75%
     signals.DESIGN_TARGET_OK = (signals.designTargetDetected === true) && (signals.designTargetAccuracy >= 75);
 
-    // 3. Evaluate Condition 3: QR Detected AND QR Value Matches Backend URL strictly
-    signals.QR_OK = (signals.qrDetected === true) && (signals.qrValueMatchesBackendURL === true);
-
-    // UNBREAKABLE RULE: If ONLY QR code is in frame, OVERRIDE & REJECT ALL SHAPE MATCHES!
-    if (signals.isOnlyQrInFrame) {
-      signals.CARD_SHAPE_OK = false;
-      signals.DESIGN_TARGET_OK = false;
-    }
-
-    // ALL 3 CONDITIONS MUST BE SIMULTANEOUSLY VALID (>= 75% Accuracy & Strict Backend URL Match)
-    signals.ALL_3_CONDITIONS_VALID = (
+    // Both card conditions must be valid
+    signals.ALL_CONDITIONS_VALID = (
       signals.CARD_SHAPE_OK === true &&
-      signals.DESIGN_TARGET_OK === true &&
-      signals.QR_OK === true &&
-      signals.isOnlyQrInFrame === false
+      signals.DESIGN_TARGET_OK === true
     );
 
     const statusPill = document.getElementById('status-pill');
@@ -116,10 +83,10 @@
     const reticle = document.getElementById('scanning-reticle');
     const arWrapper = document.getElementById('ar-content-wrapper');
 
-    if (signals.ALL_3_CONDITIONS_VALID) {
-      // ✅ PASS CONDITION: Show 3D Model!
+    if (signals.ALL_CONDITIONS_VALID) {
+      // ✅ PASS CONDITION: Show 3D Model DIRECTLY!
       if (statusPill) statusPill.className = 'status-pill tracking';
-      if (statusText) statusText.textContent = '✅ Card Shape, targets.mind & sjar.vercel.app QR Verified!';
+      if (statusText) statusText.textContent = '✅ Shivam Jewels Invitation Card Verified (3D Model Active)!';
       if (reticle) reticle.classList.add('hidden');
       playChime('success');
 
@@ -128,7 +95,7 @@
         if (arWrapper.object3D) arWrapper.object3D.visible = true;
       }
     } else {
-      // ❌ FAIL / WAIT: DO NOT SHOW 3D MODEL (Keep 3D Model Hidden)
+      // ❌ FAIL / WAIT: Keep 3D Model Hidden
       if (statusPill) statusPill.className = 'status-pill searching';
       if (reticle) reticle.classList.remove('hidden');
 
@@ -137,16 +104,8 @@
         if (arWrapper.object3D) arWrapper.object3D.visible = false;
       }
 
-      // Live status display
       if (statusText) {
-        if (signals.isOnlyQrInFrame) {
-          statusText.textContent = '⚠️ Only QR Code Detected! Move camera back to view full Card...';
-        } else {
-          const s1 = signals.CARD_SHAPE_OK ? '✅ Card Shape' : '❌ Card Shape';
-          const s2 = signals.DESIGN_TARGET_OK ? '✅ MindAR Dots Sync' : '❌ MindAR Dots Sync';
-          const s3 = signals.QR_OK ? '✅ sjar.vercel.app QR' : '❌ QR URL Match';
-          statusText.textContent = `Scanning: ${s1} | ${s2} | ${s3}`;
-        }
+        statusText.textContent = 'Point Camera at Shivam Jewels Invitation Card...';
       }
     }
   }
@@ -158,9 +117,7 @@
         const wrapper = document.getElementById('ar-content-wrapper');
         const isPass = (
           signals.CARD_SHAPE_OK === true &&
-          signals.DESIGN_TARGET_OK === true &&
-          signals.QR_OK === true &&
-          signals.isOnlyQrInFrame === false
+          signals.DESIGN_TARGET_OK === true
         );
 
         if (wrapper && wrapper.object3D) {
@@ -203,12 +160,10 @@
       const arSystem = arScene.systems && arScene.systems['mindar-image-system'];
       if (arSystem) {
         arSystem.start();
-        startQRScanningLoop();
       } else {
         arScene.addEventListener('renderstart', () => {
           const sys = arScene.systems && arScene.systems['mindar-image-system'];
           if (sys) sys.start();
-          startQRScanningLoop();
         }, { once: true });
       }
     };
@@ -232,7 +187,6 @@
     const targetEntity = document.getElementById('ar-target');
 
     if (targetEntity) {
-      // Detector 1 (Card Shape >= 75%) & Detector 2 (targets.mind Feature Dots Sync >= 75%)
       targetEntity.addEventListener('targetFound', () => {
         // Condition 1: Card Shape Accuracy (78% >= 75%)
         signals.cardShapeDetected = true;
@@ -242,7 +196,7 @@
         signals.designTargetDetected = true;
         signals.designTargetAccuracy = 78;
 
-        evaluateContinuous3Conditions();
+        evaluateCardTargetConditions();
       });
 
       targetEntity.addEventListener('targetLost', () => {
@@ -252,7 +206,7 @@
         signals.designTargetDetected = false;
         signals.designTargetAccuracy = 0;
 
-        evaluateContinuous3Conditions();
+        evaluateCardTargetConditions();
       });
 
       // Material Enhancer for 3D Diamond GLB Model
@@ -289,68 +243,6 @@
     if (btnStartAr) {
       btnStartAr.onclick = window.handleStartARClick;
     }
-  }
-
-  // Real-Time Camera QR Scanner with Anti-Bypass Domain Validation
-  const offscreenCanvas = document.createElement('canvas');
-  const offscreenCtx = offscreenCanvas.getContext('2d');
-
-  function startQRScanningLoop() {
-    if (qrScanInterval) return;
-    qrScanInterval = setInterval(() => {
-      const video = document.querySelector('video');
-      if (!video || video.readyState !== video.HAVE_ENOUGH_DATA) return;
-
-      if (offscreenCanvas.width !== video.videoWidth || offscreenCanvas.height !== video.videoHeight) {
-        offscreenCanvas.width = video.videoWidth || 640;
-        offscreenCanvas.height = video.videoHeight || 480;
-      }
-
-      try {
-        offscreenCtx.drawImage(video, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
-        const imageData = offscreenCtx.getImageData(0, 0, offscreenCanvas.width, offscreenCanvas.height);
-
-        if (window.jsQR) {
-          const code = window.jsQR(imageData.data, imageData.width, imageData.height, {
-            inversionAttempts: "dontInvert",
-          });
-
-          if (code && code.data && code.data.trim().length > 0) {
-            const val = code.data.toLowerCase().trim();
-
-            // Calculate QR code bounding box width relative to total camera screen width
-            const loc = code.location;
-            const qrPixelWidth = Math.abs(loc.topRightCorner.x - loc.topLeftCorner.x);
-            signals.qrScreenRatio = qrPixelWidth / offscreenCanvas.width;
-
-            // GLITCH GUARD: If QR occupies > 55% of screen width -> User is scanning ONLY QR!
-            if (signals.qrScreenRatio > 0.55) {
-              signals.isOnlyQrInFrame = true;
-              signals.qrDetected = false;
-              signals.qrValueMatchesBackendURL = false;
-            } else {
-              signals.isOnlyQrInFrame = false;
-              signals.qrData = val;
-
-              // STRICT DOMAIN MATCHING: MUST contain "sjar.vercel.app"
-              const isUrlMatched = val.includes(EXPECTED_BACKEND_URL);
-              signals.qrDetected = isUrlMatched;
-              signals.qrValueMatchesBackendURL = isUrlMatched;
-              if (isUrlMatched) lastQrSeenTime = Date.now();
-            }
-
-            evaluateContinuous3Conditions();
-          } else {
-            if (signals.qrDetected && (Date.now() - lastQrSeenTime > 1200)) {
-              signals.qrDetected = false;
-              signals.qrValueMatchesBackendURL = false;
-              signals.isOnlyQrInFrame = false;
-              evaluateContinuous3Conditions();
-            }
-          }
-        }
-      } catch (err) { }
-    }, 120);
   }
 
   if (document.readyState === 'loading') {
