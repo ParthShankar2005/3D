@@ -1,17 +1,14 @@
 /**
- * WebAR MindAR.js & A-Frame Controller for Shivam Jewels
+ * WebAR MindAR.js Controller for Shivam Jewels
  * 
- * Strict Dual-Requirement Verification:
- * 1. MindAR image target border match (targets.mind)
- * 2. Real-time QR Code scanning & payload verification (jsQR.js)
+ * Image Target Tracking for Full Invitation Card (Shivam_Jewels_Invitation_Card.png)
  * 
- * ONLY when BOTH requirements pass does the 3D invitation card view render.
+ * MindAR tracks the pattern of feature rays across the full invitation card image
+ * and renders the 3D card back, tilted banner (-20°), upside logo (2.1x), and rotating
+ * 3D diamond ring scaled to the card size.
  */
 (function() {
-  let isMindArFound = false;
-  let isQrScanned = false;
-  let isDualVerified = false;
-  let lastQrMatchTime = 0;
+  let isTracking = false;
   let qrScanInterval = null;
 
   // Synthesized Web Audio API Synthesizer for feedback chimes
@@ -49,67 +46,6 @@
       }
     } catch (e) {
       console.warn("Audio chime error:", e);
-    }
-  }
-
-  // Dual Condition Evaluator Function
-  function evaluateDualRequirements() {
-    const statusPill = document.getElementById('status-pill');
-    const statusText = document.getElementById('status-text');
-    const reticle = document.getElementById('scanning-reticle');
-    const targetEntity = document.getElementById('ar-target');
-
-    const gltfModel = document.getElementById('3d-model-entity');
-    const modelContainer = document.getElementById('3d-model-container');
-    const cardBackPlane = document.getElementById('card-back-plane');
-    const bannerPlane = document.getElementById('banner-plane');
-    const logoPlane = document.getElementById('logo-plane');
-
-    // STRICT DUAL-MATCH CONDITION:
-    // Requirement 1: QR Code is scanned in frame AND
-    // Requirement 2: Card Border target rays are matched via MindAR
-    if (isMindArFound && isQrScanned) {
-      if (!isDualVerified) {
-        isDualVerified = true;
-        if (statusPill) statusPill.className = 'status-pill tracking';
-        if (statusText) statusText.textContent = 'Shivam Jewels QR & Border Verified!';
-        if (reticle) reticle.classList.add('hidden');
-        playSound('found');
-
-        // Reveal 3D invitation card & 3D model
-        [gltfModel, modelContainer, cardBackPlane, bannerPlane, logoPlane].forEach(el => {
-          if (el) {
-            el.setAttribute('visible', 'true');
-            if (el.object3D) el.object3D.visible = true;
-          }
-        });
-        if (targetEntity && targetEntity.object3D) targetEntity.object3D.visible = true;
-      }
-    } else {
-      if (isDualVerified) {
-        isDualVerified = false;
-        if (statusPill) statusPill.className = 'status-pill searching';
-        if (reticle) reticle.classList.remove('hidden');
-
-        // Hide 3D invitation card & 3D model until both requirements are fulfilled
-        [gltfModel, modelContainer, cardBackPlane, bannerPlane, logoPlane].forEach(el => {
-          if (el) {
-            el.setAttribute('visible', 'false');
-            if (el.object3D) el.object3D.visible = false;
-          }
-        });
-      }
-
-      // Update descriptive status message for user
-      if (statusText && !isDualVerified) {
-        if (isMindArFound && !isQrScanned) {
-          statusText.textContent = 'Border Matched - Scan QR Code...';
-        } else if (!isMindArFound && isQrScanned) {
-          statusText.textContent = 'QR Matched - Align Card Border...';
-        } else {
-          statusText.textContent = 'Scanning Target...';
-        }
-      }
     }
   }
 
@@ -169,18 +105,72 @@
   };
 
   function initApp() {
+    const statusPill = document.getElementById('status-pill');
+    const statusText = document.getElementById('status-text');
+    const reticle = document.getElementById('scanning-reticle');
     const targetEntity = document.getElementById('ar-target');
 
-    // MindAR Target tracking event listeners
+    // Real-time camera-to-target distance tracking
+    function updateDistanceTracking() {
+      if (!isTracking) return;
+      const camera = document.querySelector('a-camera');
+      if (camera && targetEntity && targetEntity.object3D) {
+        const camPos = camera.object3D.position;
+        const targetPos = targetEntity.object3D.position;
+        const dist = camPos.distanceTo(targetPos);
+
+        if (dist > 0.01 && statusText) {
+          statusText.textContent = `Shivam Jewels Card Matched (${dist.toFixed(2)}m)`;
+        }
+      }
+    }
+
+    setInterval(updateDistanceTracking, 200);
+
+    // MindAR Target tracking event listeners (Fires when scanning full invitation card image)
     if (targetEntity) {
       targetEntity.addEventListener('targetFound', () => {
-        isMindArFound = true;
-        evaluateDualRequirements();
+        isTracking = true;
+        if (statusPill) statusPill.className = 'status-pill tracking';
+        if (statusText) statusText.textContent = 'Shivam Jewels Invitation Card Matched!';
+        if (reticle) reticle.classList.add('hidden');
+        playSound('found');
+
+        // Reveal 3D invitation card elements scaled to the full card size
+        const gltfModel = document.getElementById('3d-model-entity');
+        const modelContainer = document.getElementById('3d-model-container');
+        const cardBackPlane = document.getElementById('card-back-plane');
+        const bannerPlane = document.getElementById('banner-plane');
+        const logoPlane = document.getElementById('logo-plane');
+        
+        [gltfModel, modelContainer, cardBackPlane, bannerPlane, logoPlane].forEach(el => {
+          if (el) {
+            el.setAttribute('visible', 'true');
+            if (el.object3D) el.object3D.visible = true;
+          }
+        });
+        if (targetEntity.object3D) targetEntity.object3D.visible = true;
       });
 
       targetEntity.addEventListener('targetLost', () => {
-        isMindArFound = false;
-        evaluateDualRequirements();
+        isTracking = false;
+        if (statusPill) statusPill.className = 'status-pill searching';
+        if (statusText) statusText.textContent = 'Scanning Invitation Card...';
+        if (reticle) reticle.classList.remove('hidden');
+
+        // Hide 3D invitation card elements when target lost
+        const gltfModel = document.getElementById('3d-model-entity');
+        const modelContainer = document.getElementById('3d-model-container');
+        const cardBackPlane = document.getElementById('card-back-plane');
+        const bannerPlane = document.getElementById('banner-plane');
+        const logoPlane = document.getElementById('logo-plane');
+        
+        [gltfModel, modelContainer, cardBackPlane, bannerPlane, logoPlane].forEach(el => {
+          if (el) {
+            el.setAttribute('visible', 'false');
+            if (el.object3D) el.object3D.visible = false;
+          }
+        });
       });
 
       // Material enhancer for 3D GLB model
@@ -219,7 +209,7 @@
     }
   }
 
-  // Real-time Camera QR Code Scanner using jsQR
+  // Auxiliary QR Scanner (Updates status if QR detected before full target alignment)
   const offscreenCanvas = document.createElement('canvas');
   const offscreenCtx = offscreenCanvas.getContext('2d');
 
@@ -227,8 +217,9 @@
     if (qrScanInterval) return;
     qrScanInterval = setInterval(() => {
       const video = document.querySelector('video');
+      const statusText = document.getElementById('status-text');
 
-      if (!video || video.readyState !== video.HAVE_ENOUGH_DATA) return;
+      if (!video || video.readyState !== video.HAVE_ENOUGH_DATA || isTracking) return;
 
       if (offscreenCanvas.width !== video.videoWidth || offscreenCanvas.height !== video.videoHeight) {
         offscreenCanvas.width = video.videoWidth || 640;
@@ -244,27 +235,12 @@
             inversionAttempts: "dontInvert",
           });
 
-          if (code && code.data && code.data.trim().length > 0) {
-            const val = code.data.toLowerCase().trim();
-            
-            // Match website link or target domain strictly
-            const isMatchingUrl = val.includes('sjar.vercel.app') || val.includes('sjar') || val.includes('shivamai') || val.includes('3d.shivamai.studio');
-            if (isMatchingUrl) {
-              lastQrMatchTime = Date.now();
-              if (!isQrScanned) {
-                isQrScanned = true;
-                evaluateDualRequirements();
-              }
-            }
-          } else {
-            if (isQrScanned && (Date.now() - lastQrMatchTime > 2000)) {
-              isQrScanned = false;
-              evaluateDualRequirements();
-            }
+          if (code && code.data && code.data.trim().length > 0 && statusText) {
+            statusText.textContent = "QR Code Detected - Align Full Card...";
           }
         }
       } catch (err) {}
-    }, 150);
+    }, 200);
   }
 
   if (document.readyState === 'loading') {
