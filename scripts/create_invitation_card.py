@@ -54,15 +54,15 @@ def generate_invitation_card(
                 new_logo_data.append((0, 0, 0, 0))
         logo_img.putdata(new_logo_data)
 
-        # Scale logo to ~54% width of canvas
-        logo_w = int(width * 0.54)
+        # Scale logo to ~65% width of canvas
+        logo_w = int(width * 0.65)
         aspect = logo_img.height / logo_img.width
         logo_h = int(logo_w * aspect)
         logo_resized = logo_img.resize((logo_w, logo_h), Image.Resampling.LANCZOS)
 
-        # Paste logo at top section
+        # Paste logo at top upside section
         logo_x = (width - logo_w) // 2
-        logo_y = int(height * 0.12)
+        logo_y = int(height * 0.08)
         canvas.paste(logo_resized, (logo_x, logo_y), logo_resized)
 
     # 4. Load & Process QR target code

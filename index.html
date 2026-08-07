@@ -100,24 +100,24 @@
       <a-entity light="type: point; color: #ffffff; intensity: 3.0; distance: 5" position="0 0.5 1"></a-entity>
 
       <!-- 1. Shivam Jewels Card Back (Facing camera continuously at center position 0 0 0) -->
-      <a-plane id="card-back-plane" src="#cardBack" position="0 0 0" rotation="0 0 0" width="1.0" height="1.4"
+      <a-plane id="card-back-plane" src="#cardBack" position="0 0 0" rotation="0 0 0" width="1.0" height="1.4" visible="false"
         material="transparent: true; side: double; shader: flat; depthTest: true;">
       </a-plane>
 
-      <!-- 2. Shivam Jewels Banner (Positioned on RIGHT side of card back x=1.05, tilted -45 deg facing camera) -->
-      <a-plane id="banner-plane" src="#shivamBanner" position="1.05 0 0" rotation="0 -45 0" width="1.0" height="1.4"
+      <!-- 2. Shivam Jewels Banner (Positioned on RIGHT side of card back x=1.05, tilted -20 deg facing camera) -->
+      <a-plane id="banner-plane" src="#shivamBanner" position="1.05 0 0" rotation="0 -20 0" width="1.0" height="1.4" visible="false"
         material="transparent: true; side: double; shader: flat; depthTest: true;">
       </a-plane>
 
-      <!-- 3. Shivam Jewels Official Logo (Positioned on Card Back top center) -->
-      <a-plane id="logo-plane" src="#shivamLogo" position="0 0.55 0.02" rotation="0 0 0" width="0.85" height="0.23"
+      <!-- 3. Shivam Jewels Official Logo (Moved upside & scaled 2.1x) -->
+      <a-plane id="logo-plane" src="#shivamLogo" position="0 0.92 0.02" rotation="0 0 0" width="1.80" height="0.48" visible="false"
         material="transparent: true; side: double; shader: flat; depthTest: true;">
       </a-plane>
 
       <!-- 4. Authentic 3D Diamond Ring Showcase (Positioned between card back & banner, rotating continuously) -->
-      <a-entity id="3d-model-container" position="0 0 0.25" rotation="0 0 0"
+      <a-entity id="3d-model-container" position="0 0 0.25" rotation="0 0 0" visible="false"
         animation="property: rotation; from: 0 0 0; to: 0 0 -360; loop: true; dur: 15000; easing: linear">
-        <a-gltf-model id="3d-model-entity" src="./assets/model.glb" scale="0.55 0.55 0.55" position="0 0 0" rotation="0 0 0">
+        <a-gltf-model id="3d-model-entity" src="./assets/model.glb" scale="0.55 0.55 0.55" position="0 0 0" rotation="0 0 0" visible="false">
         </a-gltf-model>
       </a-entity>
 
