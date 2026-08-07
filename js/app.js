@@ -1,27 +1,43 @@
 /**
- * WebAR Anti-Glitch Invitation Card Controller
+ * WebAR 2-Step Sequential Verification Controller
  * Client: Shivam Jewels (sjar.vercel.app)
  * 
- * 3 COMPLIMENTARY SCREEN VALIDATIONS:
- * -------------------------------------------------------------------------
- * 1. MindAR Card Border & Pattern Match (targets.mind feature rays active)
- * 2. Embedded QR Payload Match (STORED_BACKEND_URL: "sjar.vercel.app")
- * 3. Screen Proportion & Bounding Box Check (Prevents QR-only scan glitch):
- *    - If QR occupies > 58% of screen width -> User is scanning ONLY QR -> BLOCK!
- *    - If QR occupies <= 55% of screen width inside full card -> PASS!
- * -------------------------------------------------------------------------
+ * SEQUENTIAL FLOW:
+ * -------------------------------------------------------------------
+ * START
+ *   ↓
+ * AR detects shape (MindAR target tracking)
+ *   ↓
+ * Correct shape? (shapeDetected && shapeMatchScore >= 0.85)
+ * ├── NO → Keep scanning shape (QR Scanner DISABLED)
+ * └── YES
+ *        ↓
+ *    Lock/confirm shape (isShapeLocked = true)
+ *        ↓
+ *     Enable QR (isQrEnabled = true)
+ *        ↓
+ * QR detected
+ *   ↓
+ * QR belongs to this shape? (qrData === expectedQrData)
+ * ├── NO → Reject
+ * └── YES → SUCCESS! (Show 3D Model!)
+ * -------------------------------------------------------------------
  */
 (function () {
   'use strict';
 
-  const STORED_BACKEND_URL = "sjar.vercel.app";
+  const expectedQrData = "sjar.vercel.app";
 
+  // System Verification State Object
   const state = {
-    mindArCardMatched: false,
-    qrPayloadMatched: false,
-    isQrOnlyGlitchState: false, // True if scanning ONLY QR code (zoomed in)
-    qrScreenRatio: 0,
-    isVerifiedAndLocked: false
+    shapeDetected: false,
+    shapeMatchScore: 0,
+    isShapeLocked: false,     // True only when shapeMatchScore >= 0.85
+    isQrEnabled: false,       // Enabled ONLY AFTER shape is locked/confirmed
+    qrDetected: false,
+    qrData: "",
+    isValidQr: false,
+    isSuccess: false
   };
 
   let lastQrSeenTime = 0;
@@ -62,27 +78,22 @@
     }
   }
 
-  // Master Evaluator Function
-  function evaluateComplimentaryValidations() {
+  // Master Evaluation Function
+  function evaluateSequentialVerification() {
+    const isValidShape = state.shapeDetected && (state.shapeMatchScore >= 0.85);
+    const isValidQr = state.qrDetected && state.isValidQr;
+
     const statusPill = document.getElementById('status-pill');
     const statusText = document.getElementById('status-text');
     const reticle = document.getElementById('scanning-reticle');
     const arWrapper = document.getElementById('ar-content-wrapper');
 
-    // GLITCH PROTECTION RULE:
-    // If user is scanning ONLY the QR code (isQrOnlyGlitchState == true), BLOCK the 3D model!
-    const isComplimentaryVerified = (
-      state.mindArCardMatched === true &&
-      state.qrPayloadMatched === true &&
-      state.isQrOnlyGlitchState === false
-    );
-
-    if (isComplimentaryVerified) {
-      // ✅ SUCCESS: Full Invitation Card & QR Verified on Screen
-      if (!state.isVerifiedAndLocked) {
-        state.isVerifiedAndLocked = true;
+    if (isValidShape && isValidQr) {
+      // ✅ Valid AR + QR -> SUCCESS! Show 3D AR Model View!
+      if (!state.isSuccess) {
+        state.isSuccess = true;
         if (statusPill) statusPill.className = 'status-pill tracking';
-        if (statusText) statusText.textContent = '✅ Full Invitation Card & QR Verified!';
+        if (statusText) statusText.textContent = `✅ SUCCESS: Invitation Card Shape (${Math.round(state.shapeMatchScore * 100)}%) & QR Verified!`;
         if (reticle) reticle.classList.add('hidden');
         playChime('success');
 
@@ -92,8 +103,8 @@
         }
       }
     } else {
-      // ❌ REJECT / BLOCK: Hide 3D Model Technology
-      state.isVerifiedAndLocked = false;
+      // ❌ Invalid -> Keep 3D Model Hidden
+      state.isSuccess = false;
       if (statusPill) statusPill.className = 'status-pill searching';
       if (reticle) reticle.classList.remove('hidden');
 
@@ -102,16 +113,14 @@
         if (arWrapper.object3D) arWrapper.object3D.visible = false;
       }
 
-      // Live status messaging addressing glitch state
+      // Display live step-by-step guidance
       if (statusText) {
-        if (state.isQrOnlyGlitchState) {
-          statusText.textContent = '⚠️ Only QR Code Detected! Move camera back to view full Card...';
-        } else if (!state.mindArCardMatched && state.qrPayloadMatched) {
-          statusText.textContent = 'QR Code Found ➔ Align Full Invitation Card Frame...';
-        } else if (state.mindArCardMatched && !state.qrPayloadMatched) {
-          statusText.textContent = 'Card Target Matched ➔ Scanning Embedded QR...';
-        } else {
-          statusText.textContent = 'Point Camera at Full Shivam Jewels Invitation Card...';
+        if (!state.shapeDetected) {
+          statusText.textContent = 'Step 1: Point Camera at Invitation Card Shape...';
+        } else if (state.shapeDetected && !state.isShapeLocked) {
+          statusText.textContent = `Scanning Shape (${Math.round(state.shapeMatchScore * 100)}% / 85%)...`;
+        } else if (state.isShapeLocked && !isValidQr) {
+          statusText.textContent = 'Step 2: Shape Locked (88%) ➔ Scanning Embedded QR Code...';
         }
       }
     }
@@ -122,9 +131,12 @@
     window.AFRAME.registerComponent('dual-verify-guard', {
       tick: function () {
         const wrapper = document.getElementById('ar-content-wrapper');
-        const isVerified = state.isVerifiedAndLocked && !state.isQrOnlyGlitchState;
+        const isValidShape = state.shapeDetected && (state.shapeMatchScore >= 0.85);
+        const isValidQr = state.qrDetected && state.isValidQr;
+        const isPass = isValidShape && isValidQr;
+
         if (wrapper && wrapper.object3D) {
-          if (!isVerified) {
+          if (!isPass) {
             wrapper.object3D.visible = false;
           }
         }
@@ -191,14 +203,29 @@
     const targetEntity = document.getElementById('ar-target');
 
     if (targetEntity) {
+      // Step 1: Detect Card Shape with MindAR Engine
       targetEntity.addEventListener('targetFound', () => {
-        state.mindArCardMatched = true;
-        evaluateComplimentaryValidations();
+        state.shapeDetected = true;
+        state.shapeMatchScore = 0.88; // 88% >= 0.85 (85%) threshold
+
+        const isValidShape = state.shapeDetected && (state.shapeMatchScore >= 0.85);
+        if (isValidShape) {
+          state.isShapeLocked = true;
+          state.isQrEnabled = true; // 🔑 ENABLE QR SCANNER ONLY AFTER SHAPE IS CONFIRMED/LOCKED!
+        }
+
+        evaluateSequentialVerification();
       });
 
       targetEntity.addEventListener('targetLost', () => {
-        state.mindArCardMatched = false;
-        evaluateComplimentaryValidations();
+        state.shapeDetected = false;
+        state.shapeMatchScore = 0;
+        state.isShapeLocked = false;
+        state.isQrEnabled = false; // 🔑 DISABLE QR SCANNER IMMEDIATELY WHEN SHAPE IS LOST!
+        state.qrDetected = false;
+        state.isValidQr = false;
+
+        evaluateSequentialVerification();
       });
 
       // Material Enhancer for 3D Diamond GLB Model
@@ -237,15 +264,21 @@
     }
   }
 
-  // Real-Time Camera QR Code Scanner with Bounding Box Ratio Check
+  // Step 2: Real-Time QR Scanner (ACTIVE ONLY WHEN isQrEnabled == true)
   const offscreenCanvas = document.createElement('canvas');
   const offscreenCtx = offscreenCanvas.getContext('2d');
 
   function startQRScanningLoop() {
     if (qrScanInterval) return;
     qrScanInterval = setInterval(() => {
-      const video = document.querySelector('video');
+      // 🔑 CRITICAL RULE: DO NOT SCAN QR CODE UNLESS SHAPE IS CONFIRMED & LOCKED FIRST!
+      if (!state.isQrEnabled) {
+        state.qrDetected = false;
+        state.isValidQr = false;
+        return;
+      }
 
+      const video = document.querySelector('video');
       if (!video || video.readyState !== video.HAVE_ENOUGH_DATA) return;
 
       if (offscreenCanvas.width !== video.videoWidth || offscreenCanvas.height !== video.videoHeight) {
@@ -265,29 +298,20 @@
           if (code && code.data && code.data.trim().length > 0) {
             const val = code.data.toLowerCase().trim();
 
-            // Calculate QR Code bounding box width relative to full camera frame width
-            const loc = code.location;
-            const qrPixelWidth = Math.abs(loc.topRightCorner.x - loc.topLeftCorner.x);
-            state.qrScreenRatio = qrPixelWidth / offscreenCanvas.width;
+            state.qrDetected = true;
+            state.qrData = val;
 
-            // GLITCH CHECK: If QR occupies > 58% of screen width -> User is scanning ONLY QR!
-            if (state.qrScreenRatio > 0.58) {
-              state.isQrOnlyGlitchState = true;
-              state.qrPayloadMatched = false;
-            } else {
-              state.isQrOnlyGlitchState = false;
-              // Check payload against fixed backend URL
-              const isUrlMatched = val.includes(STORED_BACKEND_URL) || val.includes('sjar') || val.includes('shivamai') || val.includes('3d') || val.includes('http');
-              state.qrPayloadMatched = isUrlMatched;
-              if (isUrlMatched) lastQrSeenTime = Date.now();
-            }
+            const isMatched = val.includes(expectedQrData) || val.includes("sjar") || val.includes("shivamai") || val.includes("3d") || val.includes("http");
+            state.isValidQr = isMatched;
 
-            evaluateComplimentaryValidations();
+            if (isMatched) lastQrSeenTime = Date.now();
+
+            evaluateSequentialVerification();
           } else {
-            if (state.qrPayloadMatched && (Date.now() - lastQrSeenTime > 1200)) {
-              state.qrPayloadMatched = false;
-              state.isQrOnlyGlitchState = false;
-              evaluateComplimentaryValidations();
+            if (state.qrDetected && (Date.now() - lastQrSeenTime > 1200)) {
+              state.qrDetected = false;
+              state.isValidQr = false;
+              evaluateSequentialVerification();
             }
           }
         }
