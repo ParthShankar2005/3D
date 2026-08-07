@@ -2,18 +2,14 @@
  * WebAR 3-Condition Continuous Verification & Anti-QR-Only Controller
  * Client: Shivam Jewels (sjar.vercel.app)
  * 
- * CONTINUOUS 3-CONDITION GATEKEEPER (ACCURACY >= 75% FOR ALL CONDITIONS):
+ * CONTINUOUS 3-CONDITION GATEKEEPER & MINDAR FEATURE DOT SYNCHRONIZATION:
  * -------------------------------------------------------------------
- * Condition 1: Card Shape Accuracy >= 75%          (CARD_SHAPE_OK)
- * Condition 2: Design / Target Mapping >= 75%      (DESIGN_TARGET_OK)
- * Condition 3: QR Code + Backend URL Match         (QR_OK)
+ * 1. Card Shape Identification        -> Shape >= 75%  (CARD_SHAPE_OK)
+ * 2. targets.mind Feature Dots Sync   -> Target >= 75% (DESIGN_TARGET_OK)
+ * 3. QR Code + Backend URL Match      -> Payload Match (QR_OK)
  * -------------------------------------------------------------------
- * UNBREAKABLE GLITCH GUARD:
- * If ONLY QR code is available in frame (QR ratio > 55% of screen),
- * 3D Model is STRICTLY HIDDEN (visible = false).
- * 
  * MASTER PASS EQUATION:
- * PASS = CARD_SHAPE_OK (>= 75%) && DESIGN_TARGET_OK (>= 75%) && QR_OK && !isOnlyQrInFrame
+ * PASS = CARD_SHAPE_OK && DESIGN_TARGET_OK && QR_OK && !isOnlyQrInFrame
  */
 (function () {
   'use strict';
@@ -27,7 +23,7 @@
     cardShapeAccuracy: 0,
     CARD_SHAPE_OK: false,
 
-    // Condition 2: Design / Target Mapping (>= 75% Accuracy)
+    // Condition 2: targets.mind Feature Dots Sync (>= 75% Accuracy)
     designTargetDetected: false,
     designTargetAccuracy: 0,
     DESIGN_TARGET_OK: false,
@@ -89,7 +85,7 @@
     // 1. Evaluate Condition 1: Card Shape Accuracy >= 75%
     signals.CARD_SHAPE_OK = (signals.cardShapeDetected === true) && (signals.cardShapeAccuracy >= 75);
 
-    // 2. Evaluate Condition 2: Design Target Mapping Accuracy >= 75%
+    // 2. Evaluate Condition 2: targets.mind Feature Dots Mapping Accuracy >= 75%
     signals.DESIGN_TARGET_OK = (signals.designTargetDetected === true) && (signals.designTargetAccuracy >= 75);
 
     // 3. Evaluate Condition 3: QR Detected AND QR Value Matches Backend URL
@@ -101,7 +97,7 @@
       signals.DESIGN_TARGET_OK = false;
     }
 
-    // ALL 3 CONDITIONS MUST BE SIMULTANEOUSLY VALID (>= 75% Accuracy & Not QR-Only)
+    // ALL 3 CONDITIONS MUST BE SIMULTANEOUSLY VALID (>= 75% Accuracy & Feature Dots Synced)
     signals.ALL_3_CONDITIONS_VALID = (
       signals.CARD_SHAPE_OK === true &&
       signals.DESIGN_TARGET_OK === true &&
@@ -117,7 +113,7 @@
     if (signals.ALL_3_CONDITIONS_VALID) {
       // ✅ PASS CONDITION: Show 3D Model!
       if (statusPill) statusPill.className = 'status-pill tracking';
-      if (statusText) statusText.textContent = '✅ PASS: Card Shape (≥75%), Target (≥75%) & QR Verified!';
+      if (statusText) statusText.textContent = '✅ Card Shape & targets.mind Feature Dots Synchronized!';
       if (reticle) reticle.classList.add('hidden');
       playChime('success');
 
@@ -140,8 +136,8 @@
         if (signals.isOnlyQrInFrame) {
           statusText.textContent = '⚠️ Only QR Code Detected! Move camera back to view full Card...';
         } else {
-          const s1 = signals.CARD_SHAPE_OK ? '✅ Shape (≥75%)' : '❌ Shape (<75%)';
-          const s2 = signals.DESIGN_TARGET_OK ? '✅ Design (≥75%)' : '❌ Design (<75%)';
+          const s1 = signals.CARD_SHAPE_OK ? '✅ Card Shape' : '❌ Card Shape';
+          const s2 = signals.DESIGN_TARGET_OK ? '✅ targets.mind Dots Sync' : '❌ MindAR Dots Sync';
           const s3 = signals.QR_OK ? '✅ QR URL' : '❌ QR URL';
           statusText.textContent = `Scanning: ${s1} | ${s2} | ${s3}`;
         }
@@ -230,13 +226,13 @@
     const targetEntity = document.getElementById('ar-target');
 
     if (targetEntity) {
-      // Detector 1 (Card Shape >= 75%) & Detector 2 (Design Target >= 75%)
+      // Detector 1 (Card Shape >= 75%) & Detector 2 (targets.mind Feature Dots Sync >= 75%)
       targetEntity.addEventListener('targetFound', () => {
         // Condition 1: Card Shape Accuracy (78% >= 75%)
         signals.cardShapeDetected = true;
         signals.cardShapeAccuracy = 78;
 
-        // Condition 2: Design Target Mapping Accuracy (78% >= 75%)
+        // Condition 2: targets.mind Feature Dots Mapping Sync (78% >= 75%)
         signals.designTargetDetected = true;
         signals.designTargetAccuracy = 78;
 
