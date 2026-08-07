@@ -1,18 +1,17 @@
 /**
- * WebAR MindAR.js & A-Frame Controller for Shivam Jewels
+ * WebAR 2-Step Verification Controller for Shivam Jewels
  * 
- * Target File: f:\SJ 3D\js\app.js
+ * 2-STEP VERIFICATION SEQUENCE:
+ * - STEP 1: QR Code Found -> Decodes & verifies QR value matches stored URL (sjar.vercel.app)
+ * - STEP 2: Card Shape Identified -> Identifies full card shape & pattern using targets.mind
  * 
- * STRICT DUAL-VERIFICATION PIPELINE:
- * Verification 1: QR Code URL match (jsQR scanner matches stored backend URL)
- * Verification 2: MindAR target match (targets.mind matches card pattern)
- * 
- * ONLY when BOTH (isQrMatched && isMindArMatched) == TRUE does the 3D model tech run!
+ * ONLY when BOTH Step 1 (QR Value Match) and Step 2 (Card Shape Identification) pass
+ * does the 3D Model technology & Invitation Card render!
  */
 (function() {
-  let isMindArMatched = false;
-  let isQrMatched = false;
-  let isDualVerified = false;
+  let isStep1_QrMatched = false;      // STEP 1: QR Code decoded & value matched
+  let isStep2_CardShapeMatched = false; // STEP 2: Card shape & pattern identified via targets.mind
+  let is2StepVerified = false;
   let lastQrMatchTime = 0;
   let qrScanInterval = null;
 
@@ -54,8 +53,8 @@
     }
   }
 
-  // Master Dual Verification Evaluator Function
-  function evaluateDualCondition() {
+  // 2-Step Verification Evaluator Function
+  function evaluate2StepVerification() {
     const statusPill = document.getElementById('status-pill');
     const statusText = document.getElementById('status-text');
     const reticle = document.getElementById('scanning-reticle');
@@ -67,13 +66,13 @@
     const bannerPlane = document.getElementById('banner-plane');
     const logoPlane = document.getElementById('logo-plane');
 
-    // STRICT DUAL CONDITION:
-    // Verification 1 (QR Code URL Match) AND Verification 2 (targets.mind Card Match) MUST BOTH BE TRUE!
-    if (isQrMatched && isMindArMatched) {
-      if (!isDualVerified) {
-        isDualVerified = true;
+    // 2-STEP VERIFICATION CONDITION:
+    // Step 1 (QR Value Matched) AND Step 2 (Card Shape Identified via targets.mind)
+    if (isStep1_QrMatched && isStep2_CardShapeMatched) {
+      if (!is2StepVerified) {
+        is2StepVerified = true;
         if (statusPill) statusPill.className = 'status-pill tracking';
-        if (statusText) statusText.textContent = 'Shivam Jewels QR & MindAR Verified!';
+        if (statusText) statusText.textContent = '2-Step Verification Complete! (QR & Card Shape Verified)';
         if (reticle) reticle.classList.add('hidden');
         playSound('found');
 
@@ -87,12 +86,12 @@
         if (targetEntity && targetEntity.object3D) targetEntity.object3D.visible = true;
       }
     } else {
-      if (isDualVerified) {
-        isDualVerified = false;
+      if (is2StepVerified) {
+        is2StepVerified = false;
         if (statusPill) statusPill.className = 'status-pill searching';
         if (reticle) reticle.classList.remove('hidden');
 
-        // Hide 3D invitation card & 3D model technology when dual condition is FALSE
+        // Hide 3D invitation card & 3D model technology
         [gltfModel, modelContainer, cardBackPlane, bannerPlane, logoPlane].forEach(el => {
           if (el) {
             el.setAttribute('visible', 'false');
@@ -101,20 +100,20 @@
         });
       }
 
-      // Live descriptive status message for user
-      if (statusText && !isDualVerified) {
-        if (isMindArMatched && !isQrMatched) {
-          statusText.textContent = 'targets.mind Matched - Scanning QR Code...';
-        } else if (!isMindArMatched && isQrMatched) {
-          statusText.textContent = 'QR URL Matched - Scanning targets.mind...';
+      // Display live 2-step verification progress message for user
+      if (statusText && !is2StepVerified) {
+        if (isStep1_QrMatched && !isStep2_CardShapeMatched) {
+          statusText.textContent = 'Step 1/2 Done: QR Value Matched ➔ Step 2: Align Card Shape...';
+        } else if (!isStep1_QrMatched && isStep2_CardShapeMatched) {
+          statusText.textContent = 'Step 2/2 Done: Card Shape Found ➔ Step 1: Scan QR Code Value...';
         } else {
-          statusText.textContent = 'Scanning Target...';
+          statusText.textContent = 'Scanning Target (Step 1: QR & Step 2: Card Shape)...';
         }
       }
     }
   }
 
-  // Camera permission & start AR click handler
+  // Camera permission & start AR handler
   window.handleStartARClick = function(e) {
     if (e) {
       e.preventDefault();
@@ -169,16 +168,16 @@
   function initApp() {
     const targetEntity = document.getElementById('ar-target');
 
-    // Verification 2 Listener: MindAR targets.mind Pattern Match
+    // STEP 2: Card Shape & Pattern Identification Listener (targets.mind)
     if (targetEntity) {
       targetEntity.addEventListener('targetFound', () => {
-        isMindArMatched = true;
-        evaluateDualCondition();
+        isStep2_CardShapeMatched = true;
+        evaluate2StepVerification();
       });
 
       targetEntity.addEventListener('targetLost', () => {
-        isMindArMatched = false;
-        evaluateDualCondition();
+        isStep2_CardShapeMatched = false;
+        evaluate2StepVerification();
       });
 
       // Material enhancer for 3D GLB model
@@ -217,7 +216,7 @@
     }
   }
 
-  // Verification 1 Scanner: Real-time QR Code URL Match
+  // STEP 1: Real-time Camera QR Code Value Scanner (jsQR)
   const offscreenCanvas = document.createElement('canvas');
   const offscreenCtx = offscreenCanvas.getContext('2d');
 
@@ -249,15 +248,15 @@
             const isMatchingUrl = val.includes('sjar.vercel.app') || val.includes('sjar') || val.includes('shivamai') || val.includes('3d.shivamai.studio');
             if (isMatchingUrl) {
               lastQrMatchTime = Date.now();
-              if (!isQrMatched) {
-                isQrMatched = true;
-                evaluateDualCondition();
+              if (!isStep1_QrMatched) {
+                isStep1_QrMatched = true;
+                evaluate2StepVerification();
               }
             }
           } else {
-            if (isQrMatched && (Date.now() - lastQrMatchTime > 2500)) {
-              isQrMatched = false;
-              evaluateDualCondition();
+            if (isStep1_QrMatched && (Date.now() - lastQrMatchTime > 2500)) {
+              isStep1_QrMatched = false;
+              evaluate2StepVerification();
             }
           }
         }
